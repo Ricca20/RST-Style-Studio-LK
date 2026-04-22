@@ -1,0 +1,97 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "songs": "Songs",
+    "projects": "Projects",
+    "contributors": "Contributors",
+    "services": "Services",
+    "contact": "Contact",
+    "getQuote": "Get a Quote",
+    "login": "Admin Login"
+  },
+  "Hero": {
+    "title": "Welcome to RST Style Studio LK",
+    "subtitle": "Bringing your musical dreams to life. Professional audio and video production in Sri Lanka.",
+    "cta": "Start Your Project"
+  },
+  "Stats": {
+    "songs": "Songs Produced",
+    "projects": "Projects Completed",
+    "contributors": "Artists Collaborated",
+    "years": "Years Experience"
+  },
+  "Common": {
+    "learnMore": "Learn More",
+    "featured": "Featured",
+    "all": "View All",
+    "search": "Search",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "Quote": {
+    "title": "Quotation Wizard",
+    "step1": "Select Service",
+    "step2": "Choose Options",
+    "step3": "Your Info",
+    "step4": "Estimate",
+    "step5": "Confirm",
+    "needsMelody": "I need a fresh melody",
+    "needsInstruments": "I need instrumental music",
+    "needsMusicVideo": "I need a full music video",
+    "isSinhala": "Song is in Sinhala",
+    "budgetEstimate": "Estimated Budget",
+    "sendRequest": "Send Request via WhatsApp"
+  },
+  "Admin": {
+    "dashboard": "Dashboard",
+    "songs": "Manage Songs",
+    "projects": "Manage Projects",
+    "contributors": "Manage Contributors",
+    "quotations": "Quotations",
+    "settings": "Settings",
+    "logout": "Log Out"
+  },
+  "Songs": {
+    "title": "Our Tracks",
+    "latest": "Latest Releases",
+    "listenOn": "Listen On",
+    "genre": "Genre",
+    "releaseYear": "Release Year",
+    "noSongs": "No songs found."
+  },
+  "Contributors": {
+    "title": "Our Collaborators",
+    "bio": "Biography",
+    "roles": "Roles",
+    "noContributors": "No contributors found."
+  },
+  "Projects": {
+    "title": "Our Projects",
+    "client": "Client",
+    "completionDate": "Completion Date",
+    "type": "Type"
+  },
+  "Services": {
+    "title": "Our Services",
+    "basePrice": "Starting from"
+  },
+  "Contact": {
+    "title": "Get in Touch",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "whatsapp": "WhatsApp"
+  },
+  "Footer": {
+    "rights": "All Rights Reserved",
+    "description": "Premium music production studio in Sri Lanka."
+  },
+  "Locale": {
+    "name": "English"
+  }
+}
+  

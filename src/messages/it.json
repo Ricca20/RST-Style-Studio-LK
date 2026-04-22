@@ -1,0 +1,97 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "songs": "Canzoni",
+    "projects": "Progetti",
+    "contributors": "Collaboratori",
+    "services": "Servizi",
+    "contact": "Contatti",
+    "getQuote": "Richiedi Preventivo",
+    "login": "Accesso Admin"
+  },
+  "Hero": {
+    "title": "Benvenuti a RST Style Studio LK",
+    "subtitle": "Diamo vita ai tuoi sogni musicali. Produzione audio e video professionale nello Sri Lanka.",
+    "cta": "Inizia il tuo progetto"
+  },
+  "Stats": {
+    "songs": "Canzoni Prodotte",
+    "projects": "Progetti Completati",
+    "contributors": "Artisti Collaboratori",
+    "years": "Anni di Esperienza"
+  },
+  "Common": {
+    "learnMore": "Scopri di più",
+    "featured": "In evidenza",
+    "all": "Vedi tutto",
+    "search": "Cerca",
+    "loading": "Caricamento...",
+    "error": "Si è verificato un errore",
+    "success": "Successo",
+    "submit": "Invia",
+    "cancel": "Annulla",
+    "save": "Salva"
+  },
+  "Quote": {
+    "title": "Preventivo",
+    "step1": "Scegli il Servizio",
+    "step2": "Scegli le Opzioni",
+    "step3": "I Tuoi Dati",
+    "step4": "Preventivo",
+    "step5": "Conferma",
+    "needsMelody": "Ho bisogno di una nuova melodia",
+    "needsInstruments": "Ho bisogno di musica strumentale",
+    "needsMusicVideo": "Ho bisogno di un video musicale completo",
+    "isSinhala": "La canzone è in Cingalese",
+    "budgetEstimate": "Budget Stimato",
+    "sendRequest": "Invia Richiesta via WhatsApp"
+  },
+  "Admin": {
+    "dashboard": "Bacheca",
+    "songs": "Gestisci Canzoni",
+    "projects": "Gestisci Progetti",
+    "contributors": "Gestisci Collaboratori",
+    "quotations": "Preventivi",
+    "settings": "Impostazioni",
+    "logout": "Esci"
+  },
+  "Songs": {
+    "title": "Le Nostre Tracce",
+    "latest": "Ultime Uscite",
+    "listenOn": "Ascolta Su",
+    "genre": "Genere",
+    "releaseYear": "Anno di Uscita",
+    "noSongs": "Nessuna canzone trovata."
+  },
+  "Contributors": {
+    "title": "I Nostri Collaboratori",
+    "bio": "Biografia",
+    "roles": "Ruoli",
+    "noContributors": "Nessun collaboratore trovato."
+  },
+  "Projects": {
+    "title": "I Nostri Progetti",
+    "client": "Cliente",
+    "completionDate": "Data di Completamento",
+    "type": "Tipo"
+  },
+  "Services": {
+    "title": "I Nostri Servizi",
+    "basePrice": "A partire da"
+  },
+  "Contact": {
+    "title": "Contattaci",
+    "address": "Indirizzo",
+    "phone": "Telefono",
+    "email": "Email",
+    "whatsapp": "WhatsApp"
+  },
+  "Footer": {
+    "rights": "Tutti i Diritti Riservati",
+    "description": "Studio di produzione musicale premium in Sri Lanka."
+  },
+  "Locale": {
+    "name": "Italiano"
+  }
+}
+  

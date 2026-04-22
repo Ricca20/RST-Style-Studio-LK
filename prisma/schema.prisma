@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+model User {
+  id         String   @id @default(uuid())
+  supabaseId String   @unique
+  email      String   @unique
+  name       String?
+  role       Role     @default(ADMIN)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model StudioSettings {
+  id          String   @id @default(uuid())
+  name        String   @default("RST Style Studio LK")
+  email       String?
+  phone       String?
+  whatsapp    String?
+  address     String?
+  facebookUrl String?
+  youtubeUrl  String?
+  spotifyUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Contributor {
+  id            String         @id @default(uuid())
+  nameEn        String
+  nameSi        String
+  nameIt        String?
+  image         String?
+  bioEn         String?
+  bioSi         String?
+  bioIt         String?
+  contributions Contribution[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Song {
+  id            String         @id @default(uuid())
+  titleEn       String
+  titleSi       String
+  titleIt       String?
+  slug          String         @unique
+  coverImage    String?
+  youtubeUrl    String?
+  spotifyUrl    String?
+  genre         String?
+  releaseYear   Int?
+  isFeatured    Boolean        @default(false)
+  contributions Contribution[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+enum ContribRole {
+  VOCALIST
+  MUSIC_DIRECTOR
+  LYRICIST
+  COMPOSER
+  VIDEO_DIRECTOR
+  EDITOR
+  PRODUCER
+}
+
+model Contribution {
+  id            String      @id @default(uuid())
+  songId        String
+  contributorId String
+  role          ContribRole
+  song          Song        @relation(fields: [songId], references: [id], onDelete: Cascade)
+  contributor   Contributor @relation(fields: [contributorId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([songId, contributorId, role])
+}
+
+enum ProjectType {
+  AUDIO
+  VIDEO
+  BRANDING
+  OTHER
+}
+
+model Project {
+  id             String      @id @default(uuid())
+  titleEn        String
+  titleSi        String
+  titleIt        String?
+  slug           String      @unique
+  descriptionEn  String?
+  descriptionSi  String?
+  descriptionIt  String?
+  thumbnail      String?
+  type           ProjectType @default(AUDIO)
+  isFeatured     Boolean     @default(false)
+  clientName     String?
+  completionDate DateTime?
+  images         Json        @default("[]")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model Service {
+  id            String   @id @default(uuid())
+  nameEn        String
+  nameSi        String
+  nameIt        String?
+  descriptionEn String?
+  descriptionSi String?
+  descriptionIt String?
+  icon          String?
+  isActive      Boolean  @default(true)
+  basePrice     Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PricingConfig {
+  id        String   @id @default(uuid())
+  itemKey   String   @unique
+  type      String   // SERVICE, OPTION
+  price     Float
+  currency  String   @default("LKR")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum QuotationStatus {
+  PENDING
+  REVIEWED
+  ACCEPTED
+  REJECTED
+}
+
+model QuotationRequest {
+  id               String          @id @default(uuid())
+  status           QuotationStatus @default(PENDING)
+  name             String
+  phone            String
+  email            String?
+  serviceType      String
+  isSinhala        Boolean         @default(false)
+  needsMelody      Boolean         @default(false)
+  needsInstruments Boolean         @default(false)
+  needsMusicVideo  Boolean         @default(false)
+  estimatedBudget  Float
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model HonoraryMention {
+  id            String    @id @default(uuid())
+  titleEn       String
+  titleSi       String
+  titleIt       String?
+  descriptionEn String?
+  descriptionSi String?
+  descriptionIt String?
+  image         String?
+  givenBy       String?
+  date          DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model SocialCache {
+  id        String   @id @default(uuid())
+  platform  String   @unique // YOUTUBE, FACEBOOK, SPOTIFY
+  data      Json
+  lastSync  DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
