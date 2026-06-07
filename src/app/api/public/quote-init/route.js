@@ -5,8 +5,9 @@ export async function GET() {
   try {
     const services = await prisma.service.findMany({ where: { isActive: true }, orderBy: { basePrice: 'asc' } });
     const pricingConfigs = await prisma.pricingConfig.findMany({ where: { isActive: true } });
+    const settings = await prisma.studioSettings.findFirst();
     
-    return NextResponse.json({ services, pricingConfigs });
+    return NextResponse.json({ services, pricingConfigs, settings });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to initialize quote data' }, { status: 500 });
   }

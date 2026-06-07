@@ -2,80 +2,107 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import LocaleSwitcher from '@/components/shared/LocaleSwitcher';
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const navLinks = [
     { href: '/', label: t('home') },
+    { href: '/about', label: t('about') },
     { href: '/songs', label: t('songs') },
     { href: '/projects', label: t('projects') },
-    { href: '/contributors', label: t('contributors') },
     { href: '/services', label: t('services') },
     { href: '/contact', label: t('contact') },
   ];
 
   return (
-    <header className="bg-white border-b shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
-          <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="text-xl font-bold text-blue-600 tracking-tight">
+    <>
+      {/* Floating Glass Pill Navigation */}
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center w-full pointer-events-none px-4">
+        <nav
+          className={`glass-nav pointer-events-auto w-[90%] md:w-3/4 max-w-5xl rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300 ${
+            scrolled ? 'shadow-xl border-[#9d2bee]/20' : ''
+          }`}
+        >
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3">
+            <img
+              src="/logo.PNG"
+              alt="RST Style Studio"
+              className="h-8 w-8 rounded-full object-cover"
+            />
+            <span className="text-white font-bold text-lg tracking-tight hidden sm:block">
               RST Studio
-            </Link>
-          </div>
-          
-          <nav className="hidden md:flex space-x-6 items-center">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-gray-600 hover:text-blue-600 text-sm font-medium transition">
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          
-          <div className="hidden md:flex items-center space-x-4">
-            <LocaleSwitcher />
-            <Link href="/quote" className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition shadow-sm">
-              {t('getQuote')}
-            </Link>
-          </div>
+            </span>
+          </Link>
 
-          <div className="flex items-center md:hidden gap-4">
-            <LocaleSwitcher />
-            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-600 hover:text-gray-900 focus:outline-none">
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isOpen && (
-        <div className="md:hidden border-t bg-white absolute w-full z-40">
-          <div className="px-2 pt-2 pb-5 space-y-1 sm:px-3 shadow-lg bg-white border-b">
+          {/* Desktop Links */}
+          <div className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link 
-                key={link.href} 
-                href={link.href} 
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                onClick={() => setIsOpen(false)}
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-white/70 hover:text-white text-sm font-medium transition-colors"
               >
                 {link.label}
               </Link>
             ))}
-            <Link 
-              href="/quote" 
-              className="block px-3 py-2 mt-4 mx-2 rounded-md text-base font-medium bg-blue-600 text-white text-center shadow-sm"
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
+            <LocaleSwitcher />
+            <Link
+              href="/contact"
+              className="hidden sm:flex bg-[#9d2bee] hover:bg-[#9d2bee]/90 text-white text-xs font-bold px-5 py-2.5 rounded-full transition-all neon-glow"
+            >
+              Book Session
+            </Link>
+            {/* Mobile Menu Toggle */}
+            <button
+              className="lg:hidden text-white"
+              onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
+            >
+              <span className="material-symbols-outlined">
+                {isOpen ? 'close' : 'menu'}
+              </span>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[45] bg-[#151118]/95 backdrop-blur-md flex flex-col items-center justify-center gap-6 lg:hidden">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-white text-2xl font-bold hover:text-[#9d2bee] transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              {t('getQuote')}
+              {link.label}
             </Link>
-          </div>
+          ))}
+          <Link
+            href="/contact"
+            className="mt-4 bg-[#9d2bee] text-white px-8 py-3 rounded-full font-bold neon-glow"
+            onClick={() => setIsOpen(false)}
+          >
+            Book Session
+          </Link>
         </div>
       )}
-    </header>
+    </>
   );
 }
-  

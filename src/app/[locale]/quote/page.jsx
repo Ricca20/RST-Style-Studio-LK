@@ -11,6 +11,8 @@ export default function QuotePage() {
   const [step, setStep] = useState(1);
   const [services, setServices] = useState([]);
   const [pricingConfigs, setPricingConfigs] = useState([]);
+  const [settings, setSettings] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -26,6 +28,7 @@ export default function QuotePage() {
     fetch('/api/public/quote-init').then(res => res.json()).then(data => {
       if(data.services) setServices(data.services);
       if(data.pricingConfigs) setPricingConfigs(data.pricingConfigs);
+      if(data.settings) setSettings(data.settings);
     }).catch(e => console.error(e));
   }, []);
 
@@ -34,11 +37,33 @@ export default function QuotePage() {
   const handleNext = () => setStep(s => Math.min(s + 1, 3));
   const handlePrev = () => setStep(s => Math.max(s - 1, 1));
 
-  const submitQuote = () => {
-    // This would typically ping /api/quote, save to DB, and optionally redirect to WA
-    const message = `Hello RST Style Studio! I am ${formData.name}. I would like to request a quotation for: ${formData.serviceType || 'Studio Services'}. Estimated budget showing: Rs ${total.toLocaleString()}. Please get back to me. My number is ${formData.phone}.`;
-    const waUrl = buildWhatsAppUrl('+94771234567', message); // Studio Number
-    window.location.assign(waUrl);
+  const submitQuote = async () => {
+    setIsSubmitting(true);
+    try {
+      await fetch('/api/quotations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          serviceType: formData.serviceType || 'Studio Services',
+          needsMelody: formData.needsMelody,
+          needsInstruments: formData.needsInstruments,
+          needsMusicVideo: formData.needsMusicVideo,
+          estimatedBudget: total
+        })
+      });
+      
+      const message = `Hello RST Style Studio! I am ${formData.name}. I would like to request a quotation for: ${formData.serviceType || 'Studio Services'}. Estimated budget showing: Rs ${total.toLocaleString()}. Please get back to me. My number is ${formData.phone}.`;
+      const contactPhone = settings?.contactPhone || '+94771234567';
+      const waUrl = buildWhatsAppUrl(contactPhone, message);
+      window.location.assign(waUrl);
+    } catch (e) {
+      console.error('Submission failed:', e);
+      alert('Failed to submit quote. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -174,10 +199,10 @@ export default function QuotePage() {
             ) : (
               <button 
                 onClick={submitQuote}
-                disabled={!formData.name || !formData.phone}
+                disabled={!formData.name || !formData.phone || isSubmitting}
                 className="bg-[#25D366] hover:bg-green-600 text-white px-8 py-3 rounded-lg font-bold transition flex items-center gap-2 shadow-lg shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <MessageCircle className="w-5 h-5" /> Send via WhatsApp
+                <MessageCircle className="w-5 h-5" /> {isSubmitting ? 'Sending...' : 'Send via WhatsApp'}
               </button>
             )}
           </div>

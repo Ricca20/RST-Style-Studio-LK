@@ -21,7 +21,7 @@ export default async function AdminLayout({ children }) {
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/si/login');
+    redirect('/en/login');
   }
 
   return (

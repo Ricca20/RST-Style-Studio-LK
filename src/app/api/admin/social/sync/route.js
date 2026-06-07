@@ -16,8 +16,8 @@ export async function POST() {
       }),
       prisma.socialCache.createMany({
         data: [
-          { platform: 'YOUTUBE', rawData: ytData, lastSynced: new Date() },
-          { platform: 'FACEBOOK', rawData: fbData, lastSynced: new Date() }
+          { platform: 'YOUTUBE', data: ytData, lastSync: new Date() },
+          { platform: 'FACEBOOK', data: fbData, lastSync: new Date() }
         ]
       })
     ]);

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RST Style Studio - Premium Music Production</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with Config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#9d2bee",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#151118", /* Adjusted to match the dark charcoal from prompt components */
+                        "surface-dark": "#1e1823",
+                    },
+                    fontFamily: {
+                        "display": ["Space Grotesk", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom scrollbar for a premium feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #151118;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #322839;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9d2bee;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white antialiased overflow-x-hidden selection:bg-primary selection:text-white">
+<div class="relative flex min-h-screen w-full flex-col group/design-root">
+<!-- Navigation -->
+<div class="fixed top-0 left-0 right-0 z-50 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-[#322839]">
+<div class="max-w-[1280px] mx-auto px-4 md:px-10 py-3">
+<header class="flex items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-4 text-slate-900 dark:text-white">
+<div class="size-8 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">graphic_eq</span>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] uppercase">RST Style Studio</h2>
+</div>
+<div class="hidden lg:flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#featured">Work</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#services">Services</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#studio">Studio</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#contact">Contact</a>
+</div>
+<div class="flex gap-2">
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-primary hover:bg-primary/90 transition-colors text-white text-sm font-bold tracking-[0.015em]">
+<span class="truncate">Book Session</span>
+</button>
+<button class="flex size-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-[#322839] hover:bg-[#3f3247] transition-colors text-white">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+</div>
+</div>
+<!-- Mobile Menu Icon -->
+<div class="lg:hidden flex items-center">
+<button class="text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+</div>
+</div>
+<!-- Main Content Wrapper -->
+<div class="flex flex-col pt-[64px]">
+<!-- Hero Section -->
+<section class="relative w-full h-[85vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+<!-- Background Image with Gradient Overlay -->
+<div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" data-alt="Dark moody recording studio control room with glowing purple and blue equipment lights" style='background-image: linear-gradient(180deg, rgba(21, 17, 24, 0.7) 0%, rgba(21, 17, 24, 0.4) 50%, rgba(21, 17, 24, 1) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuBiyNK6roiZRYnTOgpMM6XlZujwVnAIQwOrwaB775WOqecVFoVMYJJPeXuqSnaxR9dFpNDPbFkRuvFqvQC82ps0C7mXCq6u6DPVO_Py5RxYnNrhQLtzXsIBv5G3_zhPPegUByHCgw0ay-xZSTNk5b0HAs7R9AEl0DLOi5tsC0d79iFqhvhsmX0OTq7DZAfTP9nHCWNCRSP4YY9jHAZPNarhaSKiJCFE-zcG8GQ3PavlwlYp5LBEE1EO0aaxNpeNuEHBS7JW2gDngDj4");'>
+</div>
+<div class="relative z-10 container mx-auto px-4 flex flex-col items-center justify-center text-center">
+<div class="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 backdrop-blur-sm">
+<span class="size-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-xs font-medium text-primary tracking-wide uppercase">Now Booking Fall 2024</span>
+</div>
+<h1 class="text-white text-5xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-[-0.033em] mb-4 uppercase drop-shadow-2xl">
+                        RST Style<br/><span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500">Studio</span>
+</h1>
+<h2 class="text-gray-300 text-lg md:text-xl max-w-2xl font-normal leading-relaxed mb-10">
+                        Sonic Perfection. Engineered for Impact.<br/>
+                        Elevate your sound with world-class production.
+                    </h2>
+<div class="flex flex-wrap gap-4 justify-center">
+<button class="flex items-center justify-center h-12 px-8 rounded-lg bg-primary hover:bg-primary/90 transition-all hover:scale-105 text-white text-base font-bold tracking-wide shadow-[0_0_20px_rgba(157,43,238,0.3)]">
+                            Book a Session
+                        </button>
+<button class="flex items-center justify-center h-12 px-8 rounded-lg border border-[#322839] bg-[#322839]/50 backdrop-blur-sm hover:bg-[#322839] transition-all text-white text-base font-bold tracking-wide gap-2">
+<span class="material-symbols-outlined text-[20px]">play_circle</span>
+                            Listen to Works
+                        </button>
+</div>
+</div>
+<!-- Abstract decorative element -->
+<div class="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-background-dark to-transparent z-20"></div>
+</section>
+<!-- Featured Release / Media Player -->
+<section class="py-12 md:py-20 px-4 md:px-10 flex justify-center bg-background-light dark:bg-background-dark">
+<div class="max-w-5xl w-full">
+<div class="grid md:grid-cols-2 gap-8 items-center bg-surface-dark/50 border border-[#322839] rounded-2xl p-6 md:p-10 relative overflow-hidden group">
+<!-- Glow effect -->
+<div class="absolute -top-20 -right-20 w-64 h-64 bg-primary/20 rounded-full blur-[100px] pointer-events-none"></div>
+<!-- Content -->
+<div class="flex flex-col gap-6 relative z-10">
+<div>
+<h3 class="text-primary text-sm font-bold uppercase tracking-widest mb-2">Featured Release</h3>
+<h2 class="text-white text-3xl md:text-4xl font-bold leading-tight mb-2">Neon Nights</h2>
+<p class="text-[#ad9db9] text-lg">The Synthwave Collective</p>
+</div>
+<!-- Custom Audio Controls Visualization -->
+<div class="flex flex-col gap-4">
+<div aria-label="Audio waveform visualization" class="flex h-12 items-end gap-1 opacity-80">
+<!-- Fake waveform bars -->
+<div class="w-1 bg-primary h-[40%] rounded-full animate-pulse"></div>
+<div class="w-1 bg-primary h-[70%] rounded-full"></div>
+<div class="w-1 bg-primary h-[100%] rounded-full"></div>
+<div class="w-1 bg-primary h-[50%] rounded-full"></div>
+<div class="w-1 bg-white h-[30%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[60%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[80%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[40%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[20%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[50%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[30%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[60%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[80%] rounded-full opacity-30"></div>
+<div class="w-1 bg-white h-[40%] rounded-full opacity-30"></div>
+</div>
+<div class="flex h-1 items-center bg-[#322839] rounded-full overflow-hidden">
+<div class="w-[35%] h-full bg-primary rounded-full"></div>
+</div>
+<div class="flex items-center justify-between text-xs text-[#ad9db9] font-medium tracking-wide">
+<span>1:17</span>
+<span>3:42</span>
+</div>
+</div>
+<div class="flex items-center gap-6 pt-2">
+<button class="text-[#ad9db9] hover:text-white transition-colors"><span class="material-symbols-outlined text-3xl">skip_previous</span></button>
+<button class="flex items-center justify-center rounded-full size-16 bg-primary hover:bg-primary/90 hover:scale-105 transition-all text-white shadow-lg shadow-primary/40">
+<span class="material-symbols-outlined text-4xl fill-1">play_arrow</span>
+</button>
+<button class="text-[#ad9db9] hover:text-white transition-colors"><span class="material-symbols-outlined text-3xl">skip_next</span></button>
+</div>
+</div>
+<!-- Cover Art -->
+<div class="relative w-full aspect-square md:aspect-auto md:h-full min-h-[300px] rounded-xl overflow-hidden shadow-2xl">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Abstract neon synthesizer artwork with cyan and magenta hues" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD4mFV384J4JKtnipP0MIjceRNusHs5sCcAUs-3ce81Jflkyq5BkZ6zWLD7XQbHfzm0GZWHDe6vkWrRwRhYf7zuOiLoXgHiDRknuut8a0_02u41jBsBXyuhNfiU-KSTGHEuoir64m_RX9EVaLKU-H1rV8zjxHdwr4RnO-yaXmHOAA1dpKaxPz81x8ktHtah3DjT942CTBKmj0wD-hMLa--x03K1fkcw3tCNM9V_x9AaTCXoTj6752bc2GnGpneBuk_IkA7ikF7QxZ4p");'>
+</div>
+<!-- Vinyl texture overlay -->
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] opacity-30 mix-blend-overlay"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Selected Productions Grid -->
+<section class="py-12 px-4 md:px-10 flex justify-center" id="featured">
+<div class="max-w-[1080px] w-full flex flex-col">
+<div class="flex items-center justify-between px-4 pb-8 pt-5 border-b border-[#322839] mb-8">
+<h2 class="text-white text-2xl md:text-3xl font-bold leading-tight tracking-[-0.015em]">Selected Productions</h2>
+<a class="text-primary text-sm font-bold hover:text-white transition-colors flex items-center gap-1" href="#">
+                            View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 p-4">
+<!-- Item 1 -->
+<div class="group flex flex-col gap-4 cursor-pointer">
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-[#322839]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:opacity-60" data-alt="Album cover for Neon Nights showing a retro city skyline" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBudvlG-qu5maGcQWbiKfbYGqevy4Jw41Q1FkN05onY7e5pyWxQqvE4ssgVEabPEX4zKK-NdHQd8ChQ-kiWmiTxoapUdI_R-KZsYm7AqSKND1FV-CfXl6BCzZgOMLfptKN7q4njx9eAvYfBNTuSd-lwadc6Eg9r3cNp4pY02UcAoKi9hfp59SECbNboRTHLaiWp-RCclcz6yvYwWLs7WD6fmcddyo1ve8_x8a4xfmeNMKkUahHW7W_p75M6zVsI0efgCnnFCPOgg8Ta");'>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-white text-5xl drop-shadow-lg">play_circle</span>
+</div>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight truncate">Neon Nights</p>
+<p class="text-[#ad9db9] text-sm font-medium">Synthwave • Produced by RST</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="group flex flex-col gap-4 cursor-pointer">
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-[#322839]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:opacity-60" data-alt="Album cover for Deep Blue showing a jazz saxophone player in silhouette" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBwOd9G5sdTbHSmJyIw_Dw-60jNy3cpo1sbyet-cxwKDNpLJGKaYeeT5oIzsLK-X0PChqK_YRQIS3Res0DkAc1kloNMgKVPpU7nRLuHzhp8tCra64hEC6UvjeLlXO8XQw4V4Yk1AQtny9xMurPB83xJ26mL9CVf8zRNYSOdCbPS3KYxitvOckSlRv8TJTWpa6X3BirjDmZ67XH-tGBnwkmiiCiSA2VvlJdNGxRrTSZAxMZ_0qf3UwStSV24hMAoVDeTpIScJKea6ffr");'>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-white text-5xl drop-shadow-lg">play_circle</span>
+</div>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight truncate">Deep Blue</p>
+<p class="text-[#ad9db9] text-sm font-medium">Jazz Trio • Mixed &amp; Mastered</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="group flex flex-col gap-4 cursor-pointer">
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-[#322839]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:opacity-60" data-alt="Album cover for Urban Echo showing graffiti art" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDi_mUMnHRRDw45egnmerSNnD-KlqDFuKc0X8wKwa8Fs6eYiPTs4UO7kyHvqD0bFijxnAgQlJOO5DXJjEDEjKr-7DnxUwcHLsNrjC63ki9X9xf3QAXcS2mB5hOJn9sKNUZhc3CjJBKgeE8jmuxzFIUc2hcGOr13ESUy8ilf7DKGAqTObKarmmHHobREgMhdHMwFhndwbQ5CWcBqCS_bjh57e3utXPaqM4jBQtOQz3ylOsfflpyOqTDSllSbxIckbOu5RuoTxZNo_1AA");'>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-white text-5xl drop-shadow-lg">play_circle</span>
+</div>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight truncate">Urban Echo</p>
+<p class="text-[#ad9db9] text-sm font-medium">Hip Hop • Vocal Production</p>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="group flex flex-col gap-4 cursor-pointer">
+<div class="relative w-full aspect-square rounded-xl overflow-hidden bg-[#322839]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:opacity-60" data-alt="Album cover for Velvet Soul showing a microphone in soft light" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBfR30VbdLsDGCMu5eImx_DK0ynij1EPKZBR6qjy5dZodMYJ154svGrFKETfPy_bkUoStfyzR8Y6FInEV5TLnnS9-xo1d7JW_VRexLvzhPSzp1yU3XudY7kCzuRlYewB0EqVN1aL7EstDQzNckVtST5bJxKu21oVz-k0rAxvM-QKxrrNqYvAcQnJFxrQvLung90jja8UkO3E15g_sHdj7X5eVQEKnobYKMInXooceKABDbnOYSOUcaw0GBqQNPyKbmuvU1eMUEOpToG");'>
+</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<span class="material-symbols-outlined text-white text-5xl drop-shadow-lg">play_circle</span>
+</div>
+</div>
+<div>
+<p class="text-white text-lg font-bold leading-tight truncate">Velvet Soul</p>
+<p class="text-[#ad9db9] text-sm font-medium">R&amp;B • Full Production</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Services Section -->
+<section class="py-16 bg-surface-dark border-y border-[#322839]" id="services">
+<div class="container mx-auto px-4 md:px-10 max-w-[1080px]">
+<div class="text-center mb-12">
+<h2 class="text-white text-3xl md:text-4xl font-bold mb-4">Studio Services</h2>
+<p class="text-[#ad9db9] max-w-xl mx-auto">From initial concept to final master, we provide industry-standard quality for every stage of your music career.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Service 1 -->
+<div class="bg-background-dark p-8 rounded-2xl border border-[#322839] hover:border-primary transition-all hover:-translate-y-1 group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl">tune</span>
+</div>
+<h3 class="text-white text-xl font-bold mb-3">Mixing &amp; Mastering</h3>
+<p class="text-[#ad9db9] text-sm leading-relaxed">Pristine clarity and punch. We balance your tracks to sound competitive on all streaming platforms.</p>
+</div>
+<!-- Service 2 -->
+<div class="bg-background-dark p-8 rounded-2xl border border-[#322839] hover:border-primary transition-all hover:-translate-y-1 group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl">mic</span>
+</div>
+<h3 class="text-white text-xl font-bold mb-3">Vocal Production</h3>
+<p class="text-[#ad9db9] text-sm leading-relaxed">Industry-grade tuning, timing, and processing to make your vocals sit perfectly in the mix.</p>
+</div>
+<!-- Service 3 -->
+<div class="bg-background-dark p-8 rounded-2xl border border-[#322839] hover:border-primary transition-all hover:-translate-y-1 group">
+<div class="size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl">piano</span>
+</div>
+<h3 class="text-white text-xl font-bold mb-3">Full Production</h3>
+<p class="text-[#ad9db9] text-sm leading-relaxed">Need a beat or instrumentation? Our producers craft custom soundscapes tailored to your vision.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="py-16 px-4 md:px-10 flex justify-center">
+<div class="max-w-[1080px] w-full">
+<h2 class="text-white text-2xl font-bold mb-8 px-4">What Artists Say</h2>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+<div class="bg-[#1e1823]/60 backdrop-blur-sm p-6 rounded-xl border border-[#322839]">
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+</div>
+<p class="text-gray-300 text-sm mb-6 italic">"RST Studio completely transformed my sound. The mixing engineer understood exactly what I was going for. The vibe in the studio is unmatched."</p>
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gray-600 bg-cover bg-center" data-alt="Portrait of artist Sarah J" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCfbINM90UhB5TRQ5fN0ITlMCySHB7TuMwR3-W4BX6GcpU1IiF1M8prJCW6CG_STUy6uV6TjwrGDChz99-IxtEVsMFA1Zd7dYujzkyl9TNBDDuvGBkUP54SEYLNiIc1Ue3305rqBJf-wI_ecXaHi4qBkH3gWwBLjR7MrQY6ldqS-kEj6qx1ehWcAubMUrpW7n20DiWOXDxOh4lywNcXPhBxO3G5wUZQrP8LZmiAMkZcqtnjZkPCDkQV3Zm-U57jbE_dcFcMxYPkyayS");'></div>
+<div>
+<p class="text-white text-sm font-bold">Sarah Jenkins</p>
+<p class="text-xs text-[#ad9db9]">Indie Pop Artist</p>
+</div>
+</div>
+</div>
+<div class="bg-[#1e1823]/60 backdrop-blur-sm p-6 rounded-xl border border-[#322839]">
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+</div>
+<p class="text-gray-300 text-sm mb-6 italic">"Professional, fast, and creative. The beat licensing process was seamless and the stems were high quality. Will definitely work with them again."</p>
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gray-600 bg-cover bg-center" data-alt="Portrait of producer Mike T" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD8TbEMF0fLSrIjFzhYQT5wnzwLUlu_slcqYx8VljdVbCfsZaYvtquictOZb_61ofKtwjuXYrAGp-SVmaWGQBUACyZGmEruJ-FgAJaDQwjEo4kA6HWflhYi6gIJ6pmjawh07cBPZzIRFO9d01ymIX99fSMH2bq3v-2aDD0rMmepvRcAbxSKv9X2RCsiT-eAJ51xVZoV5V6WPaPSUFoeDb4aQNrfoyMM30Bckxjxtq6MXi6ybHL8pL-x5DKWIdhxVUGriY-fp812wbZ0");'></div>
+<div>
+<p class="text-white text-sm font-bold">Mike 'T-Bone'</p>
+<p class="text-xs text-[#ad9db9]">Hip Hop Producer</p>
+</div>
+</div>
+</div>
+<div class="bg-[#1e1823]/60 backdrop-blur-sm p-6 rounded-xl border border-[#322839] hidden lg:block">
+<div class="flex gap-1 text-primary mb-4">
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+</div>
+<p class="text-gray-300 text-sm mb-6 italic">"The mastering service is top tier. My track sounds huge on club systems now. Best investment for my EP launch."</p>
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-gray-600 bg-cover bg-center" data-alt="Portrait of DJ Alex" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBipLa7yJmpOuoP25cRZ3gX3jw8sqhRmDRiJ65FAwiVqd0xvQ6Ia8C492Evfhh8dBePvqg8NOEWJo_ovoM2J3sgqXeyP9d3ISxI1y_iM11y-ygYWG7nbhD94EMJxNQOsuyE74SACQWtrYo9RxIpYNQ3G357uNgdMJJZFHyLMiRcqFCTJjWYK7yX9lPXYLxCV5cukqMAf22zMAsKkN8xbJBZ8D-3oWues3fOGC7tYpCeCarUYIdLVDVlEd5i8cTJWYVVDLDEAh6VnzrX");'></div>
+<div>
+<p class="text-white text-sm font-bold">DJ Alex V</p>
+<p class="text-xs text-[#ad9db9]">Electronic Artist</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-[#0f0c11] border-t border-[#322839] pt-16 pb-8">
+<div class="container mx-auto px-4 md:px-10 max-w-[1280px]">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div class="md:col-span-1">
+<div class="flex items-center gap-2 text-white mb-6">
+<span class="material-symbols-outlined text-3xl text-primary">graphic_eq</span>
+<h2 class="text-xl font-bold tracking-tight">RST STYLE</h2>
+</div>
+<p class="text-[#ad9db9] text-sm leading-relaxed mb-6">
+                                A premium recording and production facility dedicated to crafting sonic perfection for the modern artist.
+                            </p>
+<div class="flex gap-4">
+<a class="text-white hover:text-primary transition-colors text-sm font-bold" href="#">IG</a>
+<a class="text-white hover:text-primary transition-colors text-sm font-bold" href="#">TW</a>
+<a class="text-white hover:text-primary transition-colors text-sm font-bold" href="#">YT</a>
+<a class="text-white hover:text-primary transition-colors text-sm font-bold" href="#">SC</a>
+</div>
+</div>
+<div>
+<h4 class="text-white font-bold mb-4">Studio</h4>
+<ul class="flex flex-col gap-2 text-sm text-[#ad9db9]">
+<li><a class="hover:text-white transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Our Gear</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Engineers</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Gallery</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-4">Services</h4>
+<ul class="flex flex-col gap-2 text-sm text-[#ad9db9]">
+<li><a class="hover:text-white transition-colors" href="#">Mixing</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Mastering</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Vocal Recording</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Beat Store</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-4">Contact</h4>
+<p class="text-[#ad9db9] text-sm mb-2">123 Soundwave Ave<br/>Los Angeles, CA 90028</p>
+<p class="text-[#ad9db9] text-sm mb-4">hello@rststylestudio.com</p>
+<button class="w-full h-10 rounded bg-[#322839] hover:bg-primary text-white text-sm font-bold transition-colors">
+                                Get Directions
+                            </button>
+</div>
+</div>
+<div class="border-t border-[#322839] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-[#ad9db9] text-xs">© 2024 RST Style Studio. All rights reserved.</p>
+<div class="flex gap-6 text-[#ad9db9] text-xs">
+<a class="hover:text-white" href="#">Privacy Policy</a>
+<a class="hover:text-white" href="#">Terms of Service</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>
