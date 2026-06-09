@@ -28,7 +28,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
         className={`${spaceGrotesk.variable} ${notoSans.variable} ${notoSinhala.variable} font-[family-name:var(--font-display)] antialiased bg-[#151118] text-white overflow-x-hidden`}
       >

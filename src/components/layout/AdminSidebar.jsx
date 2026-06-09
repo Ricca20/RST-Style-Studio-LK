@@ -19,10 +19,7 @@ export default function AdminSidebar({ user }) {
   const links = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Songs', href: '/admin/songs', icon: Music },
-    { name: 'Contributors', href: '/admin/contributors', icon: Users },
-    { name: 'Projects', href: '/admin/projects', icon: FileVideo },
     { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare },
-    { name: 'Honorary Mentions', href: '/admin/honorary', icon: Award },
     { name: 'Social Sync', href: '/admin/social', icon: Share2 },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ];

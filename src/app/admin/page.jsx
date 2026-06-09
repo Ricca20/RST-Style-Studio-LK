@@ -3,10 +3,8 @@ import { Music, Users, FileVideo, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  const [songCount, contribCount, projCount, quoteCount] = await Promise.all([
+  const [songCount, quoteCount] = await Promise.all([
     prisma.song.count(),
-    prisma.contributor.count(),
-    prisma.project.count(),
     prisma.quotationRequest.count()
   ]);
 
@@ -16,9 +14,7 @@ export default async function AdminDashboard() {
   });
 
   const statCards = [
-    { title: 'Total Songs', value: songCount, icon: Music, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { title: 'Contributors', value: contribCount, icon: Users, color: 'text-green-600', bg: 'bg-green-100' },
-    { title: 'Projects', value: projCount, icon: FileVideo, color: 'text-purple-600', bg: 'bg-purple-100' },
+    { title: 'Total Songs/Projects', value: songCount, icon: Music, color: 'text-blue-600', bg: 'bg-blue-100' },
     { title: 'Quotations', value: quoteCount, icon: MessageSquare, color: 'text-orange-600', bg: 'bg-orange-100' },
   ];
 

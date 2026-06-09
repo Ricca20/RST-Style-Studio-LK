@@ -30,7 +30,7 @@ export default async function AdminSongs() {
               {songs.length > 0 ? songs.map(song => (
                 <tr key={song.id} className="hover:bg-gray-50 transition">
                   <td className="p-4 font-medium text-gray-900">{song.titleEn}</td>
-                  <td className="p-4 text-gray-600">{song.genre || '-'}</td>
+                  <td className="p-4 text-gray-600">{song.genres && song.genres.length > 0 ? song.genres.join(', ') : '-'}</td>
                   <td className="p-4 text-gray-600">{song.releaseYear || '-'}</td>
                   <td className="p-4">
                     {song.isFeatured ? <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">YES</span> : <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs font-bold">NO</span>}

@@ -16,7 +16,7 @@
  */
 
 /**
- * @typedef {'VOCALIST'|'MUSIC_DIRECTOR'|'LYRICIST'|'COMPOSER'|'VIDEO_DIRECTOR'|'EDITOR'|'PRODUCER'} ContribRole
+ * @typedef {string} ContribRole
  */
 
 /**

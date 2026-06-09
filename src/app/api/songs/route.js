@@ -7,17 +7,19 @@ import { createSlug } from '@/lib/slugify';
 const songSchema = z.object({
   titleEn: z.string().min(1),
   titleSi: z.string().min(1),
-  titleIt: z.string().optional(),
   slug: z.string().optional(),
+  description: z.string().optional().nullable(),
   coverImage: z.string().optional().nullable(),
   youtubeUrl: z.string().optional().nullable(),
   spotifyUrl: z.string().optional().nullable(),
-  genre: z.string().optional().nullable(),
+  facebookUrl: z.string().optional().nullable(),
+  genres: z.array(z.string()).optional(),
   releaseYear: z.number().int().optional().nullable(),
   isFeatured: z.boolean().default(false),
   contributions: z.array(z.object({
-    contributorId: z.string(),
-    role: z.string()
+    name: z.string(),
+    role: z.string(),
+    imageUrl: z.string().optional().nullable()
   })).optional()
 });
 
@@ -32,11 +34,7 @@ export async function GET(request) {
       take: limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        contributions: {
-          include: {
-            contributor: true
-          }
-        }
+        contributions: true
       }
     });
     return NextResponse.json(songs);
@@ -61,18 +59,20 @@ export async function POST(request) {
       data: {
         titleEn: validatedData.titleEn,
         titleSi: validatedData.titleSi,
-        titleIt: validatedData.titleIt,
         slug,
+        description: validatedData.description,
         coverImage: validatedData.coverImage,
         youtubeUrl: validatedData.youtubeUrl,
         spotifyUrl: validatedData.spotifyUrl,
-        genre: validatedData.genre,
+        facebookUrl: validatedData.facebookUrl,
+        genres: validatedData.genres || [],
         releaseYear: validatedData.releaseYear,
         isFeatured: validatedData.isFeatured,
         contributions: validatedData.contributions ? {
           create: validatedData.contributions.map(c => ({
-            contributorId: c.contributorId,
-            role: c.role
+            name: c.name,
+            role: c.role,
+            imageUrl: c.imageUrl
           }))
         } : undefined
       }

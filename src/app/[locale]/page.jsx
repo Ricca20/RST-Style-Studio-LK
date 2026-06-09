@@ -135,7 +135,7 @@ export default async function HomePage({ params }) {
                   {t(firstFeatured, 'title', locale)}
                 </h3>
                 <p className="text-[#9d2bee] font-medium mb-6">
-                  {firstFeatured.genre || 'Original'}
+                  {firstFeatured.genres && firstFeatured.genres.length > 0 ? firstFeatured.genres[0] : 'Original'}
                 </p>
 
                 {/* Waveform Visualization (decorative) */}
@@ -239,18 +239,18 @@ export default async function HomePage({ params }) {
                     <h4 className="text-white text-xl font-bold leading-tight">
                       {t(song, 'title', locale)}
                     </h4>
-                    <p className="text-[#9d2bee] text-sm font-medium mt-1">
-                      {song.contributions?.[0]?.contributor
-                        ? t(song.contributions[0].contributor, 'name', locale)
-                        : song.genre || 'RST Studio'}
-                    </p>
+                      <div className="absolute bottom-4 left-4 bg-[#9d2bee] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                        {song.genres && song.genres.length > 0
+                          ? song.genres[0]
+                          : 'RST Studio'}
+                      </div>
                   </div>
                 </div>
 
                 {/* Default Bottom Gradient (visible when not hovered) */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-5 group-hover:opacity-0 transition-opacity">
                   <h4 className="text-white font-bold text-lg">{t(song, 'title', locale)}</h4>
-                  <p className="text-white/50 text-sm">{song.genre || 'Original'}</p>
+                  <p className="text-white/50 text-sm">{song.genres && song.genres.length > 0 ? song.genres[0] : 'Original'}</p>
                 </div>
               </Link>
             ))}

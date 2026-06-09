@@ -1,0 +1,70 @@
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/db';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export async function POST(request) {
+  try {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const {
+      titleEn, titleSi, slug,
+      description,
+      genres, releaseYear, isFeatured,
+      coverImage, youtubeUrl, spotifyUrl, facebookUrl,
+      images,
+      credits
+    } = body;
+
+    if (!titleEn || !titleSi || !slug) {
+      return NextResponse.json({ error: 'Missing required titles' }, { status: 400 });
+    }
+
+    // Prepare nested create for contributions
+    const contributions = credits && credits.length > 0 
+      ? {
+          create: credits.map(c => ({
+            name: c.name,
+            role: c.role,
+            imageUrl: c.imageUrl || null
+          }))
+        }
+      : undefined;
+
+    const song = await prisma.song.create({
+      data: {
+        titleEn, titleSi, slug,
+        description,
+        genres: genres || [], releaseYear, isFeatured,
+        coverImage, youtubeUrl, spotifyUrl, facebookUrl,
+        images: images || [],
+        contributions
+      }
+    });
+
+    return NextResponse.json(song);
+  } catch (error) {
+    console.error('Error creating song:', error);
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: 'A song with this title/slug already exists' }, { status: 400 });
+    }
+    return NextResponse.json({ error: 'Failed to create song' }, { status: 500 });
+  }
+}

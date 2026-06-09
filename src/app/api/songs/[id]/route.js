@@ -4,41 +4,35 @@ import { checkAuth } from '@/lib/server-auth';
 import { z } from 'zod';
 import { createSlug } from '@/lib/slugify';
 
-const songUpdateSchema = z.object({
-  titleEn: z.string().min(1).optional(),
-  titleSi: z.string().min(1).optional(),
-  titleIt: z.string().optional(),
+const songSchema = z.object({
+  titleEn: z.string().min(1),
+  titleSi: z.string().min(1),
   slug: z.string().optional(),
+  description: z.string().optional().nullable(),
   coverImage: z.string().optional().nullable(),
   youtubeUrl: z.string().optional().nullable(),
   spotifyUrl: z.string().optional().nullable(),
-  genre: z.string().optional().nullable(),
+  facebookUrl: z.string().optional().nullable(),
+  genres: z.array(z.string()).optional(),
   releaseYear: z.number().int().optional().nullable(),
-  isFeatured: z.boolean().optional(),
+  isFeatured: z.boolean().default(false),
   contributions: z.array(z.object({
-    contributorId: z.string(),
-    role: z.string()
+    name: z.string(),
+    role: z.string(),
+    imageUrl: z.string().optional().nullable()
   })).optional()
 });
 
 export async function GET(request, { params }) {
+  const { id } = await params;
   try {
-    const { id } = await params;
     const song = await prisma.song.findUnique({
       where: { id },
       include: {
-        contributions: {
-          include: {
-            contributor: true
-          }
-        }
+        contributions: true
       }
     });
-
-    if (!song) {
-      return NextResponse.json({ error: 'Song not found' }, { status: 404 });
-    }
-
+    if (!song) return NextResponse.json({ error: 'Song not found' }, { status: 404 });
     return NextResponse.json(song);
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch song' }, { status: 500 });
@@ -46,49 +40,51 @@ export async function GET(request, { params }) {
 }
 
 export async function PUT(request, { params }) {
+  const { id } = await params;
   try {
     const user = await checkAuth();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await params;
     const body = await request.json();
-    const validatedData = songUpdateSchema.parse(body);
+    const validatedData = songSchema.parse(body);
 
-    const dataToUpdate = { ...validatedData };
-    if (dataToUpdate.titleEn && !dataToUpdate.slug) {
-      dataToUpdate.slug = createSlug(dataToUpdate.titleEn);
-    }
-
-    // Handle nested contributions if provided
-    let contributionsUpdate;
-    if (dataToUpdate.contributions) {
-      const contributions = dataToUpdate.contributions;
-      delete dataToUpdate.contributions;
-
-      contributionsUpdate = {
-        deleteMany: {}, // Delete existing relations
-        create: contributions.map(c => ({
-          contributorId: c.contributorId,
-          role: c.role
-        }))
-      };
-    }
-
-    const song = await prisma.song.update({
-      where: { id },
-      data: {
-        ...dataToUpdate,
-        ...(contributionsUpdate && { contributions: contributionsUpdate })
-      },
-      include: {
-        contributions: true
+    const song = await prisma.$transaction(async (tx) => {
+      if (validatedData.contributions) {
+        await tx.contribution.deleteMany({ where: { songId: id } });
       }
+
+      return await tx.song.update({
+        where: { id },
+        data: {
+          titleEn: validatedData.titleEn,
+          titleSi: validatedData.titleSi,
+          slug: validatedData.slug || undefined,
+          description: validatedData.description,
+          coverImage: validatedData.coverImage,
+          youtubeUrl: validatedData.youtubeUrl,
+          spotifyUrl: validatedData.spotifyUrl,
+          facebookUrl: validatedData.facebookUrl,
+          genres: validatedData.genres || [],
+          releaseYear: validatedData.releaseYear,
+          isFeatured: validatedData.isFeatured,
+          ...(validatedData.contributions && {
+            contributions: {
+              create: validatedData.contributions.map(c => ({
+                name: c.name,
+                role: c.role,
+                imageUrl: c.imageUrl
+              }))
+            }
+          })
+        }
+      });
     });
 
     return NextResponse.json(song);
   } catch (error) {
+    console.error('Error updating song:', error);
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
     }
@@ -108,8 +104,9 @@ export async function DELETE(request, { params }) {
       where: { id }
     });
 
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error deleting song:', error);
     return NextResponse.json({ error: 'Failed to delete song' }, { status: 500 });
   }
 }

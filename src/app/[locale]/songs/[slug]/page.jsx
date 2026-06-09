@@ -11,7 +11,7 @@ export default async function SongDetailPage({ params }) {
   const song = await prisma.song.findUnique({
     where: { slug },
     include: {
-      contributions: { include: { contributor: true } },
+      contributions: true,
     },
   });
 
@@ -36,9 +36,9 @@ export default async function SongDetailPage({ params }) {
             Portfolio
           </Link>
           <span className="material-symbols-outlined text-base">chevron_right</span>
-          {song.genre && (
+          {song.genres && song.genres.length > 0 && (
             <>
-              <span className="hover:text-[#9d2bee] transition-colors">{song.genre}</span>
+              <span className="hover:text-[#9d2bee] transition-colors">{song.genres[0]}</span>
               <span className="material-symbols-outlined text-base">chevron_right</span>
             </>
           )}
@@ -77,36 +77,23 @@ export default async function SongDetailPage({ params }) {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 leading-tight">
                 {t(song, 'title', locale)}
               </h1>
-              {song.contributions.length > 0 && (
-                <div className="flex items-center gap-3 text-xl text-white/60 font-light">
-                  <span className="material-symbols-outlined">mic_external_on</span>
-                  <span>
-                    {song.contributions.map((c) => t(c.contributor, 'name', locale)).join(', ')}
-                  </span>
-                </div>
-              )}
             </div>
 
-            {/* Role Chips */}
-            <div className="flex flex-wrap gap-3 mb-10">
-              {song.contributions.map((c) => (
-                <div
-                  key={c.id}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-                    c.role === 'PRODUCER'
-                      ? 'bg-[#9d2bee]/20 border border-[#9d2bee]/30 text-[#9d2bee] font-bold uppercase tracking-wide'
-                      : 'bg-[#2a1d35] border border-white/10 text-white/80'
-                  }`}
-                >
-                  {c.role.replace('_', ' ')}
+            {/* Genre Chip */}
+            <div className="flex flex-wrap gap-3 mb-8">
+              {song.genres && song.genres.map(g => (
+                <div key={g} className="px-4 py-1.5 rounded-full bg-[#2a1d35] border border-white/10 text-white/80 text-sm font-medium">
+                  {g}
                 </div>
               ))}
-              {song.genre && (
-                <div className="px-4 py-1.5 rounded-full bg-[#2a1d35] border border-white/10 text-white/80 text-sm font-medium">
-                  {song.genre}
-                </div>
-              )}
             </div>
+            
+            {/* Description */}
+            {song.description && (
+              <div className="mb-10 text-white/70 text-lg leading-relaxed whitespace-pre-wrap">
+                {song.description}
+              </div>
+            )}
 
             {/* Audio Player (visual + embeds) */}
             <div className="bg-[#2a1d35]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-10 shadow-xl">
@@ -168,27 +155,57 @@ export default async function SongDetailPage({ params }) {
                   Watch on YouTube
                 </a>
               )}
+              {song.facebookUrl && (
+                <a
+                  href={song.facebookUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 h-12 px-6 bg-blue-600 text-white font-bold rounded-full transition-all hover:bg-blue-700"
+                >
+                  Watch on Facebook
+                </a>
+              )}
             </div>
 
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/5">
               <div>
                 <p className="text-xs text-white/40 uppercase tracking-widest mb-1">{tSongs('genre')}</p>
-                <p className="text-white font-medium">{song.genre || 'N/A'}</p>
+                <p className="text-white font-medium">{song.genres && song.genres.length > 0 ? song.genres.join(', ') : 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-white/40 uppercase tracking-widest mb-1">{tSongs('releaseYear')}</p>
                 <p className="text-white font-medium">{song.releaseYear || 'N/A'}</p>
               </div>
               <div>
-                <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Credits</p>
-                <p className="text-white font-medium">{song.contributions.length} contributors</p>
-              </div>
-              <div>
                 <p className="text-xs text-white/40 uppercase tracking-widest mb-1">Status</p>
                 <p className="text-white font-medium">{song.isFeatured ? 'Featured' : 'Released'}</p>
               </div>
             </div>
+
+            {/* Full Credits Section */}
+            {song.contributions.length > 0 && (
+              <div className="mt-12 pt-8 border-t border-white/5">
+                <h3 className="text-2xl font-bold text-white mb-6">Full Credits</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {song.contributions.map((c) => (
+                    <div key={c.id} className="flex items-center gap-4 bg-[#2a1d35]/30 p-3 rounded-xl border border-white/5 hover:bg-[#2a1d35] transition-colors">
+                      {c.imageUrl ? (
+                        <img src={c.imageUrl} alt={c.name} className="w-12 h-12 rounded-full object-cover shadow-md" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-[#1a1022] flex items-center justify-center shadow-md">
+                          <span className="material-symbols-outlined text-white/30 text-xl">person</span>
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-bold text-white text-base">{c.name}</p>
+                        <p className="text-[#9d2bee] text-sm font-medium tracking-wide">{c.role}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -240,16 +257,16 @@ export default async function SongDetailPage({ params }) {
                       </div>
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/0 transition-colors" />
-                    {rs.genre && (
+                    {rs.genres && rs.genres.length > 0 && (
                       <div className="absolute bottom-4 left-4 bg-[#9d2bee]/90 text-white text-xs font-bold px-2 py-1 rounded">
-                        {rs.genre}
+                        {rs.genres[0]}
                       </div>
                     )}
                   </div>
                   <h4 className="text-white font-bold text-lg group-hover:text-[#9d2bee] transition-colors">
                     {t(rs, 'title', locale)}
                   </h4>
-                  <p className="text-white/40 text-sm">{rs.genre || 'Original'}</p>
+                  <p className="text-white/40 text-sm">{rs.genres && rs.genres.length > 0 ? rs.genres.join(', ') : 'Original'}</p>
                 </Link>
               ))}
             </div>

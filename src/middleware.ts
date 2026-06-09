@@ -6,7 +6,15 @@ import { createServerClient } from '@supabase/ssr';
 const intlMiddleware = createIntlMiddleware(routing);
 
 export async function middleware(request: NextRequest) {
-  const response = intlMiddleware(request);
+  const path = request.nextUrl.pathname;
+  
+  // Do not run next-intl middleware for admin routes to prevent it from prepending locales (e.g. /en/admin)
+  let response;
+  if (path.startsWith('/admin')) {
+    response = NextResponse.next();
+  } else {
+    response = intlMiddleware(request);
+  }
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,7 +36,7 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
+
   const isAdminRoute = path.startsWith('/admin') || routing.locales.some(locale => path.startsWith(`/${locale}/admin`));
 
   if (isAdminRoute && !user) {

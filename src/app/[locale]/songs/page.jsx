@@ -16,7 +16,7 @@ export default async function SongsPage({ params }) {
   } catch (e) {}
 
   // Extract unique genres for filter pills
-  const genres = [...new Set(songs.map((s) => s.genre).filter(Boolean))];
+  const genres = [...new Set(songs.flatMap((s) => s.genres || []))].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-[#0f0b12] pt-24">
@@ -113,7 +113,9 @@ export default async function SongsPage({ params }) {
                         <p className="text-[#9d2bee] text-sm font-medium mt-1">
                           {song.contributions?.[0]?.contributor
                             ? t(song.contributions[0].contributor, 'name', locale)
-                            : song.genre || 'RST Studio'}
+                            : song.genres && song.genres.length > 0
+                            ? song.genres[0]
+                            : 'RST Studio'}
                         </p>
                       </div>
                       {/* Sound Wave Visual */}
@@ -130,7 +132,7 @@ export default async function SongsPage({ params }) {
                 {/* Default Bottom Bar */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-5 group-hover:opacity-0 transition-opacity">
                   <h4 className="text-white font-bold text-lg">{t(song, 'title', locale)}</h4>
-                  <p className="text-white/50 text-sm">{song.genre || 'Original'}</p>
+                  <p className="text-white/50 text-sm">{song.genres && song.genres.length > 0 ? song.genres.join(', ') : 'Original'}</p>
                 </div>
               </Link>
             ))}

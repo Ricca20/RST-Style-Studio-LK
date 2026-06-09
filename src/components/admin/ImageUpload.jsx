@@ -1,0 +1,78 @@
+'use client';
+import { useState, useRef } from 'react';
+import { uploadImage } from '@/lib/uploadImage';
+import { ImagePlus, Loader2, X } from 'lucide-react';
+
+export default function ImageUpload({ 
+  url, 
+  onUpload, 
+  onRemove, 
+  className = '', 
+  label = "Upload Image",
+  compact = false
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const uploadedUrl = await uploadImage(file);
+      onUpload(uploadedUrl);
+    } catch (error) {
+      alert('Failed to upload image. Make sure the file is an image and less than 5MB.');
+    } finally {
+      setIsUploading(false);
+      // Reset input so the same file can be uploaded again if removed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  if (url) {
+    return (
+      <div className={`relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center ${className}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={url} alt="Uploaded preview" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+            title="Remove image"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className={`border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer flex flex-col items-center justify-center text-gray-500 ${className}`}
+      onClick={() => !isUploading && fileInputRef.current?.click()}
+    >
+      <input 
+        type="file" 
+        accept="image/*" 
+        className="hidden" 
+        ref={fileInputRef} 
+        onChange={handleFileChange}
+        disabled={isUploading}
+      />
+      {isUploading ? (
+        <Loader2 className={`animate-spin text-blue-500 ${compact ? 'w-5 h-5' : 'w-8 h-8 mb-2'}`} />
+      ) : (
+        <ImagePlus className={`${compact ? 'w-5 h-5' : 'w-8 h-8 mb-2'} text-gray-400`} />
+      )}
+      {!compact && (
+        <span className="text-sm font-medium">{isUploading ? 'Uploading...' : label}</span>
+      )}
+    </div>
+  );
+}
