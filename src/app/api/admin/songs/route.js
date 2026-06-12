@@ -25,11 +25,12 @@ export async function POST(request) {
 
     const body = await request.json();
     const {
+      projectType,
       titleEn, titleSi, slug,
       description,
       genres, releaseYear, isFeatured,
       coverImage, youtubeUrl, spotifyUrl, facebookUrl,
-      images,
+      isDraft,
       credits
     } = body;
 
@@ -50,11 +51,11 @@ export async function POST(request) {
 
     const song = await prisma.song.create({
       data: {
+        projectType: projectType || 'SONG',
         titleEn, titleSi, slug,
         description,
-        genres: genres || [], releaseYear, isFeatured,
+        genres: genres || [], releaseYear, isFeatured, isDraft,
         coverImage, youtubeUrl, spotifyUrl, facebookUrl,
-        images: images || [],
         contributions
       }
     });
@@ -63,7 +64,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error creating song:', error);
     if (error.code === 'P2002') {
-      return NextResponse.json({ error: 'A song with this title/slug already exists' }, { status: 400 });
+      return NextResponse.json({ error: `A song with this title already exists. Please choose a different title.` }, { status: 400 });
     }
     return NextResponse.json({ error: 'Failed to create song' }, { status: 500 });
   }

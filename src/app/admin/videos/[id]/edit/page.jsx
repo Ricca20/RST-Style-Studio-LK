@@ -2,10 +2,10 @@ import prisma from '@/lib/db';
 import { redirect } from 'next/navigation';
 import UnifiedSongForm from '@/components/admin/UnifiedSongForm';
 
-export default async function EditSong({ params }) {
+export default async function EditVideo({ params }) {
   const { id } = await params;
   
-  const song = await prisma.song.findUnique({
+  const video = await prisma.song.findUnique({
     where: { id },
     include: {
       contributions: {
@@ -14,9 +14,9 @@ export default async function EditSong({ params }) {
     }
   });
 
-  if (!song || song.projectType !== 'SONG') {
-    redirect('/admin/songs');
+  if (!video || video.projectType !== 'MUSIC_VIDEO') {
+    redirect('/admin/videos');
   }
 
-  return <UnifiedSongForm isEdit={true} initialData={song} />;
+  return <UnifiedSongForm isEdit={true} initialData={video} projectType="MUSIC_VIDEO" />;
 }

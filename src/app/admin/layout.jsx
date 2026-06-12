@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import AdminSidebar from '@/components/layout/AdminSidebar';
+import { Toaster } from 'sonner';
 
 export default async function AdminLayout({ children }) {
   const cookieStore = await cookies();
@@ -32,6 +33,7 @@ export default async function AdminLayout({ children }) {
           {children}
         </main>
       </div>
+      <Toaster position="bottom-right" />
     </div>
   );
 }

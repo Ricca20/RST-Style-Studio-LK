@@ -3,9 +3,10 @@ import { Music, Users, FileVideo, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AdminDashboard() {
-  const [songCount, quoteCount] = await Promise.all([
+  const [songCount, quoteCount, collaboratorCount] = await Promise.all([
     prisma.song.count(),
-    prisma.quotationRequest.count()
+    prisma.quotationRequest.count(),
+    prisma.collaborator.count()
   ]);
 
   const recentQuotes = await prisma.quotationRequest.findMany({
@@ -16,6 +17,7 @@ export default async function AdminDashboard() {
   const statCards = [
     { title: 'Total Songs/Projects', value: songCount, icon: Music, color: 'text-blue-600', bg: 'bg-blue-100' },
     { title: 'Quotations', value: quoteCount, icon: MessageSquare, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { title: 'Collaborators', value: collaboratorCount, icon: Users, color: 'text-purple-600', bg: 'bg-purple-100' },
   ];
 
   return (
@@ -49,7 +51,8 @@ export default async function AdminDashboard() {
             <thead>
               <tr className="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
                 <th className="p-4 font-semibold">Name</th>
-                <th className="p-4 font-semibold">Service</th>
+                <th className="p-4 font-semibold">Genre</th>
+                <th className="p-4 font-semibold">Budget</th>
                 <th className="p-4 font-semibold">Status</th>
                 <th className="p-4 font-semibold">Date</th>
               </tr>
@@ -58,7 +61,8 @@ export default async function AdminDashboard() {
               {recentQuotes.length > 0 ? recentQuotes.map(quote => (
                 <tr key={quote.id} className="hover:bg-gray-50 transition">
                   <td className="p-4 font-medium text-gray-900">{quote.name}</td>
-                  <td className="p-4 text-gray-600">{quote.serviceType}</td>
+                  <td className="p-4 text-gray-600">{quote.genre || '-'}</td>
+                  <td className="p-4 text-gray-900 font-bold">Rs {quote.estimatedBudget?.toLocaleString() || '0'}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                       quote.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
@@ -73,7 +77,7 @@ export default async function AdminDashboard() {
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan="4" className="p-8 text-center text-gray-500">No quotation requests yet.</td>
+                  <td colSpan="5" className="p-8 text-center text-gray-500">No quotation requests yet.</td>
                 </tr>
               )}
             </tbody>

@@ -26,11 +26,12 @@ export async function PUT(request, { params }) {
 
     const body = await request.json();
     const {
+      projectType,
       titleEn, titleSi,
       description,
       genres, releaseYear, isFeatured,
       coverImage, youtubeUrl, spotifyUrl, facebookUrl,
-      images,
+      isDraft,
       credits
     } = body;
 
@@ -60,11 +61,11 @@ export async function PUT(request, { params }) {
       return await tx.song.update({
         where: { id },
         data: {
+          projectType: projectType || 'SONG',
           titleEn, titleSi,
           description,
-          genres: genres || [], releaseYear, isFeatured,
+          genres: genres || [], releaseYear, isFeatured, isDraft,
           coverImage, youtubeUrl, spotifyUrl, facebookUrl,
-          images: images || [],
           contributions
         }
       });
@@ -73,6 +74,41 @@ export async function PUT(request, { params }) {
     return NextResponse.json(updatedSong);
   } catch (error) {
     console.error('Error updating song:', error);
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: `A song with this title already exists. Please choose a different title.` }, { status: 400 });
+    }
     return NextResponse.json({ error: 'Failed to update song' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  const { id } = await params;
+  try {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await prisma.song.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting song:', error);
+    return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
   }
 }

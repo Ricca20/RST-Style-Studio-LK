@@ -1,19 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { checkAuth } from '@/lib/server-auth';
-import { z } from 'zod';
-
-const quotationSchema = z.object({
-  name: z.string().min(1),
-  phone: z.string().min(1),
-  email: z.string().email().optional().nullable(),
-  serviceType: z.string().min(1),
-  isSinhala: z.boolean().default(false),
-  needsMelody: z.boolean().default(false),
-  needsInstruments: z.boolean().default(false),
-  needsMusicVideo: z.boolean().default(false),
-  estimatedBudget: z.number().min(0)
-});
 
 export async function GET(request) {
   try {
@@ -34,17 +21,28 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const validatedData = quotationSchema.parse(body);
+    const { name, phone, email, description, genre, selections, attachments, estimatedBudget } = body;
+
+    if (!name || !phone) {
+      return NextResponse.json({ error: 'Name and phone are required' }, { status: 400 });
+    }
 
     const quotation = await prisma.quotationRequest.create({
-      data: validatedData
+      data: {
+        name: name.trim(),
+        phone: phone.trim(),
+        email: email?.trim() || null,
+        description: description?.trim() || null,
+        genre: genre || null,
+        selections: selections || [],
+        attachments: attachments || [],
+        estimatedBudget: parseFloat(estimatedBudget) || 0
+      }
     });
 
     return NextResponse.json(quotation, { status: 201 });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
-    }
+    console.error('Error creating quotation:', error);
     return NextResponse.json({ error: 'Failed to create quotation' }, { status: 500 });
   }
 }

@@ -1,9 +1,13 @@
 import prisma from '@/lib/db';
 import Link from 'next/link';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit } from 'lucide-react';
+import DeleteButton from '@/components/admin/DeleteButton';
 
 export default async function AdminSongs() {
-  const songs = await prisma.song.findMany({ orderBy: { createdAt: 'desc' } });
+  const songs = await prisma.song.findMany({ 
+    where: { projectType: 'SONG' },
+    orderBy: { createdAt: 'desc' } 
+  });
 
   return (
     <div>
@@ -20,6 +24,7 @@ export default async function AdminSongs() {
             <thead>
               <tr className="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
                 <th className="p-4 font-semibold">Title (EN)</th>
+                <th className="p-4 font-semibold">Status</th>
                 <th className="p-4 font-semibold">Genre</th>
                 <th className="p-4 font-semibold">Year</th>
                 <th className="p-4 font-semibold">Featured</th>
@@ -30,14 +35,17 @@ export default async function AdminSongs() {
               {songs.length > 0 ? songs.map(song => (
                 <tr key={song.id} className="hover:bg-gray-50 transition">
                   <td className="p-4 font-medium text-gray-900">{song.titleEn}</td>
+                  <td className="p-4">
+                    {song.isDraft ? <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">DRAFT</span> : <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">PUBLISHED</span>}
+                  </td>
                   <td className="p-4 text-gray-600">{song.genres && song.genres.length > 0 ? song.genres.join(', ') : '-'}</td>
                   <td className="p-4 text-gray-600">{song.releaseYear || '-'}</td>
                   <td className="p-4">
-                    {song.isFeatured ? <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">YES</span> : <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs font-bold">NO</span>}
+                    {song.isFeatured ? <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">YES</span> : <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs font-bold">NO</span>}
                   </td>
                   <td className="p-4 flex justify-end space-x-3">
-                    <button className="text-gray-400 hover:text-blue-600 transition"><Edit className="w-5 h-5" /></button>
-                    <button className="text-gray-400 hover:text-red-600 transition"><Trash2 className="w-5 h-5" /></button>
+                    <Link href={`/admin/songs/${song.id}/edit`} className="text-gray-400 hover:text-blue-600 transition"><Edit className="w-5 h-5" /></Link>
+                    <DeleteButton id={song.id} title={song.titleEn} />
                   </td>
                 </tr>
               )) : (

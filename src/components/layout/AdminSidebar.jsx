@@ -19,6 +19,7 @@ export default function AdminSidebar({ user }) {
   const links = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     { name: 'Songs', href: '/admin/songs', icon: Music },
+    { name: 'Music Videos', href: '/admin/videos', icon: FileVideo },
     { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare },
     { name: 'Social Sync', href: '/admin/social', icon: Share2 },
     { name: 'Settings', href: '/admin/settings', icon: Settings },

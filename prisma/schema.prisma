@@ -42,18 +42,19 @@ model StudioSettings {
 
 model Song {
   id            String         @id @default(uuid())
+  projectType   String         @default("SONG")
   titleEn       String
   titleSi       String
   slug          String         @unique
   description   String?
   coverImage    String?
-  images        Json           @default("[]")
   youtubeUrl    String?
   spotifyUrl    String?
   facebookUrl   String?
   genres        String[]
   releaseYear   Int?
   isFeatured    Boolean        @default(false)
+  isDraft       Boolean        @default(false)
   contributions Contribution[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -101,6 +102,19 @@ model PricingConfig {
   updatedAt DateTime @updatedAt
 }
 
+model Collaborator {
+  id        String   @id @default(uuid())
+  name      String
+  role      String   // LYRICS, MELODY, MUSIC, MIX_MASTER, LEAD_GUITAR, FLUTE, SITAR, VIOLIN, etc.
+  price     Float
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, role])
+}
+
 enum QuotationStatus {
   PENDING
   REVIEWED
@@ -109,19 +123,19 @@ enum QuotationStatus {
 }
 
 model QuotationRequest {
-  id               String          @id @default(uuid())
-  status           QuotationStatus @default(PENDING)
-  name             String
-  phone            String
-  email            String?
-  serviceType      String
-  isSinhala        Boolean         @default(false)
-  needsMelody      Boolean         @default(false)
-  needsInstruments Boolean         @default(false)
-  needsMusicVideo  Boolean         @default(false)
-  estimatedBudget  Float
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id              String          @id @default(uuid())
+  status          QuotationStatus @default(PENDING)
+  name            String
+  phone           String
+  email           String?
+  description     String?
+  genre           String?
+  selections      Json            @default("[]")
+  attachments     Json            @default("[]")
+  estimatedBudget Float
+  adminNotes      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 
