@@ -21,21 +21,21 @@ export async function PUT(request, { params }) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const { name, role, price, imageUrl, isActive } = body;
+    const { profileId, role, price, isActive } = body;
 
-    if (!name || !role || price == null) {
-      return NextResponse.json({ error: 'Name, role, and price are required' }, { status: 400 });
+    if (!profileId || !role || price == null) {
+      return NextResponse.json({ error: 'Profile, role, and price are required' }, { status: 400 });
     }
 
     const collaborator = await prisma.collaborator.update({
       where: { id },
       data: {
-        name: name.trim(),
+        profileId,
         role,
         price: parseFloat(price),
-        imageUrl: imageUrl || null,
         isActive: isActive ?? true
-      }
+      },
+      include: { profile: true }
     });
 
     return NextResponse.json(collaborator);

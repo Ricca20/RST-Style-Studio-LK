@@ -6,24 +6,35 @@ import { ImagePlus, Loader2, X } from 'lucide-react';
 export default function ImageUpload({ 
   url, 
   onUpload, 
+  onUploadMultiple,
   onRemove, 
   className = '', 
   label = "Upload Image",
-  compact = false
+  compact = false,
+  multiple = false
 }) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
 
     try {
       setIsUploading(true);
-      const uploadedUrl = await uploadImage(file);
-      onUpload(uploadedUrl);
+      if (multiple) {
+        const uploadedUrls = await Promise.all(files.map(f => uploadImage(f)));
+        if (onUploadMultiple) {
+          onUploadMultiple(uploadedUrls);
+        } else {
+          uploadedUrls.forEach(url => onUpload(url));
+        }
+      } else {
+        const uploadedUrl = await uploadImage(files[0]);
+        onUpload(uploadedUrl);
+      }
     } catch (error) {
-      alert('Failed to upload image. Make sure the file is an image and less than 5MB.');
+      alert('Failed to upload image(s). Make sure files are images and less than 5MB.');
     } finally {
       setIsUploading(false);
       // Reset input so the same file can be uploaded again if removed
@@ -60,6 +71,7 @@ export default function ImageUpload({
       <input 
         type="file" 
         accept="image/*" 
+        multiple={multiple}
         className="hidden" 
         ref={fileInputRef} 
         onChange={handleFileChange}

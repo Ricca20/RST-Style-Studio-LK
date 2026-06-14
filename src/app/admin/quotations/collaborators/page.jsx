@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Plus, Edit2, Trash2, Users, DollarSign, X, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
-import ImageUpload from '@/components/admin/ImageUpload';
 
 const ROLE_OPTIONS = [
   { value: 'LYRICS', label: 'Lyrics', emoji: '✍️' },
@@ -36,58 +35,58 @@ export default function CollaboratorsPage() {
   const [editingId, setEditingId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
+  const [profiles, setProfiles] = useState([]);
+  
   // Form state
-  const [formName, setFormName] = useState('');
+  const [formProfileId, setFormProfileId] = useState('');
   const [formRole, setFormRole] = useState('');
   const [formPrice, setFormPrice] = useState('');
-  const [formImage, setFormImage] = useState('');
   const [formActive, setFormActive] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
-  const fetchCollaborators = async () => {
+  const fetchCollaboratorsAndProfiles = async () => {
     try {
-      const res = await fetch('/api/admin/collaborators');
-      if (res.ok) {
-        const data = await res.json();
-        setCollaborators(data);
-      }
+      const [collabRes, profileRes] = await Promise.all([
+        fetch('/api/admin/collaborators'),
+        fetch('/api/admin/profiles')
+      ]);
+      if (collabRes.ok) setCollaborators(await collabRes.json());
+      if (profileRes.ok) setProfiles(await profileRes.json());
     } catch (err) {
-      toast.error('Failed to load collaborators');
+      toast.error('Failed to load data');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchCollaborators(); }, []);
+  useEffect(() => { fetchCollaboratorsAndProfiles(); }, []);
 
   const resetForm = () => {
-    setFormName('');
+    setFormProfileId('');
     setFormRole('');
     setFormPrice('');
-    setFormImage('');
     setFormActive(true);
     setEditingId(null);
     setShowForm(false);
   };
 
   const openEditForm = (collab) => {
-    setFormName(collab.name);
+    setFormProfileId(collab.profileId);
     setFormRole(collab.role);
     setFormPrice(String(collab.price));
-    setFormImage(collab.imageUrl || '');
     setFormActive(collab.isActive);
     setEditingId(collab.id);
     setShowForm(true);
   };
 
   const handleSave = async () => {
-    if (!formName.trim() || !formRole || !formPrice) {
-      toast.error('Name, role, and price are required');
+    if (!formProfileId || !formRole || !formPrice) {
+      toast.error('Profile, role, and price are required');
       return;
     }
     setIsSaving(true);
     try {
-      const payload = { name: formName, role: formRole, price: parseFloat(formPrice), imageUrl: formImage, isActive: formActive };
+      const payload = { profileId: formProfileId, role: formRole, price: parseFloat(formPrice), isActive: formActive };
       const url = editingId ? `/api/admin/collaborators/${editingId}` : '/api/admin/collaborators';
       const method = editingId ? 'PUT' : 'POST';
 
@@ -98,7 +97,7 @@ export default function CollaboratorsPage() {
 
       toast.success(editingId ? 'Collaborator updated' : 'Collaborator added');
       resetForm();
-      startTransition(() => { fetchCollaborators(); });
+      startTransition(() => { fetchCollaboratorsAndProfiles(); });
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -111,9 +110,9 @@ export default function CollaboratorsPage() {
     try {
       const res = await fetch(`/api/admin/collaborators/${deleteTarget.id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      toast.success(`Removed "${deleteTarget.name}"`);
+      toast.success(`Removed "${deleteTarget.profile?.name}"`);
       setDeleteTarget(null);
-      startTransition(() => { fetchCollaborators(); });
+      startTransition(() => { fetchCollaboratorsAndProfiles(); });
     } catch (err) {
       toast.error(err.message);
       setDeleteTarget(null);
@@ -150,10 +149,13 @@ export default function CollaboratorsPage() {
             <button onClick={resetForm} className="text-white/70 hover:text-white transition"><X className="w-5 h-5" /></button>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Name *</label>
-                <input type="text" value={formName} onChange={e => setFormName(e.target.value)} placeholder="e.g. Kasun Perera" className="w-full border-gray-300 border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" />
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Profile *</label>
+                <select value={formProfileId} onChange={e => setFormProfileId(e.target.value)} className="w-full border-gray-300 border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <option value="">Select a Profile...</option>
+                  {profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Role *</label>
@@ -165,17 +167,6 @@ export default function CollaboratorsPage() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Price (LKR) *</label>
                 <input type="number" value={formPrice} onChange={e => setFormPrice(e.target.value)} placeholder="15000" min="0" className="w-full border-gray-300 border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Photo (Optional)</label>
-                {formImage ? (
-                  <div className="flex items-center gap-2">
-                    <img src={formImage} alt="" className="w-10 h-10 rounded-full object-cover" />
-                    <button onClick={() => setFormImage('')} className="text-sm text-red-500 hover:text-red-700">Remove</button>
-                  </div>
-                ) : (
-                  <ImageUpload onUpload={url => setFormImage(url)} compact className="h-10" label="Upload" />
-                )}
               </div>
             </div>
             <div className="flex items-center justify-between mt-5 pt-4 border-t">
@@ -216,15 +207,15 @@ export default function CollaboratorsPage() {
                 {grouped[roleOpt.value].map(person => (
                   <div key={person.id} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
                     <div className="flex items-center gap-4">
-                      {person.imageUrl ? (
-                        <img src={person.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+                      {person.profile?.imageUrl ? (
+                        <img src={person.profile.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                          {person.name.charAt(0).toUpperCase()}
+                          {person.profile?.name?.charAt(0).toUpperCase()}
                         </div>
                       )}
                       <div>
-                        <p className="font-semibold text-gray-900">{person.name}</p>
+                        <p className="font-semibold text-gray-900">{person.profile?.name}</p>
                         <p className="text-sm text-gray-500">
                           {!person.isActive && <span className="text-red-500 font-medium mr-2">Inactive</span>}
                         </p>
@@ -257,7 +248,7 @@ export default function CollaboratorsPage() {
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title="Remove Collaborator"
-        description={deleteTarget ? `Are you sure you want to remove "${deleteTarget.name}" (${getRoleLabel(deleteTarget.role)})? This cannot be undone.` : ''}
+        description={deleteTarget ? `Are you sure you want to remove "${deleteTarget.profile?.name}" (${getRoleLabel(deleteTarget.role)})? This cannot be undone.` : ''}
         confirmText="Remove"
       />
     </div>

@@ -44,13 +44,22 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
 
   // Credits
   const [credits, setCredits] = useState(initialData?.contributions || []);
+  const [creditProfileId, setCreditProfileId] = useState('');
   const [creditName, setCreditName] = useState('');
   const [creditRole, setCreditRole] = useState('');
   const [creditImage, setCreditImage] = useState('');
   const [creditToDelete, setCreditToDelete] = useState(null);
 
+  const [profiles, setProfiles] = useState([]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/admin/profiles').then(res => res.ok && res.json()).then(data => {
+      if (data) setProfiles(data);
+    }).catch(err => console.error(err));
+  }, []);
 
   // Unsaved changes warning
   useEffect(() => {
@@ -73,7 +82,18 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
   };
 
   const handleAddCredit = () => {
-    if (!creditName.trim()) {
+    let finalName = creditName;
+    let finalImage = creditImage;
+    
+    if (creditProfileId) {
+      const p = profiles.find(prof => prof.id === creditProfileId);
+      if (p) {
+        finalName = p.name;
+        finalImage = p.imageUrl || '';
+      }
+    }
+
+    if (!finalName.trim()) {
       toast.error("Credit name is required.");
       return;
     }
@@ -82,15 +102,16 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
       return;
     }
     // Prevent duplicates
-    if (credits.some(c => c.name.toLowerCase() === creditName.trim().toLowerCase() && c.role === creditRole)) {
+    if (credits.some(c => c.name.toLowerCase() === finalName.trim().toLowerCase() && c.role === creditRole)) {
       toast.error("This person is already added with this role.");
       return;
     }
 
     setCredits([
       ...credits, 
-      { name: creditName.trim(), role: creditRole.trim(), imageUrl: creditImage.trim() }
+      { profileId: creditProfileId || null, name: finalName.trim(), role: creditRole.trim(), imageUrl: finalImage }
     ]);
+    setCreditProfileId('');
     setCreditName('');
     setCreditRole('');
     setCreditImage('');
@@ -258,8 +279,8 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
                         {credit.imageUrl ? (
                           <img src={credit.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-gray-400">person</span>
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
+                            {credit.name.charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div>
@@ -282,8 +303,21 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end bg-purple-50 p-4 rounded-xl border border-purple-100">
                 <div className="md:col-span-4">
-                  <label className="block text-xs font-medium text-purple-900 mb-1">Name</label>
-                  <input type="text" value={creditName} onChange={e => setCreditName(e.target.value)} placeholder="e.g. John Doe" className="w-full border-purple-200 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white" />
+                  <label className="block text-xs font-medium text-purple-900 mb-1">Person / Profile</label>
+                  <select 
+                    value={creditProfileId} 
+                    onChange={e => {
+                      setCreditProfileId(e.target.value);
+                      if (e.target.value) setCreditName('');
+                    }} 
+                    className={`w-full border-purple-200 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white ${!creditProfileId ? 'mb-2' : ''}`}
+                  >
+                    <option value="">Custom External Name...</option>
+                    {profiles.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                  </select>
+                  {!creditProfileId && (
+                    <input type="text" value={creditName} onChange={e => setCreditName(e.target.value)} placeholder="e.g. John Doe" className="w-full border-purple-200 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none bg-white" />
+                  )}
                 </div>
                 <div className="md:col-span-3">
                   <label className="block text-xs font-medium text-purple-900 mb-1">Role</label>
@@ -300,7 +334,9 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
                 </div>
                 <div className="md:col-span-3">
                   <label className="block text-xs font-medium text-purple-900 mb-1">Image (Optional)</label>
-                  {creditImage ? (
+                  {creditProfileId ? (
+                    <div className="text-xs text-gray-500 py-2.5 font-medium px-2">Uses profile photo automatically</div>
+                  ) : creditImage ? (
                     <ImageUpload 
                       url={creditImage} 
                       onRemove={() => setCreditImage('')} 
@@ -317,7 +353,7 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
                   )}
                 </div>
                 <div className="md:col-span-2">
-                  <button type="button" onClick={handleAddCredit} disabled={!creditName || !creditRole} className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-lg transition text-sm">
+                  <button type="button" onClick={handleAddCredit} disabled={(!creditName && !creditProfileId) || !creditRole} className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold py-2 px-4 rounded-lg transition text-sm">
                     Add
                   </button>
                 </div>

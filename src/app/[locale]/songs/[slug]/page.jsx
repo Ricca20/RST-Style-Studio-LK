@@ -11,7 +11,9 @@ export default async function SongDetailPage({ params }) {
   const song = await prisma.song.findUnique({
     where: { slug },
     include: {
-      contributions: true,
+      contributions: {
+        include: { profile: true }
+      },
     },
   });
 
@@ -188,21 +190,39 @@ export default async function SongDetailPage({ params }) {
               <div className="mt-12 pt-8 border-t border-white/5">
                 <h3 className="text-2xl font-bold text-white mb-6">Full Credits</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {song.contributions.map((c) => (
-                    <div key={c.id} className="flex items-center gap-4 bg-[#2a1d35]/30 p-3 rounded-xl border border-white/5 hover:bg-[#2a1d35] transition-colors">
-                      {c.imageUrl ? (
-                        <img src={c.imageUrl} alt={c.name} className="w-12 h-12 rounded-full object-cover shadow-md" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-[#1a1022] flex items-center justify-center shadow-md">
-                          <span className="material-symbols-outlined text-white/30 text-xl">person</span>
+                  {song.contributions.map((c) => {
+                    const profileLink = c.profile ? `/profiles/${c.profile.slug}` : null;
+                    const avatarUrl = c.profile?.imageUrl || c.imageUrl;
+                    const displayName = c.profile?.name || c.name;
+
+                    const Content = (
+                      <div className="flex items-center gap-4 bg-[#2a1d35]/30 p-3 rounded-xl border border-white/5 hover:bg-[#2a1d35] transition-colors h-full">
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt={displayName} className="w-12 h-12 rounded-full object-cover shadow-md" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-[#1a1022] flex items-center justify-center shadow-md">
+                            <span className="material-symbols-outlined text-white/30 text-xl">person</span>
+                          </div>
+                        )}
+                        <div>
+                          <p className={`font-bold text-base ${profileLink ? 'text-white group-hover:text-[#9d2bee] transition-colors underline decoration-[#9d2bee]/50 underline-offset-4' : 'text-white'}`}>
+                            {displayName}
+                            {profileLink && <span className="material-symbols-outlined text-sm ml-1 align-middle text-[#9d2bee] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>}
+                          </p>
+                          <p className="text-[#9d2bee] text-sm font-medium tracking-wide">{c.role}</p>
                         </div>
-                      )}
-                      <div>
-                        <p className="font-bold text-white text-base">{c.name}</p>
-                        <p className="text-[#9d2bee] text-sm font-medium tracking-wide">{c.role}</p>
                       </div>
-                    </div>
-                  ))}
+                    );
+
+                    if (profileLink) {
+                      return (
+                        <Link key={c.id} href={profileLink} className="group block">
+                          {Content}
+                        </Link>
+                      );
+                    }
+                    return <div key={c.id} className="block">{Content}</div>;
+                  })}
                 </div>
               </div>
             )}

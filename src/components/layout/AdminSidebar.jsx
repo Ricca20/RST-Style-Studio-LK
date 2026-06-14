@@ -16,8 +16,9 @@ import {
 export default function AdminSidebar({ user }) {
   const pathname = usePathname();
 
-  const links = [
+    const links = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    { name: 'Profiles', href: '/admin/profiles', icon: Users },
     { name: 'Songs', href: '/admin/songs', icon: Music },
     { name: 'Music Videos', href: '/admin/videos', icon: FileVideo },
     { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare },

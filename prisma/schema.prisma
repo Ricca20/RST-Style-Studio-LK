@@ -65,17 +65,37 @@ model Song {
 model Contribution {
   id            String      @id @default(uuid())
   songId        String
+  profileId     String?
   name          String
   role          String
   imageUrl      String?
+  
   song          Song        @relation(fields: [songId], references: [id], onDelete: Cascade)
+  profile       Profile?    @relation(fields: [profileId], references: [id], onDelete: SetNull)
+  
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   @@unique([songId, name, role])
 }
 
+model Profile {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  mainRole    String?
+  bio         String?
+  imageUrl    String?
+  galleryImages String[] @default([])
+  socialLinks Json?
+  isActive    Boolean  @default(true)
 
+  roles       Collaborator[]
+  credits     Contribution[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 model Service {
   id            String   @id @default(uuid())
@@ -104,15 +124,16 @@ model PricingConfig {
 
 model Collaborator {
   id        String   @id @default(uuid())
-  name      String
+  profileId String
   role      String   // LYRICS, MELODY, MUSIC, MIX_MASTER, LEAD_GUITAR, FLUTE, SITAR, VIOLIN, etc.
   price     Float
-  imageUrl  String?
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([name, role])
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, role])
 }
 
 enum QuotationStatus {
