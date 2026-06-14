@@ -6,14 +6,14 @@ import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
-export default function DeleteButton({ id, title }) {
+export default function DeleteButton({ id, title, endpoint = `/api/admin/songs/${id}` }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/admin/songs/${id}`, {
+      const res = await fetch(endpoint, {
         method: 'DELETE',
       });
       

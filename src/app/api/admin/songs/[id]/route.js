@@ -1,26 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { checkAuth, logAuditAction } from '@/lib/server-auth';
 
 export async function PUT(request, { params }) {
   const { id } = await params;
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-        },
-      }
-    );
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    const userContext = await checkAuth();
+    if (!userContext || !userContext.dbUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -71,6 +57,15 @@ export async function PUT(request, { params }) {
       });
     });
 
+    await logAuditAction(
+      userContext.dbUser.id, 
+      'UPDATE_SONG', 
+      'Song', 
+      id, 
+      { title: titleEn }, 
+      request
+    );
+
     return NextResponse.json(updatedSong);
   } catch (error) {
     console.error('Error updating song:', error);
@@ -84,27 +79,28 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   const { id } = await params;
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll();
-          },
-        },
-      }
-    );
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    const userContext = await checkAuth();
+    if (!userContext || !userContext.dbUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    await prisma.song.delete({
-      where: { id }
+    const song = await prisma.song.findUnique({ where: { id }, select: { titleEn: true } });
+
+    await prisma.song.update({
+      where: { id },
+      data: { deletedAt: new Date() }
     });
+
+    if (song) {
+      await logAuditAction(
+        userContext.dbUser.id, 
+        'DELETE_SONG', 
+        'Song', 
+        id, 
+        { title: song.titleEn }, 
+        request
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

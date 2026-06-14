@@ -10,7 +10,10 @@ import {
   Settings,
   LogOut,
   Award,
-  Share2
+  Share2,
+  Shield,
+  Image as ImageIcon,
+  Trash2
 } from 'lucide-react';
 
 export default function AdminSidebar({ user }) {
@@ -22,8 +25,10 @@ export default function AdminSidebar({ user }) {
     { name: 'Songs', href: '/admin/songs', icon: Music },
     { name: 'Music Videos', href: '/admin/videos', icon: FileVideo },
     { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare },
-    { name: 'Social Sync', href: '/admin/social', icon: Share2 },
+    { name: 'Media Library', href: '/admin/media', icon: ImageIcon },
+    { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
+    { name: 'Trash Bin', href: '/admin/trash', icon: Trash2 },
   ];
 
   const handleLogout = async () => {

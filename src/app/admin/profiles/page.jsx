@@ -1,11 +1,79 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus, Edit2, Trash2, Users, X, Save, Link as LinkIcon, Globe, Camera, PlaySquare } from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import ImageUpload from '@/components/admin/ImageUpload';
+import AdminSearchFilter from '@/components/admin/AdminSearchFilter';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortableProfileCard({ profile, onToggleActive, onEdit, onDelete }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: profile.id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    position: 'relative'
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className={`bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col ${!profile.isActive ? 'opacity-60 grayscale' : ''} ${isDragging ? 'shadow-2xl scale-105' : ''}`}>
+      <div className="p-2 bg-gray-50 border-b flex justify-center cursor-grab active:cursor-grabbing text-gray-400" {...attributes} {...listeners}>
+        <div className="w-10 h-1.5 bg-gray-300 rounded-full"></div>
+      </div>
+      <div className="p-6 flex gap-4">
+        {profile.imageUrl ? (
+          <img src={profile.imageUrl} alt="" className="w-16 h-16 rounded-full object-cover shrink-0 border" />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl shrink-0">
+            {profile.name.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-gray-900 truncate">{profile.name}</h3>
+          <p className="text-xs text-blue-600 mb-1 truncate">{profile.mainRole || 'Contributor'}</p>
+          <div className="flex gap-2 text-gray-400 mt-2">
+            {profile.socialLinks?.facebook && <Globe className="w-3.5 h-3.5" />}
+            {profile.socialLinks?.instagram && <Camera className="w-3.5 h-3.5" />}
+            {profile.socialLinks?.youtube && <PlaySquare className="w-3.5 h-3.5" />}
+            {profile.socialLinks?.spotify && <LinkIcon className="w-3.5 h-3.5" />}
+          </div>
+        </div>
+      </div>
+      <div className="px-6 pb-4 flex-1">
+        <p className="text-sm text-gray-600 line-clamp-3">{profile.bio || 'No bio provided.'}</p>
+      </div>
+      <div className="bg-gray-50 border-t px-6 py-3 flex items-center justify-between">
+        <label className="flex items-center cursor-pointer" onPointerDown={e => e.stopPropagation()}>
+          <div className="relative">
+            <input 
+              type="checkbox" 
+              className="sr-only" 
+              checked={profile.isActive} 
+              onChange={() => onToggleActive(profile)} 
+            />
+            <div className={`block w-10 h-6 rounded-full transition-colors ${profile.isActive ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+            <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${profile.isActive ? 'transform translate-x-4' : ''}`}></div>
+          </div>
+          <span className="ml-3 text-xs font-medium text-gray-600">{profile.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+        </label>
+        <div className="flex items-center gap-2" onPointerDown={e => e.stopPropagation()}>
+          <button onClick={() => onEdit(profile)} className="text-gray-500 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg text-sm flex items-center font-medium">
+            <Edit2 className="w-3.5 h-3.5 mr-1" /> Edit
+          </button>
+          <button onClick={() => onDelete(profile)} className="text-gray-500 hover:text-red-600 transition p-1.5 hover:bg-red-50 rounded-lg text-sm flex items-center font-medium">
+            <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const PREDEFINED_ROLES = [
   'Artist', 'Vocalist', 'Lyricist', 'Melody', 'Music', 'Mix & Mastering',
@@ -15,6 +83,7 @@ const PREDEFINED_ROLES = [
 
 export default function AdminProfilesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -148,6 +217,48 @@ export default function AdminProfilesPage() {
     }
   };
 
+  // Filtering Logic
+  const searchQuery = searchParams.get('search')?.toLowerCase() || '';
+  const statusFilter = searchParams.get('status') || 'ALL';
+
+  const filteredProfiles = profiles.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery);
+    let matchesStatus = true;
+    if (statusFilter === 'ACTIVE') matchesStatus = p.isActive;
+    if (statusFilter === 'INACTIVE') matchesStatus = !p.isActive;
+    return matchesSearch && matchesStatus;
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = profiles.findIndex(p => p.id === active.id);
+      const newIndex = profiles.findIndex(p => p.id === over.id);
+      const newOrder = arrayMove(profiles, oldIndex, newIndex);
+      setProfiles(newOrder);
+
+      const items = newOrder.map((p, idx) => ({ id: p.id, sortOrder: idx }));
+
+      try {
+        const res = await fetch('/api/admin/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'PROFILE', items })
+        });
+        if (!res.ok) throw new Error('Failed to save new order');
+        toast.success('Profile order saved');
+      } catch (err) {
+        toast.error('Failed to save order');
+        fetchProfiles();
+      }
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -162,6 +273,14 @@ export default function AdminProfilesPage() {
           <Plus className="w-5 h-5 mr-2" /> Add Profile
         </button>
       </div>
+
+      <AdminSearchFilter 
+        placeholder="Search profiles by name..." 
+        statusOptions={[
+          { value: 'ACTIVE', label: 'Active' },
+          { value: 'INACTIVE', label: 'Inactive' }
+        ]}
+      />
 
       {/* Add/Edit Form Panel */}
       {showForm && (
@@ -299,65 +418,29 @@ export default function AdminProfilesPage() {
       {/* Profiles Grid */}
       {loading ? (
         <div className="text-center py-20 text-gray-400">Loading profiles...</div>
-      ) : profiles.length === 0 ? (
+      ) : filteredProfiles.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
           <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-gray-700 mb-2">No profiles yet</h3>
-          <p className="text-gray-500 mb-4">Add your core team members so they can be assigned to songs and quotations.</p>
+          <h3 className="text-lg font-bold text-gray-700 mb-2">No profiles found</h3>
+          <p className="text-gray-500 mb-4">Add your core team members so they can be assigned to songs and quotations, or adjust your search.</p>
           <button onClick={() => setShowForm(true)} className="text-blue-600 font-medium hover:underline">Add First Profile</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {profiles.map(profile => (
-            <div key={profile.id} className={`bg-white rounded-xl shadow-sm border overflow-hidden flex flex-col ${!profile.isActive ? 'opacity-60 grayscale' : ''}`}>
-              <div className="p-6 flex gap-4">
-                {profile.imageUrl ? (
-                  <img src={profile.imageUrl} alt="" className="w-16 h-16 rounded-full object-cover shrink-0 border" />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl shrink-0">
-                    {profile.name.charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 truncate">{profile.name}</h3>
-                  <p className="text-xs text-blue-600 mb-1 truncate">{profile.mainRole || 'Contributor'}</p>
-                  <div className="flex gap-2 text-gray-400 mt-2">
-                    {profile.socialLinks?.facebook && <Globe className="w-3.5 h-3.5" />}
-                    {profile.socialLinks?.instagram && <Camera className="w-3.5 h-3.5" />}
-                    {profile.socialLinks?.youtube && <PlaySquare className="w-3.5 h-3.5" />}
-                    {profile.socialLinks?.spotify && <LinkIcon className="w-3.5 h-3.5" />}
-                  </div>
-                </div>
-              </div>
-              <div className="px-6 pb-4 flex-1">
-                <p className="text-sm text-gray-600 line-clamp-3">{profile.bio || 'No bio provided.'}</p>
-              </div>
-              <div className="bg-gray-50 border-t px-6 py-3 flex items-center justify-between">
-                <label className="flex items-center cursor-pointer">
-                  <div className="relative">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only" 
-                      checked={profile.isActive} 
-                      onChange={() => handleToggleActive(profile)} 
-                    />
-                    <div className={`block w-10 h-6 rounded-full transition-colors ${profile.isActive ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-                    <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${profile.isActive ? 'transform translate-x-4' : ''}`}></div>
-                  </div>
-                  <span className="ml-3 text-xs font-medium text-gray-600">{profile.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => openEditForm(profile)} className="text-gray-500 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg text-sm flex items-center font-medium">
-                    <Edit2 className="w-3.5 h-3.5 mr-1" /> Edit
-                  </button>
-                  <button onClick={() => setDeleteTarget(profile)} className="text-gray-500 hover:text-red-600 transition p-1.5 hover:bg-red-50 rounded-lg text-sm flex items-center font-medium">
-                    <Trash2 className="w-3.5 h-3.5 mr-1" /> Delete
-                  </button>
-                </div>
-              </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={filteredProfiles.map(p => p.id)} strategy={rectSortingStrategy}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProfiles.map(profile => (
+                <SortableProfileCard 
+                  key={profile.id} 
+                  profile={profile} 
+                  onToggleActive={handleToggleActive} 
+                  onEdit={openEditForm} 
+                  onDelete={setDeleteTarget} 
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       <ConfirmModal

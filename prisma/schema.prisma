@@ -6,12 +6,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 enum Role {
   SUPER_ADMIN
   ADMIN
+  EDITOR
+  VIEWER
 }
 
 model User {
@@ -22,18 +24,63 @@ model User {
   role       Role     @default(ADMIN)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  auditLogs  AuditLog[]
 }
 
 model StudioSettings {
   id          String   @id @default(uuid())
+  // General & Business Identity
   name        String   @default("RST Style Studio LK")
   email       String?
   phone       String?
   whatsapp    String?
   address     String?
+  maintenanceMode Boolean @default(false)
+  defaultCurrency String  @default("LKR")
+  
+  // Social Links
   facebookUrl String?
   youtubeUrl  String?
   spotifyUrl  String?
+  instagramUrl String?
+  tiktokUrl   String?
+  xUrl        String?
+
+  // SEO & Sharing
+  metaTitle       String?
+  metaDescription String?
+  ogImageUrl      String?
+
+  // Analytics & Marketing
+  googleAnalyticsId String?
+  facebookPixelId   String?
+
+  // Theme & Aesthetics
+  accentColor      String? @default("#9d2bee")
+  enableAnimations Boolean @default(true)
+
+  // Advanced Integrations
+  adminAlertEmail  String?
+  whatsappApiToken String?
+  aiPromptContext  String?
+
+  // Additional Business & Booking Settings
+  bookingStatus         String  @default("AVAILABLE") // e.g. AVAILABLE, BUSY, AWAY
+  minimumQuotationBudget Float   @default(0)
+  taxRate               Float   @default(0) // Percentage
+
+  // Additional Content & Feature Toggles
+  enableMultiLanguage   Boolean @default(true)
+  enableLiveChat        Boolean @default(false)
+  displayClientReviews  Boolean @default(true)
+
+  // Additional Media Settings
+  autoPlayMusic         Boolean @default(false)
+
+  // Customization
+  footerText            String?
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -58,6 +105,7 @@ model Song {
   contributions Contribution[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
 }
 
 
@@ -93,8 +141,10 @@ model Profile {
   roles       Collaborator[]
   credits     Contribution[]
 
+  sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
 }
 
 model Service {
@@ -108,8 +158,10 @@ model Service {
   icon          String?
   isActive      Boolean  @default(true)
   basePrice     Float?
+  sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
 }
 
 model PricingConfig {
@@ -157,6 +209,7 @@ model QuotationRequest {
   adminNotes      String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+  deletedAt       DateTime?
 }
 
 
@@ -168,4 +221,18 @@ model SocialCache {
   lastSync  DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String   // e.g., "UPDATE_SETTINGS", "CREATE_SONG"
+  entity      String   // e.g., "Settings", "Song"
+  entityId    String?  // ID of the affected entity
+  details     Json?    // Specific changes or context
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+  deletedAt   DateTime?
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 }

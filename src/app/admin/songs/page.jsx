@@ -1,61 +1,66 @@
 import prisma from '@/lib/db';
 import Link from 'next/link';
-import { Plus, Edit } from 'lucide-react';
-import DeleteButton from '@/components/admin/DeleteButton';
+import { Plus } from 'lucide-react';
 
-export default async function AdminSongs() {
-  const songs = await prisma.song.findMany({ 
-    where: { projectType: 'SONG' },
-    orderBy: { createdAt: 'desc' } 
-  });
+import AdminSearchFilter from '@/components/admin/AdminSearchFilter';
+import AdminPagination from '@/components/admin/AdminPagination';
+import AdminSongsTable from '@/components/admin/AdminSongsTable';
+
+export default async function AdminSongs({ searchParams }) {
+  const params = await searchParams;
+  const search = params?.search || '';
+  const status = params?.status || 'ALL';
+  const page = parseInt(params?.page || '1');
+  const pageSize = 15;
+
+  const where = { 
+    projectType: 'SONG',
+    deletedAt: null 
+  };
+  
+  if (search) {
+    where.OR = [
+      { titleEn: { contains: search, mode: 'insensitive' } },
+      { titleSi: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+
+  if (status === 'PUBLISHED') {
+    where.isDraft = false;
+  } else if (status === 'DRAFT') {
+    where.isDraft = true;
+  }
+
+  const [songs, totalCount] = await Promise.all([
+    prisma.song.findMany({ 
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize
+    }),
+    prisma.song.count({ where })
+  ]);
 
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Manage Songs</h1>
-        <Link href="/admin/songs/new" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center transition shadow-sm">
+        <Link href="/admin/songs/new" className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium flex items-center transition shadow-sm">
           <Plus className="w-5 h-5 mr-2" /> Add Song
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 text-gray-500 text-sm uppercase tracking-wider">
-                <th className="p-4 font-semibold">Title (EN)</th>
-                <th className="p-4 font-semibold">Status</th>
-                <th className="p-4 font-semibold">Genre</th>
-                <th className="p-4 font-semibold">Year</th>
-                <th className="p-4 font-semibold">Featured</th>
-                <th className="p-4 font-semibold text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {songs.length > 0 ? songs.map(song => (
-                <tr key={song.id} className="hover:bg-gray-50 transition">
-                  <td className="p-4 font-medium text-gray-900">{song.titleEn}</td>
-                  <td className="p-4">
-                    {song.isDraft ? <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-xs font-bold">DRAFT</span> : <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">PUBLISHED</span>}
-                  </td>
-                  <td className="p-4 text-gray-600">{song.genres && song.genres.length > 0 ? song.genres.join(', ') : '-'}</td>
-                  <td className="p-4 text-gray-600">{song.releaseYear || '-'}</td>
-                  <td className="p-4">
-                    {song.isFeatured ? <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">YES</span> : <span className="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs font-bold">NO</span>}
-                  </td>
-                  <td className="p-4 flex justify-end space-x-3">
-                    <Link href={`/admin/songs/${song.id}/edit`} className="text-gray-400 hover:text-blue-600 transition"><Edit className="w-5 h-5" /></Link>
-                    <DeleteButton id={song.id} title={song.titleEn} />
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan="5" className="p-8 text-center text-gray-500">No songs found in database.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      <AdminSearchFilter 
+        placeholder="Search songs by title..." 
+        statusOptions={[
+          { value: 'PUBLISHED', label: 'Published' },
+          { value: 'DRAFT', label: 'Drafts' }
+        ]}
+      />
+
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-8">
+        <AdminSongsTable songs={songs} />
+        <AdminPagination totalCount={totalCount} pageSize={pageSize} currentPage={page} />
       </div>
     </div>
   );

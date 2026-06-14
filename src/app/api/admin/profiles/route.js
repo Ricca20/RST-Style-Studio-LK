@@ -9,7 +9,8 @@ export async function GET() {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const profiles = await prisma.profile.findMany({
-      orderBy: { name: 'asc' },
+      where: { deletedAt: null },
+      orderBy: { sortOrder: 'asc' },
     });
     return NextResponse.json(profiles);
   } catch (error) {

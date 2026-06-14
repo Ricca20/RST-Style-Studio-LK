@@ -2,6 +2,7 @@
 import { useState, useRef } from 'react';
 import { uploadImage } from '@/lib/uploadImage';
 import { ImagePlus, Loader2, X } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 
 export default function ImageUpload({ 
   url, 
@@ -16,6 +17,26 @@ export default function ImageUpload({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
+  const optimizeImage = async (file) => {
+    if (file.type === 'image/svg+xml' || file.type === 'image/gif') return file;
+    
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      fileType: 'image/webp'
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      const newFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+      return new File([compressedFile], newFileName, { type: 'image/webp' });
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      return file;
+    }
+  };
+
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -23,21 +44,22 @@ export default function ImageUpload({
     try {
       setIsUploading(true);
       if (multiple) {
-        const uploadedUrls = await Promise.all(files.map(f => uploadImage(f)));
+        const optimizedFiles = await Promise.all(files.map(f => optimizeImage(f)));
+        const uploadedUrls = await Promise.all(optimizedFiles.map(f => uploadImage(f)));
         if (onUploadMultiple) {
           onUploadMultiple(uploadedUrls);
         } else {
           uploadedUrls.forEach(url => onUpload(url));
         }
       } else {
-        const uploadedUrl = await uploadImage(files[0]);
+        const optimizedFile = await optimizeImage(files[0]);
+        const uploadedUrl = await uploadImage(optimizedFile);
         onUpload(uploadedUrl);
       }
     } catch (error) {
       alert('Failed to upload image(s). Make sure files are images and less than 5MB.');
     } finally {
       setIsUploading(false);
-      // Reset input so the same file can be uploaded again if removed
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }

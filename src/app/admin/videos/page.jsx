@@ -3,9 +3,30 @@ import Link from 'next/link';
 import { Plus, Edit } from 'lucide-react';
 import DeleteButton from '@/components/admin/DeleteButton';
 
-export default async function AdminVideos() {
+import AdminSearchFilter from '@/components/admin/AdminSearchFilter';
+
+export default async function AdminVideos({ searchParams }) {
+  const params = await searchParams;
+  const search = params?.search || '';
+  const status = params?.status || 'ALL';
+
+  const where = { projectType: 'MUSIC_VIDEO' };
+
+  if (search) {
+    where.OR = [
+      { titleEn: { contains: search, mode: 'insensitive' } },
+      { titleSi: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+
+  if (status === 'PUBLISHED') {
+    where.isDraft = false;
+  } else if (status === 'DRAFT') {
+    where.isDraft = true;
+  }
+
   const videos = await prisma.song.findMany({ 
-    where: { projectType: 'MUSIC_VIDEO' },
+    where,
     orderBy: { createdAt: 'desc' } 
   });
 
@@ -17,6 +38,14 @@ export default async function AdminVideos() {
           <Plus className="w-5 h-5 mr-2" /> Add Video
         </Link>
       </div>
+
+      <AdminSearchFilter 
+        placeholder="Search videos by title..." 
+        statusOptions={[
+          { value: 'PUBLISHED', label: 'Published' },
+          { value: 'DRAFT', label: 'Drafts' }
+        ]}
+      />
 
       <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">

@@ -1,10 +1,13 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDown, ChevronUp, MessageCircle, Mail, Users, Send, X, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import AdminSearchFilter from '@/components/admin/AdminSearchFilter';
+import AdminPagination from '@/components/admin/AdminPagination';
+import * as XLSX from 'xlsx';
 
 const STATUS_COLORS = {
   PENDING: 'bg-yellow-100 text-yellow-700',
@@ -15,8 +18,10 @@ const STATUS_COLORS = {
 
 export default function AdminQuotationsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [quotations, setQuotations] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [replyModal, setReplyModal] = useState(null);
@@ -24,12 +29,17 @@ export default function AdminQuotationsPage() {
   const [replySubject, setReplySubject] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  const page = parseInt(searchParams.get('page') || '1');
+  const pageSize = 15;
+
   const fetchQuotations = async () => {
     try {
-      const res = await fetch('/api/quotations');
+      setLoading(true);
+      const res = await fetch(`/api/quotations?page=${page}&limit=${pageSize}`);
       if (res.ok) {
-        const data = await res.json();
-        setQuotations(data);
+        const result = await res.json();
+        setQuotations(result.data || []);
+        setTotalCount(result.totalCount || 0);
       }
     } catch (err) {
       toast.error('Failed to load quotations');
@@ -38,7 +48,7 @@ export default function AdminQuotationsPage() {
     }
   };
 
-  useEffect(() => { fetchQuotations(); }, []);
+  useEffect(() => { fetchQuotations(); }, [page]);
 
   const handleStatusUpdate = async (id, status) => {
     try {
@@ -94,6 +104,38 @@ export default function AdminQuotationsPage() {
     }
   };
 
+  const handleExport = (format) => {
+    const dataToExport = quotations.map(q => ({
+      'Name': q.name,
+      'Email': q.email || '',
+      'Phone': q.phone,
+      'Status': q.status,
+      'Budget': q.estimatedBudget || 0,
+      'Date': new Date(q.createdAt).toLocaleDateString()
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Quotations');
+
+    if (format === 'csv') {
+      XLSX.writeFile(workbook, 'quotations_export.csv');
+    } else {
+      XLSX.writeFile(workbook, 'quotations_export.xlsx');
+    }
+    toast.success(`Exported as ${format.toUpperCase()}`);
+  };
+
+  // Filtering Logic
+  const searchQuery = searchParams.get('search')?.toLowerCase() || '';
+  const statusFilter = searchParams.get('status') || 'ALL';
+
+  const filteredQuotations = quotations.filter(q => {
+    const matchesSearch = q.name.toLowerCase().includes(searchQuery) || (q.email && q.email.toLowerCase().includes(searchQuery));
+    const matchesStatus = statusFilter === 'ALL' || q.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
@@ -101,25 +143,49 @@ export default function AdminQuotationsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Quotation Requests</h1>
           <p className="text-gray-500 mt-1">Review and respond to incoming quotation requests</p>
         </div>
-        <Link
-          href="/admin/quotations/collaborators"
-          className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm"
-        >
-          <Users className="w-5 h-5 mr-2" /> Manage People
-        </Link>
+        <div className="flex gap-3">
+          <button
+            onClick={() => handleExport('csv')}
+            className="bg-white border hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm text-sm"
+          >
+            Export CSV
+          </button>
+          <button
+            onClick={() => handleExport('xls')}
+            className="bg-white border hover:bg-gray-50 text-gray-700 px-4 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm text-sm"
+          >
+            Export XLS
+          </button>
+          <Link
+            href="/admin/quotations/collaborators"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm"
+          >
+            <Users className="w-5 h-5 mr-2" /> Manage People
+          </Link>
+        </div>
       </div>
+
+      <AdminSearchFilter 
+        placeholder="Search by name or email..." 
+        statusOptions={[
+          { value: 'PENDING', label: 'Pending' },
+          { value: 'REVIEWED', label: 'Reviewed' },
+          { value: 'ACCEPTED', label: 'Accepted' },
+          { value: 'REJECTED', label: 'Rejected' },
+        ]}
+      />
 
       {loading ? (
         <div className="text-center py-20 text-gray-400">Loading...</div>
-      ) : quotations.length === 0 ? (
+      ) : filteredQuotations.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
           <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-bold text-gray-700 mb-2">No quotation requests yet</h3>
-          <p className="text-gray-500">Requests from the public quote page will appear here.</p>
+          <h3 className="text-lg font-bold text-gray-700 mb-2">No quotation requests found</h3>
+          <p className="text-gray-500">Try adjusting your search or filters.</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {quotations.map(quote => {
+          {filteredQuotations.map(quote => {
             const isExpanded = expandedId === quote.id;
             const selections = Array.isArray(quote.selections) ? quote.selections : [];
             const attachments = Array.isArray(quote.attachments) ? quote.attachments : [];
@@ -255,6 +321,12 @@ export default function AdminQuotationsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+      
+      {!loading && totalCount > 0 && (
+        <div className="mt-6 rounded-xl overflow-hidden border shadow-sm">
+          <AdminPagination totalCount={totalCount} pageSize={pageSize} currentPage={page} />
         </div>
       )}
 
