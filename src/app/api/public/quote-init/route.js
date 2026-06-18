@@ -5,23 +5,30 @@ export async function GET() {
   try {
     const collaborators = await prisma.collaborator.findMany({
       where: { isActive: true },
-      orderBy: [{ role: 'asc' }, { name: 'asc' }],
-      select: {
-        id: true,
-        name: true,
-        role: true,
-        price: true,
-        imageUrl: true
+      orderBy: [{ role: 'asc' }],
+      include: {
+        profile: {
+          select: {
+            name: true,
+            imageUrl: true
+          }
+        }
       }
     });
 
-    // Group collaborators by role
+    // Group collaborators by role and format data
     const grouped = {};
     for (const collab of collaborators) {
       if (!grouped[collab.role]) {
         grouped[collab.role] = [];
       }
-      grouped[collab.role].push(collab);
+      grouped[collab.role].push({
+        id: collab.id,
+        role: collab.role,
+        price: collab.price,
+        name: collab.profile?.name || 'Unknown Artist',
+        imageUrl: collab.profile?.imageUrl || null
+      });
     }
 
     // Fetch studio settings for contact info

@@ -3,7 +3,10 @@ import { Music, Users, FileVideo, MessageSquare, Briefcase, Activity, AlertTrian
 import Link from 'next/link';
 import DashboardCharts from '@/components/admin/DashboardCharts';
 
-export default async function AdminDashboard() {
+export default async function AdminDashboard({ searchParams }) {
+  const resolvedSearchParams = await searchParams;
+  const days = parseInt(resolvedSearchParams?.days) || 30;
+
   const [
     songCount, 
     profileCount, 
@@ -67,33 +70,32 @@ export default async function AdminDashboard() {
   ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 8);
 
   // --- Compute Chart Data ---
-  // Get quotes from last 30 days
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
   
-  const recent30DaysQuotes = await prisma.quotationRequest.findMany({
-    where: { createdAt: { gte: thirtyDaysAgo } },
+  const chartQuotes = await prisma.quotationRequest.findMany({
+    where: { createdAt: { gte: startDate } },
     select: { createdAt: true, genre: true }
   });
 
   // Group by Date for Line Chart
   const quotesByDate = {};
-  recent30DaysQuotes.forEach(q => {
+  chartQuotes.forEach(q => {
     const dateStr = q.createdAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     quotesByDate[dateStr] = (quotesByDate[dateStr] || 0) + 1;
   });
   const chartData = Object.keys(quotesByDate).map(date => ({ date, count: quotesByDate[date] })).reverse(); // Reverse if needed depending on sort, but let's just sort by actual date
-  // Better to generate an array of last 30 days and fill in counts:
-  const last30DaysArr = Array.from({length: 30}, (_, i) => {
+  // Generate an array of last N days and fill in counts:
+  const lastDaysArr = Array.from({length: days}, (_, i) => {
     const d = new Date();
-    d.setDate(d.getDate() - (29 - i));
+    d.setDate(d.getDate() - (days - 1 - i));
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   });
-  const finalChartData = last30DaysArr.map(date => ({ date, count: quotesByDate[date] || 0 }));
+  const finalChartData = lastDaysArr.map(date => ({ date, count: quotesByDate[date] || 0 }));
 
   // Group by Genre for Pie Chart
   const genreCounts = {};
-  recent30DaysQuotes.forEach(q => {
+  chartQuotes.forEach(q => {
     const genre = q.genre || 'Unspecified';
     genreCounts[genre] = (genreCounts[genre] || 0) + 1;
   });
@@ -182,7 +184,7 @@ export default async function AdminDashboard() {
         </div>
       </div>
 
-      <DashboardCharts quotesData={finalChartData} genreData={genrePieData} />
+      <DashboardCharts quotesData={finalChartData} genreData={genrePieData} currentDays={days} conversionRate={conversionRate} funnelData={{ total: totalQuotesCount, pending: pendingQuotesCount, accepted: acceptedQuotesCount }} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         

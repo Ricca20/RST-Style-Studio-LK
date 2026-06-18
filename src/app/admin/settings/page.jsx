@@ -1,7 +1,8 @@
 import prisma from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
-import { Save, Globe, Shield, Paintbrush, Activity, Share2, Briefcase, Layout, Music } from 'lucide-react';
+import { Server, Save, Activity, LayoutDashboard, Globe, AlertTriangle, PlaySquare, Music, Camera, Briefcase, ChevronRight, Lock, Paintbrush, Shield, Share2, Layout } from 'lucide-react';
+import Link from 'next/link';
 import FormImageUpload from '@/components/admin/FormImageUpload';
 import RevokeSessionsButton from '@/components/admin/RevokeSessionsButton';
 import { checkAuth, logAuditAction } from '@/lib/server-auth';
@@ -274,10 +275,10 @@ export default async function AdminSettings() {
                 <p className="text-sm text-blue-700">Download a full database backup of all entities (Songs, Quotations, Audit Logs, etc.).</p>
               </div>
               <div className="flex gap-3 mt-2">
-                <a href="/api/admin/backup?format=csv&type=all" className="bg-white text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition shadow-sm text-center">
+                <a href="/api/admin/backup?format=csv&type=all" download className="bg-white text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition shadow-sm text-center">
                   Download Full CSV Backup
                 </a>
-                <a href="/api/admin/backup?format=xlsx&type=all" className="bg-white text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition shadow-sm text-center">
+                <a href="/api/admin/backup?format=xlsx&type=all" download className="bg-white text-blue-700 border border-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition shadow-sm text-center">
                   Download Full Excel Backup
                 </a>
               </div>
@@ -289,6 +290,9 @@ export default async function AdminSettings() {
               </div>
               <div className="flex gap-3 mt-2">
                 <RevokeSessionsButton />
+                <Link href="/admin/settings/team" className="bg-white text-rose-700 border border-rose-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-rose-100 transition shadow-sm text-center">
+                  Manage Team Roles
+                </Link>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

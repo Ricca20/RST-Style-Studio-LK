@@ -16,20 +16,23 @@ import {
   Trash2
 } from 'lucide-react';
 
-export default function AdminSidebar({ user }) {
+export default function AdminSidebar({ user, role = 'ADMIN' }) {
   const pathname = usePathname();
 
-    const links = [
-    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { name: 'Profiles', href: '/admin/profiles', icon: Users },
-    { name: 'Songs', href: '/admin/songs', icon: Music },
-    { name: 'Music Videos', href: '/admin/videos', icon: FileVideo },
-    { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare },
-    { name: 'Media Library', href: '/admin/media', icon: ImageIcon },
-    { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield },
-    { name: 'Settings', href: '/admin/settings', icon: Settings },
-    { name: 'Trash Bin', href: '/admin/trash', icon: Trash2 },
+  const allLinks = [
+    { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'VIEWER'] },
+    { name: 'Profiles', href: '/admin/profiles', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
+    { name: 'Songs', href: '/admin/songs', icon: Music, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
+    { name: 'Music Videos', href: '/admin/videos', icon: FileVideo, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
+    { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Clients CRM', href: '/admin/clients', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Media Library', href: '/admin/media', icon: ImageIcon, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
+    { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield, roles: ['SUPER_ADMIN'] },
+    { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Trash Bin', href: '/admin/trash', icon: Trash2, roles: ['SUPER_ADMIN', 'ADMIN'] },
   ];
+
+  const links = allLinks.filter(link => link.roles.includes(role));
 
   const handleLogout = async () => {
     // Standard server logout hook trigger or redirect to auth logic endpoint
@@ -41,7 +44,10 @@ export default function AdminSidebar({ user }) {
       <div className="p-6 border-b border-gray-800 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-white tracking-tight">Studio Admin</h2>
-          <p className="text-xs text-gray-400 mt-1 truncate" title={user?.email}>{user?.email?.split('@')[0] || 'User'}</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-xs text-gray-400 truncate" title={user?.email}>{user?.email?.split('@')[0] || 'User'}</p>
+            <span className="bg-blue-600/20 text-blue-400 border border-blue-500/20 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">{role.replace('_', ' ')}</span>
+          </div>
         </div>
       </div>
       <nav className="flex-1 py-6 px-3 overflow-y-auto scrollbar-thin">

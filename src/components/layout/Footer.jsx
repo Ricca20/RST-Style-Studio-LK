@@ -69,6 +69,11 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/profiles" className="text-white/60 hover:text-[#9d2bee] text-sm transition-colors">
+                    Profiles
+                  </Link>
+                </li>
+                <li>
                   <Link href="/admin" className="text-white/30 hover:text-[#9d2bee] text-xs transition-colors mt-2 block">
                     {tNav('login')}
                   </Link>

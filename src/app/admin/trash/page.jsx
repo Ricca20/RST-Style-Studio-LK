@@ -27,7 +27,8 @@ export default function AdminTrashPage() {
     }
   };
 
-  useEffect(() => { fetchTrash(); }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setTimeout(() => fetchTrash(), 0); }, []);
 
   const handleAction = async () => {
     if (!confirmModal) return;

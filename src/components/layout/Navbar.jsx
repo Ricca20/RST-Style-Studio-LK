@@ -18,8 +18,8 @@ export default function Navbar() {
   const navLinks = [
     { href: '/', label: t('home') },
     { href: '/about', label: t('about') },
-    { href: '/songs', label: t('songs') },
-    { href: '/projects', label: t('projects') },
+    { href: '/songs', label: t('songs') || 'Portfolio' },
+    { href: '/profiles', label: t('profiles') || 'Profiles' },
     { href: '/services', label: t('services') },
     { href: '/contact', label: t('contact') },
   ];

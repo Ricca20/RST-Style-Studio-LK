@@ -3,6 +3,7 @@ import prisma from '@/lib/db';
 import { t } from '@/lib/t';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
+import { PlayCircle, Film, MonitorPlay } from 'lucide-react';
 
 export default async function SongDetailPage({ params }) {
   const { slug, locale } = await params;
@@ -74,8 +75,16 @@ export default async function SongDetailPage({ params }) {
 
           {/* Right: Details & Player */}
           <div className="lg:col-span-7 flex flex-col justify-center">
-            {/* Title */}
+            {/* Title & Type */}
             <div className="mb-8">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-bold text-white uppercase tracking-wider">
+                  {song.projectType === 'MUSIC_VIDEO' ? <Film className="w-4 h-4 text-pink-400" /> : 
+                   song.projectType === 'COMMERCIAL' ? <MonitorPlay className="w-4 h-4 text-blue-400" /> : 
+                   <PlayCircle className="w-4 h-4 text-[#9d2bee]" />}
+                  {song.projectType === 'MUSIC_VIDEO' ? 'Music Video' : song.projectType === 'COMMERCIAL' ? 'Commercial' : 'Audio Track'}
+                </div>
+              </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2 leading-tight">
                 {t(song, 'title', locale)}
               </h1>

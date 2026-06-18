@@ -1,35 +1,22 @@
 import { redirect } from 'next/navigation';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import AdminSidebar from '@/components/layout/AdminSidebar';
+import AdminHeader from '@/components/layout/AdminHeader';
 import { Toaster } from 'sonner';
+import { checkAuth } from '@/lib/server-auth';
 
 export default async function AdminLayout({ children }) {
-  const cookieStore = await cookies();
+  const user = await checkAuth();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-      },
-    }
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
+  if (!user || !user.dbUser) {
     redirect('/en/login');
   }
 
   return (
     <div className="flex h-screen bg-gray-50 text-gray-900">
-      <AdminSidebar user={user} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6">
+      <AdminSidebar user={user} role={user.dbUser.role} />
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        <AdminHeader user={user} />
+        <main className="flex-1 overflow-y-auto p-6 relative">
           {children}
         </main>
       </div>
@@ -37,4 +24,3 @@ export default async function AdminLayout({ children }) {
     </div>
   );
 }
-  

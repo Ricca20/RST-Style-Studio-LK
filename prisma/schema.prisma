@@ -25,7 +25,8 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  auditLogs  AuditLog[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
 }
 
 model StudioSettings {
@@ -235,4 +236,23 @@ model AuditLog {
   deletedAt   DateTime?
 
   user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+enum NotificationType {
+  QUOTATION
+  SYSTEM
+  TEAM
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      NotificationType
+  link      String?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

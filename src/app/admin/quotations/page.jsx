@@ -29,6 +29,10 @@ export default function AdminQuotationsPage() {
   const [replySubject, setReplySubject] = useState('');
   const [isSending, setIsSending] = useState(false);
 
+  const [statusConfirm, setStatusConfirm] = useState(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [sendAutomatedEmail, setSendAutomatedEmail] = useState(true);
+
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = 15;
 
@@ -48,20 +52,31 @@ export default function AdminQuotationsPage() {
     }
   };
 
-  useEffect(() => { fetchQuotations(); }, [page]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setTimeout(() => fetchQuotations(), 0); }, [page]);
 
-  const handleStatusUpdate = async (id, status) => {
+  const executeStatusUpdate = async () => {
+    if (!statusConfirm) return;
+    setIsUpdatingStatus(true);
     try {
-      const res = await fetch(`/api/admin/quotations/${id}/reply`, {
-        method: 'POST',
+      const res = await fetch(`/api/admin/quotations/${statusConfirm.id}/status`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ method: 'status', message: '', subject: '' })
+        body: JSON.stringify({ 
+          status: statusConfirm.newStatus, 
+          sendEmail: sendAutomatedEmail && !!statusConfirm.email 
+        })
       });
-      await fetch('/api/quotations', { method: 'GET' });
-      toast.success('Status updated');
-      startTransition(() => { fetchQuotations(); });
+      if (!res.ok) throw new Error('Failed to update status');
+      
+      setQuotations(prev => prev.map(q => q.id === statusConfirm.id ? { ...q, status: statusConfirm.newStatus } : q));
+      toast.success(`Status updated to ${statusConfirm.newStatus}`);
+      setStatusConfirm(null);
+      setSendAutomatedEmail(true);
     } catch (err) {
-      toast.error('Failed to update status');
+      toast.error(err.message);
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -293,14 +308,9 @@ export default function AdminQuotationsPage() {
                             {['PENDING', 'REVIEWED', 'ACCEPTED', 'REJECTED'].map(s => (
                               <button
                                 key={s}
-                                onClick={async () => {
-                                  // Direct status update via a simple PUT-like approach
-                                  // We'll reuse a lightweight server action
-                                  try {
-                                    setQuotations(prev => prev.map(q => q.id === quote.id ? { ...q, status: s } : q));
-                                    toast.success(`Status changed to ${s}`);
-                                  } catch (err) {
-                                    toast.error('Failed to update');
+                                onClick={() => {
+                                  if (quote.status !== s) {
+                                    setStatusConfirm({ id: quote.id, newStatus: s, email: quote.email, name: quote.name });
                                   }
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
@@ -372,6 +382,58 @@ export default function AdminQuotationsPage() {
                   className={`px-6 py-2.5 text-sm font-bold text-white rounded-lg flex items-center gap-2 transition disabled:opacity-50 ${replyModal.method === 'whatsapp' ? 'bg-[#25D366] hover:bg-green-600' : 'bg-blue-600 hover:bg-blue-700'}`}
                 >
                   <Send className="w-4 h-4" /> {isSending ? 'Sending...' : 'Send'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Status Confirm Modal */}
+      {statusConfirm && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setStatusConfirm(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Update Status</h3>
+              <p className="text-gray-600 text-sm mb-6">
+                Are you sure you want to change the status to <span className={`px-2 py-0.5 rounded text-xs font-bold ${STATUS_COLORS[statusConfirm.newStatus]}`}>{statusConfirm.newStatus}</span>?
+              </p>
+
+              {statusConfirm.email && ['ACCEPTED', 'REJECTED', 'REVIEWED'].includes(statusConfirm.newStatus) && (
+                <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex items-start gap-3 mb-6">
+                  <input 
+                    type="checkbox" 
+                    id="sendEmailCheckbox" 
+                    checked={sendAutomatedEmail} 
+                    onChange={(e) => setSendAutomatedEmail(e.target.checked)}
+                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div>
+                    <label htmlFor="sendEmailCheckbox" className="text-sm font-semibold text-blue-900 block cursor-pointer">
+                      Send automated email notification
+                    </label>
+                    <p className="text-xs text-blue-700 mt-1">
+                      This will send an email to {statusConfirm.email} notifying them that their quotation has been {statusConfirm.newStatus.toLowerCase()}.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button 
+                  onClick={() => setStatusConfirm(null)} 
+                  disabled={isUpdatingStatus}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeStatusUpdate}
+                  disabled={isUpdatingStatus}
+                  className="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition flex items-center gap-2"
+                >
+                  {isUpdatingStatus && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                  Confirm Update
                 </button>
               </div>
             </div>

@@ -95,6 +95,16 @@ export async function POST(request) {
         }
       }).catch(err => console.error("Failed to process alert email:", err));
 
+    // Send In-App Notification to Admins
+    import('@/lib/notification').then(({ broadcastNotification }) => {
+      broadcastNotification(['SUPER_ADMIN', 'ADMIN'], {
+        title: 'New Quotation Request',
+        message: `${name} has submitted a new quotation request${genre ? ` for ${genre}` : ''}.`,
+        type: 'QUOTATION',
+        link: '/admin/quotations'
+      });
+    }).catch(err => console.error("Failed to send in-app notification:", err));
+
     return NextResponse.json(quotation, { status: 201 });
   } catch (error) {
     console.error('Error creating quotation:', error);

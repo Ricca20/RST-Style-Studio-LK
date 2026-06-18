@@ -4,6 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createSlug } from '@/lib/slugify';
 import { toast } from 'sonner';
+import { Eye, X } from 'lucide-react';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import ImageUpload from './ImageUpload';
 
@@ -23,6 +24,7 @@ const PREDEFINED_ROLES = [
 export default function UnifiedSongForm({ isEdit = false, initialData = null, projectType = 'SONG' }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [showPreview, setShowPreview] = useState(false);
   
   // Basic Fields
   const [titleEn, setTitleEn] = useState(initialData?.titleEn || '');
@@ -213,6 +215,15 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
             {isEdit ? `Edit ${projectType === 'MUSIC_VIDEO' ? 'Music Video' : 'Song'}` : `Add New ${projectType === 'MUSIC_VIDEO' ? 'Music Video' : 'Song'}`}
           </h1>
           <div className="flex items-center gap-4">
+            {isEdit && initialData?.slug && (
+              <button 
+                type="button"
+                onClick={() => setShowPreview(true)}
+                className="bg-purple-100 text-purple-700 hover:bg-purple-200 font-bold px-6 py-3 rounded-lg transition flex items-center gap-2 shadow-sm"
+              >
+                <Eye className="w-5 h-5" /> Live Preview
+              </button>
+            )}
             <button 
               type="button"
               onClick={(e) => handleSubmit(e, true)}
@@ -438,6 +449,31 @@ export default function UnifiedSongForm({ isEdit = false, initialData = null, pr
           confirmText="Remove"
         />
       </form>
+
+      {/* Live Preview Modal */}
+      {showPreview && isEdit && initialData?.slug && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden relative">
+            <div className="bg-gray-900 text-white p-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <Eye className="w-5 h-5 text-purple-400" />
+                <h3 className="font-bold text-lg">Live Preview</h3>
+                <span className="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded">Save changes before previewing</span>
+              </div>
+              <button onClick={() => setShowPreview(false)} className="text-gray-400 hover:text-white transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 w-full h-full bg-gray-100 overflow-hidden relative">
+              <iframe 
+                src={`/${projectType === 'MUSIC_VIDEO' ? 'videos' : 'songs'}/${initialData.slug}`} 
+                className="w-full h-full border-none absolute inset-0"
+                title="Live Preview"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

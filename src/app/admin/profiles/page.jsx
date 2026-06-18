@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Plus, Edit2, Trash2, Users, X, Save, Link as LinkIcon, Globe, Camera, PlaySquare } from 'lucide-react';
+import { 
+  Plus, Users, Trash2, Camera, Link as LinkIcon, Globe, PlaySquare, MoveVertical, Save, Eye, X, Edit2
+} from 'lucide-react';
 import { toast } from 'sonner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -100,6 +102,8 @@ export default function AdminProfilesPage() {
   const [formActive, setFormActive] = useState(true);
   const [socials, setSocials] = useState({ facebook: '', instagram: '', youtube: '', spotify: '' });
   const [isSaving, setIsSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewSlug, setPreviewSlug] = useState('');
 
   const fetchProfiles = async () => {
     try {
@@ -126,6 +130,7 @@ export default function AdminProfilesPage() {
     setSocials({ facebook: '', instagram: '', youtube: '', spotify: '' });
     setFormActive(true);
     setEditingId(null);
+    setPreviewSlug('');
     setShowForm(false);
   };
 
@@ -138,6 +143,7 @@ export default function AdminProfilesPage() {
     setSocials(profile.socialLinks || { facebook: '', instagram: '', youtube: '', spotify: '' });
     setFormActive(profile.isActive);
     setEditingId(profile.id);
+    setPreviewSlug(profile.slug || '');
     setShowForm(true);
   };
 
@@ -287,7 +293,17 @@ export default function AdminProfilesPage() {
         <div className="bg-white rounded-xl shadow-sm border mb-8 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">{editingId ? 'Edit Profile' : 'Add New Profile'}</h2>
-            <button onClick={resetForm} className="text-white/70 hover:text-white transition"><X className="w-5 h-5" /></button>
+            <div className="flex items-center gap-4">
+              {editingId && previewSlug && (
+                <button 
+                  onClick={() => setShowPreview(true)}
+                  className="bg-white/20 hover:bg-white/30 text-white font-medium px-4 py-1.5 rounded-lg transition flex items-center gap-2 text-sm"
+                >
+                  <Eye className="w-4 h-4" /> Live Preview
+                </button>
+              )}
+              <button onClick={resetForm} className="text-white/70 hover:text-white transition"><X className="w-5 h-5" /></button>
+            </div>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -451,6 +467,31 @@ export default function AdminProfilesPage() {
         description={deleteTarget ? `Are you sure you want to delete "${deleteTarget.name}"? This will unlink them from any song credits and quotation roles. This cannot be undone.` : ''}
         confirmText="Delete Profile"
       />
+
+      {/* Live Preview Modal */}
+      {showPreview && editingId && previewSlug && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden relative">
+            <div className="bg-gray-900 text-white p-4 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <Eye className="w-5 h-5 text-purple-400" />
+                <h3 className="font-bold text-lg">Live Preview</h3>
+                <span className="bg-gray-800 text-gray-400 text-xs px-2 py-1 rounded">Save changes before previewing</span>
+              </div>
+              <button onClick={() => setShowPreview(false)} className="text-gray-400 hover:text-white transition">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 w-full h-full bg-gray-100 overflow-hidden relative">
+              <iframe 
+                src={`/en/profiles/${previewSlug}`} 
+                className="w-full h-full border-none absolute inset-0"
+                title="Live Preview"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
