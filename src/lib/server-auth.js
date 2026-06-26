@@ -31,7 +31,7 @@ export async function checkAuth() {
         supabaseId: user.id,
         email: user.email,
         name: user?.user_metadata?.full_name || user.email.split('@')[0],
-        role: 'ADMIN' // Default to ADMIN for legitimate staff users
+        role: 'CONTRIBUTOR' // Default to CONTRIBUTOR for public users
       }
     });
   }

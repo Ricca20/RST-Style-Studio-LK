@@ -36,9 +36,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#151118] flex items-center justify-center p-6">
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-6">
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#9d2bee]/10 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0ea5e9]/10 rounded-full blur-[120px]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">
@@ -68,7 +68,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 bg-[#1a151f] border border-[#322839] rounded-xl px-4 text-white placeholder-white/20 focus:outline-none focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] transition-all"
+                className="w-full h-12 bg-[#1a151f] border border-[#334155] rounded-xl px-4 text-white placeholder-white/20 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-all"
                 placeholder="admin@rststudio.com"
               />
             </div>
@@ -82,7 +82,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 bg-[#1a151f] border border-[#322839] rounded-xl px-4 text-white placeholder-white/20 focus:outline-none focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] transition-all"
+                className="w-full h-12 bg-[#1a151f] border border-[#334155] rounded-xl px-4 text-white placeholder-white/20 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -90,7 +90,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#9d2bee] hover:bg-[#9d2bee]/90 text-white font-bold rounded-xl transition-all neon-glow flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 bg-[#0ea5e9] hover:bg-[#0ea5e9]/90 text-white font-bold rounded-xl transition-all neon-glow flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

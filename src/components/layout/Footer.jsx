@@ -27,7 +27,7 @@ export default function Footer() {
               {/* Social icons */}
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#9d2bee] hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#0ea5e9] hover:text-white transition-all"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -36,7 +36,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#9d2bee] hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#0ea5e9] hover:text-white transition-all"
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -45,7 +45,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#9d2bee] hover:text-white transition-all"
+                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-[#0ea5e9] hover:text-white transition-all"
                 aria-label="YouTube"
               >
                 <span className="material-symbols-outlined text-lg">play_circle</span>
@@ -59,22 +59,22 @@ export default function Footer() {
               <h5 className="text-white font-bold mb-4">Studio</h5>
               <ul className="flex flex-col gap-2">
                 <li>
-                  <Link href="/about" className="text-white/60 hover:text-[#9d2bee] text-sm transition-colors">
+                  <Link href="/about" className="text-white/60 hover:text-[#0ea5e9] text-sm transition-colors">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/songs" className="text-white/60 hover:text-[#9d2bee] text-sm transition-colors">
+                  <Link href="/songs" className="text-white/60 hover:text-[#0ea5e9] text-sm transition-colors">
                     Portfolio
                   </Link>
                 </li>
                 <li>
-                  <Link href="/profiles" className="text-white/60 hover:text-[#9d2bee] text-sm transition-colors">
+                  <Link href="/profiles" className="text-white/60 hover:text-[#0ea5e9] text-sm transition-colors">
                     Profiles
                   </Link>
                 </li>
                 <li>
-                  <Link href="/admin" className="text-white/30 hover:text-[#9d2bee] text-xs transition-colors mt-2 block">
+                  <Link href="/admin" className="text-white/30 hover:text-[#0ea5e9] text-xs transition-colors mt-2 block">
                     {tNav('login')}
                   </Link>
                 </li>
@@ -84,12 +84,12 @@ export default function Footer() {
               <h5 className="text-white font-bold mb-4">{tNav('services')}</h5>
               <ul className="flex flex-col gap-2">
                 <li>
-                  <Link href="/services" className="text-white/60 hover:text-[#9d2bee] text-sm transition-colors">
+                  <Link href="/services" className="text-white/60 hover:text-[#0ea5e9] text-sm transition-colors">
                     All Services
                   </Link>
                 </li>
                 <li>
-                  <Link href="/quote" className="text-white/60 hover:text-[#9d2bee] text-sm transition-colors">
+                  <Link href="/quote" className="text-white/60 hover:text-[#0ea5e9] text-sm transition-colors">
                     {tNav('getQuote')}
                   </Link>
                 </li>

@@ -1,6 +1,5 @@
 import { Space_Grotesk, Noto_Sans, Noto_Sans_Sinhala } from 'next/font/google';
 import './globals.css';
-
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
@@ -30,7 +29,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${spaceGrotesk.variable} ${notoSans.variable} ${notoSinhala.variable} font-[family-name:var(--font-display)] antialiased bg-[#151118] text-white overflow-x-hidden`}
+        className={`${spaceGrotesk.variable} ${notoSans.variable} ${notoSinhala.variable} font-[family-name:var(--font-display)] antialiased bg-[#0f172a] text-white overflow-x-hidden`}
       >
         {children}
       </body>

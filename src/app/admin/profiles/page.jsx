@@ -51,19 +51,29 @@ function SortableProfileCard({ profile, onToggleActive, onEdit, onDelete }) {
         <p className="text-sm text-gray-600 line-clamp-3">{profile.bio || 'No bio provided.'}</p>
       </div>
       <div className="bg-gray-50 border-t px-6 py-3 flex items-center justify-between">
-        <label className="flex items-center cursor-pointer" onPointerDown={e => e.stopPropagation()}>
-          <div className="relative">
-            <input 
-              type="checkbox" 
-              className="sr-only" 
-              checked={profile.isActive} 
-              onChange={() => onToggleActive(profile)} 
-            />
-            <div className={`block w-10 h-6 rounded-full transition-colors ${profile.isActive ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
-            <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${profile.isActive ? 'transform translate-x-4' : ''}`}></div>
-          </div>
-          <span className="ml-3 text-xs font-medium text-gray-600">{profile.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
-        </label>
+        {!profile.isApproved ? (
+          <button 
+            onPointerDown={e => e.stopPropagation()}
+            onClick={() => onToggleActive(profile, true)}
+            className="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm"
+          >
+            APPROVE PROFILE
+          </button>
+        ) : (
+          <label className="flex items-center cursor-pointer" onPointerDown={e => e.stopPropagation()}>
+            <div className="relative">
+              <input 
+                type="checkbox" 
+                className="sr-only" 
+                checked={profile.isActive} 
+                onChange={() => onToggleActive(profile)} 
+              />
+              <div className={`block w-10 h-6 rounded-full transition-colors ${profile.isActive ? 'bg-blue-500' : 'bg-gray-300'}`}></div>
+              <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${profile.isActive ? 'transform translate-x-4' : ''}`}></div>
+            </div>
+            <span className="ml-3 text-xs font-medium text-gray-600">{profile.isActive ? 'ACTIVE' : 'INACTIVE'}</span>
+          </label>
+        )}
         <div className="flex items-center gap-2" onPointerDown={e => e.stopPropagation()}>
           <button onClick={() => onEdit(profile)} className="text-gray-500 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg text-sm flex items-center font-medium">
             <Edit2 className="w-3.5 h-3.5 mr-1" /> Edit
@@ -119,7 +129,10 @@ export default function AdminProfilesPage() {
     }
   };
 
-  useEffect(() => { fetchProfiles(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchProfiles();
+  }, []);
 
   const resetForm = () => {
     setFormName('');
@@ -195,7 +208,7 @@ export default function AdminProfilesPage() {
     }
   };
 
-  const handleToggleActive = async (profile) => {
+  const handleToggleActive = async (profile, approveMode = false) => {
     try {
       const payload = { 
         name: profile.name, 
@@ -204,10 +217,15 @@ export default function AdminProfilesPage() {
         imageUrl: profile.imageUrl, 
         galleryImages: profile.galleryImages,
         socialLinks: profile.socialLinks,
-        isActive: !profile.isActive 
+        isActive: approveMode ? true : !profile.isActive,
+        isApproved: approveMode ? true : profile.isApproved
       };
       
-      setProfiles(profiles.map(p => p.id === profile.id ? { ...p, isActive: !p.isActive } : p));
+      setProfiles(profiles.map(p => p.id === profile.id ? { 
+        ...p, 
+        isActive: approveMode ? true : !p.isActive, 
+        isApproved: approveMode ? true : p.isApproved 
+      } : p));
       
       const res = await fetch(`/api/admin/profiles/${profile.id}`, { 
         method: 'PUT', 
@@ -230,8 +248,9 @@ export default function AdminProfilesPage() {
   const filteredProfiles = profiles.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery);
     let matchesStatus = true;
-    if (statusFilter === 'ACTIVE') matchesStatus = p.isActive;
-    if (statusFilter === 'INACTIVE') matchesStatus = !p.isActive;
+    if (statusFilter === 'ACTIVE') matchesStatus = p.isActive && p.isApproved;
+    if (statusFilter === 'INACTIVE') matchesStatus = !p.isActive && p.isApproved;
+    if (statusFilter === 'PENDING') matchesStatus = !p.isApproved;
     return matchesSearch && matchesStatus;
   });
 
@@ -284,7 +303,8 @@ export default function AdminProfilesPage() {
         placeholder="Search profiles by name..." 
         statusOptions={[
           { value: 'ACTIVE', label: 'Active' },
-          { value: 'INACTIVE', label: 'Inactive' }
+          { value: 'INACTIVE', label: 'Inactive' },
+          { value: 'PENDING', label: 'Pending Approval' }
         ]}
       />
 

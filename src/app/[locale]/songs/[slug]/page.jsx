@@ -5,6 +5,27 @@ import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { PlayCircle, Film, MonitorPlay } from 'lucide-react';
 
+export async function generateMetadata({ params }) {
+  const { slug, locale } = await params;
+  const song = await prisma.song.findUnique({ where: { slug } });
+  
+  if (!song) return {};
+  
+  const title = t(song, 'title', locale);
+  const description = song.description || `Listen to ${title} on RST Style Studio LK.`;
+  const image = song.coverImage || '/images/og-default.jpg';
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image }],
+    },
+  };
+}
+
 export default async function SongDetailPage({ params }) {
   const { slug, locale } = await params;
   const tSongs = await getTranslations({ locale, namespace: 'Songs' });
@@ -31,17 +52,17 @@ export default async function SongDetailPage({ params }) {
   } catch (e) {}
 
   return (
-    <div className="min-h-screen bg-[#1a1022] pt-24">
+    <div className="min-h-screen bg-transparent pt-24">
       <main className="max-w-[1280px] mx-auto px-6 md:px-10 lg:px-20 py-8">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm text-white/50 mb-8">
-          <Link href="/songs" className="hover:text-[#9d2bee] transition-colors">
+          <Link href="/songs" className="hover:text-[#0ea5e9] transition-colors">
             Portfolio
           </Link>
           <span className="material-symbols-outlined text-base">chevron_right</span>
           {song.genres && song.genres.length > 0 && (
             <>
-              <span className="hover:text-[#9d2bee] transition-colors">{song.genres[0]}</span>
+              <span className="hover:text-[#0ea5e9] transition-colors">{song.genres[0]}</span>
               <span className="material-symbols-outlined text-base">chevron_right</span>
             </>
           )}
@@ -52,8 +73,8 @@ export default async function SongDetailPage({ params }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-20">
           {/* Left: Album Art */}
           <div className="lg:col-span-5 flex flex-col gap-6">
-            <div className="relative group aspect-square w-full rounded-2xl overflow-hidden shadow-2xl shadow-[#9d2bee]/10 border border-white/5">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1a1022]/80 to-transparent opacity-60 z-10" />
+            <div className="relative group aspect-square w-full rounded-2xl overflow-hidden shadow-2xl shadow-[#0ea5e9]/10 border border-white/5">
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0b1120]/80 to-transparent opacity-60 z-10" />
               {song.coverImage ? (
                 <img
                   src={song.coverImage}
@@ -61,7 +82,7 @@ export default async function SongDetailPage({ params }) {
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#1e1823] to-[#322839] flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-[#1e293b] to-[#334155] flex items-center justify-center">
                   <span className="material-symbols-outlined text-8xl text-white/10">album</span>
                 </div>
               )}
@@ -81,7 +102,7 @@ export default async function SongDetailPage({ params }) {
                 <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-sm font-bold text-white uppercase tracking-wider">
                   {song.projectType === 'MUSIC_VIDEO' ? <Film className="w-4 h-4 text-pink-400" /> : 
                    song.projectType === 'COMMERCIAL' ? <MonitorPlay className="w-4 h-4 text-blue-400" /> : 
-                   <PlayCircle className="w-4 h-4 text-[#9d2bee]" />}
+                   <PlayCircle className="w-4 h-4 text-[#0ea5e9]" />}
                   {song.projectType === 'MUSIC_VIDEO' ? 'Music Video' : song.projectType === 'COMMERCIAL' ? 'Commercial' : 'Audio Track'}
                 </div>
               </div>
@@ -93,7 +114,7 @@ export default async function SongDetailPage({ params }) {
             {/* Genre Chip */}
             <div className="flex flex-wrap gap-3 mb-8">
               {song.genres && song.genres.map(g => (
-                <div key={g} className="px-4 py-1.5 rounded-full bg-[#2a1d35] border border-white/10 text-white/80 text-sm font-medium">
+                <div key={g} className="px-4 py-1.5 rounded-full bg-[#1e293b] border border-white/10 text-white/80 text-sm font-medium">
                   {g}
                 </div>
               ))}
@@ -107,7 +128,7 @@ export default async function SongDetailPage({ params }) {
             )}
 
             {/* Audio Player (visual + embeds) */}
-            <div className="bg-[#2a1d35]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-10 shadow-xl">
+            <div className="bg-[#1e293b]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-10 shadow-xl">
               {song.youtubeUrl ? (
                 <div className="aspect-video rounded-xl overflow-hidden">
                   <iframe
@@ -118,7 +139,7 @@ export default async function SongDetailPage({ params }) {
                 </div>
               ) : (
                 <div className="flex items-center gap-6">
-                  <div className="shrink-0 w-16 h-16 rounded-full bg-[#9d2bee] flex items-center justify-center text-white shadow-lg shadow-[#9d2bee]/30">
+                  <div className="shrink-0 w-16 h-16 rounded-full bg-[#0ea5e9] flex items-center justify-center text-white shadow-lg shadow-[#0ea5e9]/30">
                     <span className="material-symbols-outlined text-3xl ml-1">play_arrow</span>
                   </div>
                   <div className="flex-1 flex flex-col gap-2">
@@ -129,8 +150,8 @@ export default async function SongDetailPage({ params }) {
                           key={i}
                           className="w-1 rounded-full"
                           style={{
-                            height: `${20 + Math.random() * 80}%`,
-                            backgroundColor: i < 10 ? '#9d2bee' : 'rgba(255,255,255,0.15)',
+                            height: `${20 + ((i * 17) % 80)}%`,
+                            backgroundColor: i < 10 ? '#0ea5e9' : 'rgba(255,255,255,0.15)',
                           }}
                         />
                       ))}
@@ -205,20 +226,20 @@ export default async function SongDetailPage({ params }) {
                     const displayName = c.profile?.name || c.name;
 
                     const Content = (
-                      <div className="flex items-center gap-4 bg-[#2a1d35]/30 p-3 rounded-xl border border-white/5 hover:bg-[#2a1d35] transition-colors h-full">
+                      <div className="flex items-center gap-4 bg-[#1e293b]/30 p-3 rounded-xl border border-white/5 hover:bg-[#1e293b] transition-colors h-full">
                         {avatarUrl ? (
                           <img src={avatarUrl} alt={displayName} className="w-12 h-12 rounded-full object-cover shadow-md" />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-[#1a1022] flex items-center justify-center shadow-md">
+                          <div className="w-12 h-12 rounded-full bg-[#0b1120] flex items-center justify-center shadow-md">
                             <span className="material-symbols-outlined text-white/30 text-xl">person</span>
                           </div>
                         )}
                         <div>
-                          <p className={`font-bold text-base ${profileLink ? 'text-white group-hover:text-[#9d2bee] transition-colors underline decoration-[#9d2bee]/50 underline-offset-4' : 'text-white'}`}>
+                          <p className={`font-bold text-base ${profileLink ? 'text-white group-hover:text-[#0ea5e9] transition-colors underline decoration-[#0ea5e9]/50 underline-offset-4' : 'text-white'}`}>
                             {displayName}
-                            {profileLink && <span className="material-symbols-outlined text-sm ml-1 align-middle text-[#9d2bee] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>}
+                            {profileLink && <span className="material-symbols-outlined text-sm ml-1 align-middle text-[#0ea5e9] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>}
                           </p>
-                          <p className="text-[#9d2bee] text-sm font-medium tracking-wide">{c.role}</p>
+                          <p className="text-[#0ea5e9] text-sm font-medium tracking-wide">{c.role}</p>
                         </div>
                       </div>
                     );
@@ -239,8 +260,8 @@ export default async function SongDetailPage({ params }) {
         </div>
 
         {/* CTA Banner */}
-        <div className="relative w-full rounded-2xl overflow-hidden bg-[#2a1d35] border border-white/5 mb-20">
-          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#9d2bee]/20 to-transparent" />
+        <div className="relative w-full rounded-2xl overflow-hidden bg-[#1e293b] border border-white/5 mb-20">
+          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#0ea5e9]/20 to-transparent" />
           <div className="relative z-10 p-10 md:p-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="max-w-xl">
               <h3 className="text-3xl font-bold text-white mb-3">Ready to shape your sound?</h3>
@@ -250,7 +271,7 @@ export default async function SongDetailPage({ params }) {
             </div>
             <Link
               href="/contact"
-              className="shrink-0 bg-white text-[#1a1022] text-base font-bold px-8 py-4 rounded-full transition-all hover:bg-[#9d2bee] hover:text-white hover:scale-105 flex items-center gap-2"
+              className="shrink-0 bg-white text-[#0b1120] text-base font-bold px-8 py-4 rounded-full transition-all hover:bg-[#0ea5e9] hover:text-white hover:scale-105 flex items-center gap-2"
             >
               Start a Project
               <span className="material-symbols-outlined">arrow_forward</span>
@@ -265,7 +286,7 @@ export default async function SongDetailPage({ params }) {
               <h3 className="text-2xl font-bold text-white">More from the Portfolio</h3>
               <Link
                 href="/songs"
-                className="text-[#9d2bee] hover:text-white transition-colors text-sm font-bold flex items-center gap-1"
+                className="text-[#0ea5e9] hover:text-white transition-colors text-sm font-bold flex items-center gap-1"
               >
                 View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </Link>
@@ -273,7 +294,7 @@ export default async function SongDetailPage({ params }) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedSongs.map((rs) => (
                 <Link key={rs.id} href={`/songs/${rs.slug}`} className="group cursor-pointer">
-                  <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-[#2a1d35]">
+                  <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-[#1e293b]">
                     {rs.coverImage ? (
                       <img
                         src={rs.coverImage}
@@ -281,18 +302,18 @@ export default async function SongDetailPage({ params }) {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[#2a1d35] to-[#322839] flex items-center justify-center">
+                      <div className="w-full h-full bg-gradient-to-br from-[#1e293b] to-[#334155] flex items-center justify-center">
                         <span className="material-symbols-outlined text-5xl text-white/10">music_note</span>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-black/40 group-hover:bg-black/0 transition-colors" />
                     {rs.genres && rs.genres.length > 0 && (
-                      <div className="absolute bottom-4 left-4 bg-[#9d2bee]/90 text-white text-xs font-bold px-2 py-1 rounded">
+                      <div className="absolute bottom-4 left-4 bg-[#0ea5e9]/90 text-white text-xs font-bold px-2 py-1 rounded">
                         {rs.genres[0]}
                       </div>
                     )}
                   </div>
-                  <h4 className="text-white font-bold text-lg group-hover:text-[#9d2bee] transition-colors">
+                  <h4 className="text-white font-bold text-lg group-hover:text-[#0ea5e9] transition-colors">
                     {t(rs, 'title', locale)}
                   </h4>
                   <p className="text-white/40 text-sm">{rs.genres && rs.genres.length > 0 ? rs.genres.join(', ') : 'Original'}</p>

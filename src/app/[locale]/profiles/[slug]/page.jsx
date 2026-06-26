@@ -3,6 +3,27 @@ import prisma from '@/lib/db';
 import { Link } from '@/i18n/routing';
 import { Globe, Camera, PlaySquare, Link as LinkIcon } from 'lucide-react';
 
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const profile = await prisma.profile.findUnique({ where: { slug } });
+  
+  if (!profile || !profile.isActive || !profile.isApproved) return {};
+  
+  const title = `${profile.name} ${profile.mainRole ? `- ${profile.mainRole}` : ''}`;
+  const description = profile.bio || `View ${profile.name}'s portfolio and credits on RST Style Studio LK.`;
+  const image = profile.imageUrl || '/images/og-default.jpg';
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [{ url: image }],
+    },
+  };
+}
+
 export default async function ProfilePage({ params }) {
   const { slug, locale } = await params;
 
@@ -20,7 +41,7 @@ export default async function ProfilePage({ params }) {
     }
   });
 
-  if (!profile || !profile.isActive) return notFound();
+  if (!profile || !profile.isActive || !profile.isApproved) return notFound();
 
   // Deduplicate songs since a person might have multiple credits on the same song
   // e.g., Lyrics and Melody on the same song.
@@ -43,12 +64,12 @@ export default async function ProfilePage({ params }) {
   projects.sort((a, b) => (b.song.releaseYear || 0) - (a.song.releaseYear || 0));
 
   return (
-    <div className="min-h-screen bg-[#1a1022] pt-24 pb-20">
+    <div className="min-h-screen bg-transparent pt-24 pb-20">
       <main className="max-w-[1280px] mx-auto px-6 md:px-10 lg:px-20 py-8">
         
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm text-white/50 mb-12">
-          <Link href="/" className="hover:text-[#9d2bee] transition-colors">Home</Link>
+          <Link href="/" className="hover:text-[#0ea5e9] transition-colors">Home</Link>
           <span className="material-symbols-outlined text-base">chevron_right</span>
           <span className="text-white">Profiles</span>
           <span className="material-symbols-outlined text-base">chevron_right</span>
@@ -58,19 +79,24 @@ export default async function ProfilePage({ params }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           {/* Left: Profile Info */}
           <div className="lg:col-span-4">
-            <div className="bg-[#2a1d35]/50 backdrop-blur-sm border border-white/5 rounded-3xl p-8 sticky top-32 text-center shadow-xl shadow-black/20">
-              <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6 border-4 border-[#9d2bee]/30 shadow-lg shadow-[#9d2bee]/20">
+            <div className="bg-[#1e293b]/50 backdrop-blur-sm border border-white/5 rounded-3xl p-8 sticky top-32 text-center shadow-xl shadow-black/20">
+              <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6 border-4 border-[#0ea5e9]/30 shadow-lg shadow-[#0ea5e9]/20">
                 {profile.imageUrl ? (
                   <img src={profile.imageUrl} alt={profile.name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#9d2bee] to-indigo-600 flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-[#0ea5e9] to-indigo-600 flex items-center justify-center">
                     <span className="text-5xl text-white font-bold">{profile.name.charAt(0).toUpperCase()}</span>
                   </div>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-white mb-2">{profile.name}</h1>
+              <h1 className="text-3xl font-bold text-white mb-2 flex items-center justify-center gap-2">
+                {profile.name}
+                {profile.isApproved && (
+                  <span className="material-symbols-outlined text-[#0ea5e9] text-2xl" title="Verified Artist">verified</span>
+                )}
+              </h1>
               {profile.mainRole && (
-                <p className="text-[#9d2bee] font-medium tracking-widest uppercase text-sm mb-4">
+                <p className="text-[#0ea5e9] font-medium tracking-widest uppercase text-sm mb-4">
                   {profile.mainRole}
                 </p>
               )}
@@ -116,7 +142,7 @@ export default async function ProfilePage({ params }) {
             {projects.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {projects.map(({ song, roles }) => (
-                  <Link href={`/songs/${song.slug}`} key={song.id} className="group block bg-[#2a1d35]/30 border border-white/5 rounded-2xl overflow-hidden hover:bg-[#2a1d35] transition-colors">
+                  <Link href={`/songs/${song.slug}`} key={song.id} className="group block bg-[#1e293b]/30 border border-white/5 rounded-2xl overflow-hidden hover:bg-[#1e293b] transition-colors">
                     <div className="flex gap-4 p-4">
                       <div className="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-black/40 relative">
                         {song.coverImage ? (
@@ -133,11 +159,11 @@ export default async function ProfilePage({ params }) {
                         )}
                       </div>
                       <div className="flex-1 min-w-0 py-1">
-                        <h3 className="font-bold text-white text-lg truncate group-hover:text-[#9d2bee] transition-colors">{song.titleEn}</h3>
+                        <h3 className="font-bold text-white text-lg truncate group-hover:text-[#0ea5e9] transition-colors">{song.titleEn}</h3>
                         {song.releaseYear && <p className="text-white/40 text-xs mb-2">{song.releaseYear}</p>}
                         <div className="flex flex-wrap gap-1.5 mt-auto">
                           {roles.map(r => (
-                            <span key={r} className="text-[10px] uppercase tracking-wider font-bold bg-[#9d2bee]/20 text-[#d8a1ff] px-2 py-0.5 rounded-full border border-[#9d2bee]/30">
+                            <span key={r} className="text-[10px] uppercase tracking-wider font-bold bg-[#0ea5e9]/20 text-[#bae6fd] px-2 py-0.5 rounded-full border border-[#0ea5e9]/30">
                               {r}
                             </span>
                           ))}
@@ -148,7 +174,7 @@ export default async function ProfilePage({ params }) {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#2a1d35]/20 border border-dashed border-white/10 rounded-3xl p-12 text-center">
+              <div className="bg-[#1e293b]/20 border border-dashed border-white/10 rounded-3xl p-12 text-center">
                 <span className="material-symbols-outlined text-5xl text-white/20 mb-4">album</span>
                 <p className="text-white/50 text-lg">No credited works available yet.</p>
               </div>

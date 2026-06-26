@@ -10,12 +10,13 @@ export async function PUT(request, { params }) {
 
     const { id } = await params;
     const body = await request.json();
-    const { name, mainRole, bio, imageUrl, galleryImages, socialLinks, isActive } = body;
+    const { name, mainRole, bio, imageUrl, galleryImages, socialLinks, isActive, isApproved } = body;
 
     const existing = await prisma.profile.findUnique({ where: { id } });
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const data = { mainRole: mainRole !== undefined ? mainRole : null, bio, imageUrl, galleryImages: galleryImages || [], socialLinks, isActive };
+    if (isApproved !== undefined) data.isApproved = isApproved;
     if (name) {
       data.name = name;
       if (name !== existing.name) {

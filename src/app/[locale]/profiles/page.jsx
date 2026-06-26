@@ -23,19 +23,19 @@ export default async function ProfilesPage({ params }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0b12] pt-24 pb-32">
+    <div className="min-h-screen bg-transparent pt-24 pb-32">
       {/* Hero Section */}
       <section className="relative w-full overflow-hidden mb-16">
         <div className="max-w-7xl mx-auto px-4 md:px-10 py-16 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 mb-6">
-            <span className="h-2 w-2 rounded-full bg-[#9d2bee] animate-pulse" />
+            <span className="h-2 w-2 rounded-full bg-[#0ea5e9] animate-pulse" />
             <span className="text-xs font-medium uppercase tracking-widest text-white/90">
               The Collective
             </span>
           </div>
           <h1 className="text-5xl md:text-7xl font-bold text-white tracking-tighter leading-tight mb-6">
             MEET THE <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#9d2bee] to-purple-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-purple-300">
               VISIONARIES
             </span>
           </h1>
@@ -61,7 +61,7 @@ export default async function ProfilesPage({ params }) {
                 className="group relative flex flex-col bg-[#1a1620] rounded-3xl overflow-hidden border border-white/5 hover:border-white/20 transition-all duration-500 shadow-xl"
               >
                 {/* Image Container */}
-                <div className="relative aspect-[4/5] overflow-hidden bg-[#2a1d35]">
+                <div className="relative aspect-[4/5] overflow-hidden bg-[#1e293b]">
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a1620] via-transparent to-transparent z-10 opacity-80" />
                   {profile.imageUrl ? (
                     <img
@@ -77,7 +77,7 @@ export default async function ProfilesPage({ params }) {
                   
                   {/* Floating Action */}
                   <div className="absolute top-4 right-4 z-20 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300">
-                    <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-[#9d2bee] hover:border-[#9d2bee]">
+                    <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white hover:bg-[#0ea5e9] hover:border-[#0ea5e9]">
                       <span className="material-symbols-outlined text-xl">arrow_outward</span>
                     </div>
                   </div>
@@ -85,10 +85,10 @@ export default async function ProfilesPage({ params }) {
 
                 {/* Info Content */}
                 <div className="relative z-20 p-6 flex-1 flex flex-col justify-end transform -translate-y-6">
-                  <div className="inline-block px-3 py-1 bg-[#9d2bee] text-white text-xs font-bold uppercase tracking-wider rounded-lg mb-3 shadow-[0_4px_14px_0_rgba(157,43,238,0.39)] self-start">
+                  <div className="inline-block px-3 py-1 bg-[#0ea5e9] text-white text-xs font-bold uppercase tracking-wider rounded-lg mb-3 shadow-[0_4px_14px_0_rgba(14, 165, 233,0.39)] self-start">
                     {profile.mainRole || 'Artist'}
                   </div>
-                  <h3 className="text-2xl font-black text-white tracking-tight mb-1 group-hover:text-[#9d2bee] transition-colors">
+                  <h3 className="text-2xl font-black text-white tracking-tight mb-1 group-hover:text-[#0ea5e9] transition-colors">
                     {profile.name}
                   </h3>
                   {profile.bio && (

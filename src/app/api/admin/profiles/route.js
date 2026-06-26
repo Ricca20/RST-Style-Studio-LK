@@ -40,6 +40,7 @@ export async function POST(request) {
         galleryImages: galleryImages || [],
         socialLinks: socialLinks || null,
         isActive: isActive !== undefined ? isActive : true,
+        isApproved: true, // Auto-approve since admin created it
       }
     });
 

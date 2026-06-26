@@ -1,13 +1,17 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/routing';
+import { Link, usePathname } from '@/i18n/routing';
 import LocaleSwitcher from '@/components/shared/LocaleSwitcher';
 import { useState, useEffect } from 'react';
+import MagneticButton from '@/components/ui/MagneticButton';
+import { Home, Info, Music, Users, Wrench, Mail, VolumeX, Volume2 } from 'lucide-react';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [volume, setVolume] = useState(0.5); // Master volume state (0 to 1)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -26,69 +30,123 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Floating Glass Pill Navigation */}
       <div className="fixed top-6 left-0 right-0 z-50 flex justify-center w-full pointer-events-none px-4">
-        <nav
-          className={`glass-nav pointer-events-auto w-[90%] md:w-3/4 max-w-5xl rounded-full px-6 py-3 flex items-center justify-between transition-all duration-300 ${
-            scrolled ? 'shadow-xl border-[#9d2bee]/20' : ''
-          }`}
-        >
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <img
-              src="/logo.PNG"
-              alt="RST Style Studio"
-              className="h-8 w-8 rounded-full object-cover"
-            />
-            <span className="text-white font-bold text-lg tracking-tight hidden sm:block">
-              RST Studio
-            </span>
+        {/* Main DJ Hardware Chassis */}
+        <nav className="dj-chassis pointer-events-auto flex items-center justify-between px-3 py-3 w-fit gap-6 transition-transform duration-500 hover:scale-[1.02]">
+          
+          {/* Screws */}
+          <div className="dj-screw dj-screw-tl" />
+          <div className="dj-screw dj-screw-tr" />
+          <div className="dj-screw dj-screw-bl" />
+          <div className="dj-screw dj-screw-br" />
+
+          {/* Left Knob (Home) */}
+          <Link href="/" title="Home" className="dj-knob-container shrink-0">
+            <div className="dj-knob">
+              <div className="dj-knob-center-blue" />
+            </div>
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-white/70 hover:text-white text-sm font-medium transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+          {/* Blue Separator */}
+          <div className="dj-separator-blue shrink-0" />
+
+          {/* Left Links */}
+          <div className="hidden lg:flex items-center gap-6 px-2">
+            {navLinks.slice(0, 3).map((link) => {
+              const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
+              
+              let Icon = Home;
+              if (link.href === '/about') Icon = Info;
+              if (link.href === '/songs') Icon = Music;
+
+              return (
+                <Link key={link.href} href={link.href} className={`dj-link-blue ${isActive ? 'active' : ''}`}>
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="mb-1" />
+                  <span className="dj-link-text">{link.label}</span>
+                </Link>
+              );
+            })}
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-3">
-            <LocaleSwitcher />
-            <Link
-              href="/contact"
-              className="hidden sm:flex bg-[#9d2bee] hover:bg-[#9d2bee]/90 text-white text-xs font-bold px-5 py-2.5 rounded-full transition-all neon-glow"
-            >
-              Book Session
-            </Link>
-            {/* Mobile Menu Toggle */}
-            <button
-              className="lg:hidden text-white"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
-            >
-              <span className="material-symbols-outlined">
-                {isOpen ? 'close' : 'menu'}
-              </span>
-            </button>
+          {/* Center Slider (Master Volume Control) */}
+          <div className="hidden md:flex flex-col items-center justify-center shrink-0 mx-2">
+            <div className="flex items-center gap-3">
+              <VolumeX size={14} className="text-white/30" />
+              <div className="dj-slider-track relative w-[120px]">
+                {/* Invisible native range input for perfect drag accessibility */}
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="1" 
+                  step="0.01"
+                  value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  aria-label="Master Volume"
+                />
+                {/* Visual hardware handle */}
+                <div 
+                  className="dj-slider-handle pointer-events-none" 
+                  style={{ left: `${volume * 100}%`, transform: 'translateX(-50%)' }} 
+                />
+              </div>
+              <Volume2 size={14} className="text-white/30" />
+            </div>
           </div>
+
+          {/* Right Links */}
+          <div className="hidden lg:flex items-center gap-6 px-2">
+            {navLinks.slice(3, 6).map((link) => {
+              const isActive = pathname.startsWith(link.href);
+              
+              let Icon = Users;
+              if (link.href === '/services') Icon = Wrench;
+              if (link.href === '/contact') Icon = Mail;
+
+              return (
+                <Link key={link.href} href={link.href} className={`dj-link-blue ${isActive ? 'active' : ''}`}>
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="mb-1" />
+                  <span className="dj-link-text">{link.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Locale Switcher (Hidden on small screens to preserve the layout) */}
+          <div className="hidden xl:block px-2">
+            <LocaleSwitcher />
+          </div>
+
+          {/* Right Knob (Book Session) */}
+          <MagneticButton>
+            <Link href="/contact" title="Book Session" className="dj-knob-container shrink-0">
+              <div className="dj-knob">
+                <div className="dj-knob-center-blue animate-pulse" />
+              </div>
+            </Link>
+          </MagneticButton>
+
+          {/* Mobile Menu Toggle (Only visible on small screens) */}
+          <button
+            className="lg:hidden text-white/70 hover:text-white p-2 shrink-0 ml-2 z-10"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className="material-symbols-outlined text-3xl">
+              {isOpen ? 'close' : 'menu'}
+            </span>
+          </button>
         </nav>
       </div>
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-[45] bg-[#151118]/95 backdrop-blur-md flex flex-col items-center justify-center gap-6 lg:hidden">
+        <div className="fixed inset-0 z-[45] bg-[#0f172a]/95 backdrop-blur-md flex flex-col items-center justify-center gap-6 lg:hidden">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-white text-2xl font-bold hover:text-[#9d2bee] transition-colors"
+              className="text-white text-2xl font-bold hover:text-[#0ea5e9] transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}
@@ -96,7 +154,7 @@ export default function Navbar() {
           ))}
           <Link
             href="/contact"
-            className="mt-4 bg-[#9d2bee] text-white px-8 py-3 rounded-full font-bold neon-glow"
+            className="mt-4 bg-[#0ea5e9] text-white px-8 py-3 rounded-full font-bold neon-glow"
             onClick={() => setIsOpen(false)}
           >
             Book Session

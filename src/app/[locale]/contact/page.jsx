@@ -5,7 +5,7 @@ export default async function ContactPage({ params }) {
   const tContact = await getTranslations({ locale, namespace: 'Contact' });
 
   return (
-    <div className="min-h-screen bg-[#151118] pt-24">
+    <div className="min-h-screen bg-transparent pt-24">
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-10 lg:px-20 py-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
           {/* LEFT COLUMN: Info & Visuals */}
@@ -29,7 +29,7 @@ export default async function ContactPage({ params }) {
             {/* Contact Info Grid */}
             <div className="flex flex-col gap-0 border-t border-white/10">
               <div className="grid grid-cols-[auto_1fr] gap-x-8 py-5 border-b border-white/10 items-start">
-                <div className="text-[#9d2bee] mt-1">
+                <div className="text-[#0ea5e9] mt-1">
                   <span className="material-symbols-outlined">location_on</span>
                 </div>
                 <div>
@@ -38,13 +38,13 @@ export default async function ContactPage({ params }) {
                 </div>
               </div>
               <div className="grid grid-cols-[auto_1fr] gap-x-8 py-5 border-b border-white/10 items-start">
-                <div className="text-[#9d2bee] mt-1">
+                <div className="text-[#0ea5e9] mt-1">
                   <span className="material-symbols-outlined">mail</span>
                 </div>
                 <div>
                   <p className="text-[#ad9db9] text-xs uppercase tracking-wider mb-1">{tContact('email')}</p>
                   <a
-                    className="text-white text-base font-medium hover:text-[#9d2bee] transition-colors"
+                    className="text-white text-base font-medium hover:text-[#0ea5e9] transition-colors"
                     href="mailto:hello@rststylestudiolk.com"
                   >
                     hello@rststylestudiolk.com
@@ -52,7 +52,7 @@ export default async function ContactPage({ params }) {
                 </div>
               </div>
               <div className="grid grid-cols-[auto_1fr] gap-x-8 py-5 border-b border-white/10 items-start">
-                <div className="text-[#9d2bee] mt-1">
+                <div className="text-[#0ea5e9] mt-1">
                   <span className="material-symbols-outlined">call</span>
                 </div>
                 <div>
@@ -61,7 +61,7 @@ export default async function ContactPage({ params }) {
                 </div>
               </div>
               <div className="grid grid-cols-[auto_1fr] gap-x-8 py-5 border-b border-white/10 items-start">
-                <div className="text-[#9d2bee] mt-1">
+                <div className="text-[#0ea5e9] mt-1">
                   <span className="material-symbols-outlined">chat</span>
                 </div>
                 <div>
@@ -77,7 +77,7 @@ export default async function ContactPage({ params }) {
               <div className="flex gap-3">
                 <a
                   href="#"
-                  className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#251e2b] border border-white/5 hover:border-[#9d2bee]/50 hover:bg-[#9d2bee]/20 transition-all"
+                  className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#251e2b] border border-white/5 hover:border-[#0ea5e9]/50 hover:bg-[#0ea5e9]/20 transition-all"
                 >
                   <span className="material-symbols-outlined text-white/70 group-hover:text-white text-[20px]">
                     public
@@ -85,7 +85,7 @@ export default async function ContactPage({ params }) {
                 </a>
                 <a
                   href="#"
-                  className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#251e2b] border border-white/5 hover:border-[#9d2bee]/50 hover:bg-[#9d2bee]/20 transition-all"
+                  className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#251e2b] border border-white/5 hover:border-[#0ea5e9]/50 hover:bg-[#0ea5e9]/20 transition-all"
                 >
                   <span className="material-symbols-outlined text-white/70 group-hover:text-white text-[20px]">
                     play_circle
@@ -93,7 +93,7 @@ export default async function ContactPage({ params }) {
                 </a>
                 <a
                   href="#"
-                  className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#251e2b] border border-white/5 hover:border-[#9d2bee]/50 hover:bg-[#9d2bee]/20 transition-all"
+                  className="group flex items-center justify-center w-12 h-12 rounded-full bg-[#251e2b] border border-white/5 hover:border-[#0ea5e9]/50 hover:bg-[#0ea5e9]/20 transition-all"
                 >
                   <span className="material-symbols-outlined text-white/70 group-hover:text-white text-[20px]">
                     graphic_eq
@@ -107,7 +107,7 @@ export default async function ContactPage({ params }) {
           <div className="lg:col-span-7">
             <div className="glass-panel p-6 md:p-8 rounded-2xl shadow-2xl relative overflow-hidden">
               {/* Decorative glow */}
-              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#9d2bee]/20 rounded-full blur-[80px] pointer-events-none" />
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#0ea5e9]/20 rounded-full blur-[80px] pointer-events-none" />
               <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2 relative z-10">
                 Request a Session
               </h3>
@@ -119,7 +119,7 @@ export default async function ContactPage({ params }) {
                       Contact Name
                     </label>
                     <input
-                      className="h-12 w-full rounded-lg border border-[#322839] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] focus:outline-none transition-all"
+                      className="h-12 w-full rounded-lg border border-[#334155] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] focus:outline-none transition-all"
                       placeholder="Your Name"
                       type="text"
                     />
@@ -129,7 +129,7 @@ export default async function ContactPage({ params }) {
                       Artist / Band Name
                     </label>
                     <input
-                      className="h-12 w-full rounded-lg border border-[#322839] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] focus:outline-none transition-all"
+                      className="h-12 w-full rounded-lg border border-[#334155] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] focus:outline-none transition-all"
                       placeholder="Artist Name"
                       type="text"
                     />
@@ -143,7 +143,7 @@ export default async function ContactPage({ params }) {
                       Email Address
                     </label>
                     <input
-                      className="h-12 w-full rounded-lg border border-[#322839] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] focus:outline-none transition-all"
+                      className="h-12 w-full rounded-lg border border-[#334155] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] focus:outline-none transition-all"
                       placeholder="you@example.com"
                       type="email"
                     />
@@ -153,7 +153,7 @@ export default async function ContactPage({ params }) {
                       Phone Number
                     </label>
                     <input
-                      className="h-12 w-full rounded-lg border border-[#322839] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] focus:outline-none transition-all"
+                      className="h-12 w-full rounded-lg border border-[#334155] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] focus:outline-none transition-all"
                       placeholder="+94 7X XXX XXXX"
                       type="tel"
                     />
@@ -168,8 +168,8 @@ export default async function ContactPage({ params }) {
                   <div className="grid grid-cols-3 gap-3">
                     <label className="cursor-pointer">
                       <input defaultChecked className="peer sr-only" name="service" type="radio" />
-                      <div className="h-full rounded-lg border border-[#322839] bg-[#1a151f] p-4 text-center hover:bg-[#251e2b] peer-checked:border-[#9d2bee] peer-checked:bg-[#9d2bee]/10 transition-all flex flex-col items-center gap-1">
-                        <span className="material-symbols-outlined text-gray-400 peer-checked:text-[#9d2bee] mb-1">
+                      <div className="h-full rounded-lg border border-[#334155] bg-[#1a151f] p-4 text-center hover:bg-[#251e2b] peer-checked:border-[#0ea5e9] peer-checked:bg-[#0ea5e9]/10 transition-all flex flex-col items-center gap-1">
+                        <span className="material-symbols-outlined text-gray-400 peer-checked:text-[#0ea5e9] mb-1">
                           mic_external_on
                         </span>
                         <span className="text-sm font-medium text-white">Recording</span>
@@ -177,8 +177,8 @@ export default async function ContactPage({ params }) {
                     </label>
                     <label className="cursor-pointer">
                       <input className="peer sr-only" name="service" type="radio" />
-                      <div className="h-full rounded-lg border border-[#322839] bg-[#1a151f] p-4 text-center hover:bg-[#251e2b] peer-checked:border-[#9d2bee] peer-checked:bg-[#9d2bee]/10 transition-all flex flex-col items-center gap-1">
-                        <span className="material-symbols-outlined text-gray-400 peer-checked:text-[#9d2bee] mb-1">
+                      <div className="h-full rounded-lg border border-[#334155] bg-[#1a151f] p-4 text-center hover:bg-[#251e2b] peer-checked:border-[#0ea5e9] peer-checked:bg-[#0ea5e9]/10 transition-all flex flex-col items-center gap-1">
+                        <span className="material-symbols-outlined text-gray-400 peer-checked:text-[#0ea5e9] mb-1">
                           tune
                         </span>
                         <span className="text-sm font-medium text-white">Mixing</span>
@@ -186,8 +186,8 @@ export default async function ContactPage({ params }) {
                     </label>
                     <label className="cursor-pointer">
                       <input className="peer sr-only" name="service" type="radio" />
-                      <div className="h-full rounded-lg border border-[#322839] bg-[#1a151f] p-4 text-center hover:bg-[#251e2b] peer-checked:border-[#9d2bee] peer-checked:bg-[#9d2bee]/10 transition-all flex flex-col items-center gap-1">
-                        <span className="material-symbols-outlined text-gray-400 peer-checked:text-[#9d2bee] mb-1">
+                      <div className="h-full rounded-lg border border-[#334155] bg-[#1a151f] p-4 text-center hover:bg-[#251e2b] peer-checked:border-[#0ea5e9] peer-checked:bg-[#0ea5e9]/10 transition-all flex flex-col items-center gap-1">
+                        <span className="material-symbols-outlined text-gray-400 peer-checked:text-[#0ea5e9] mb-1">
                           album
                         </span>
                         <span className="text-sm font-medium text-white">Mastering</span>
@@ -202,7 +202,7 @@ export default async function ContactPage({ params }) {
                     Preferred Date
                   </label>
                   <input
-                    className="h-12 w-full rounded-lg border border-[#322839] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] focus:outline-none transition-all [color-scheme:dark]"
+                    className="h-12 w-full rounded-lg border border-[#334155] bg-[#1a151f] px-4 text-white placeholder-gray-600 focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] focus:outline-none transition-all [color-scheme:dark]"
                     type="date"
                   />
                 </div>
@@ -213,7 +213,7 @@ export default async function ContactPage({ params }) {
                     Project Details
                   </label>
                   <textarea
-                    className="h-32 w-full rounded-lg border border-[#322839] bg-[#1a151f] p-4 text-white placeholder-gray-600 focus:border-[#9d2bee] focus:ring-1 focus:ring-[#9d2bee] focus:outline-none transition-all resize-none"
+                    className="h-32 w-full rounded-lg border border-[#334155] bg-[#1a151f] p-4 text-white placeholder-gray-600 focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] focus:outline-none transition-all resize-none"
                     placeholder="Tell us about your project, genre, and how many hours you think you'll need..."
                   />
                 </div>
@@ -222,7 +222,7 @@ export default async function ContactPage({ params }) {
                 <div className="mt-2">
                   <button
                     type="button"
-                    className="neon-glow flex w-full cursor-pointer items-center justify-center rounded-lg bg-[#9d2bee] py-4 text-base font-bold text-white hover:bg-[#9d2bee]/90 active:scale-[0.98] transition-all"
+                    className="neon-glow flex w-full cursor-pointer items-center justify-center rounded-lg bg-[#0ea5e9] py-4 text-base font-bold text-white hover:bg-[#0ea5e9]/90 active:scale-[0.98] transition-all"
                   >
                     Book Session Request
                   </button>

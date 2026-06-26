@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { Link } from '@/i18n/routing';
 import { useTranslations } from 'next-intl';
 import { Play, PlayCircle, Film, MonitorPlay, Filter } from 'lucide-react';
+import TiltCard from '@/components/ui/TiltCard';
 
 export default function SongsClient({ initialSongs, genres, locale }) {
   const tSongs = useTranslations('Songs');
@@ -38,14 +39,14 @@ export default function SongsClient({ initialSongs, genres, locale }) {
           <h2 className="text-3xl font-black text-white tracking-tight">{tSongs('latest') || 'Our Latest Works'}</h2>
           
           {/* Project Type Tabs */}
-          <div className="flex bg-[#1e1823] p-1.5 rounded-2xl border border-white/5 shadow-inner overflow-x-auto max-w-full no-scrollbar">
+          <div className="flex bg-[#1e293b] p-1.5 rounded-2xl border border-white/5 shadow-inner overflow-x-auto max-w-full no-scrollbar">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-[#9d2bee] text-white shadow-[0_0_20px_rgba(157,43,238,0.3)]'
+                    ? 'bg-[#0ea5e9] text-white shadow-[0_0_20px_rgba(14, 165, 233,0.3)]'
                     : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                 }`}
               >
@@ -96,7 +97,7 @@ export default function SongsClient({ initialSongs, genres, locale }) {
           <p className="text-white/40 text-lg font-light">No works found matching these filters.</p>
           <button 
             onClick={() => { setActiveTab('ALL'); setActiveGenre('ALL'); }}
-            className="mt-6 text-[#9d2bee] font-bold text-sm hover:underline"
+            className="mt-6 text-[#0ea5e9] font-bold text-sm hover:underline"
           >
             Clear Filters
           </button>
@@ -104,16 +105,16 @@ export default function SongsClient({ initialSongs, genres, locale }) {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-in fade-in duration-500">
           {filteredSongs.map((song) => (
-            <Link
-              key={song.id}
-              href={`/songs/${song.slug}`}
-              className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer bg-[#1a1620] shadow-xl border border-white/5"
-            >
+            <TiltCard key={song.id}>
+              <Link
+                href={`/songs/${song.slug}`}
+                className="group relative aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer bg-[#1a1620] shadow-xl border border-white/5 block h-full w-full"
+              >
               {/* Project Type Badge */}
               <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-xs font-bold text-white uppercase tracking-wider">
                 {song.projectType === 'MUSIC_VIDEO' ? <Film className="w-3 h-3 text-pink-400" /> : 
                  song.projectType === 'COMMERCIAL' ? <MonitorPlay className="w-3 h-3 text-blue-400" /> : 
-                 <PlayCircle className="w-3 h-3 text-[#9d2bee]" />}
+                 <PlayCircle className="w-3 h-3 text-[#0ea5e9]" />}
                 {song.projectType === 'MUSIC_VIDEO' ? 'Video' : song.projectType === 'COMMERCIAL' ? 'Comm.' : 'Audio'}
               </div>
 
@@ -126,7 +127,7 @@ export default function SongsClient({ initialSongs, genres, locale }) {
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#1a1620] to-[#322839] flex items-center justify-center">
+                  <div className="w-full h-full bg-gradient-to-br from-[#1a1620] to-[#334155] flex items-center justify-center">
                     <span className="material-symbols-outlined text-6xl text-white/10">music_note</span>
                   </div>
                 )}
@@ -136,7 +137,7 @@ export default function SongsClient({ initialSongs, genres, locale }) {
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/70 transition-all duration-300 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 flex flex-col justify-center items-center z-10">
                 {/* Play Button */}
                 <div className="scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300 delay-75">
-                  <div className="flex items-center justify-center w-20 h-20 rounded-full bg-[#9d2bee] text-white shadow-[0_0_40px_rgba(157,43,238,0.6)]">
+                  <div className="flex items-center justify-center w-20 h-20 rounded-full bg-[#0ea5e9] text-white shadow-[0_0_40px_rgba(14, 165, 233,0.6)]">
                     {song.projectType === 'MUSIC_VIDEO' ? (
                       <Film className="w-8 h-8 ml-1" />
                     ) : (
@@ -149,7 +150,7 @@ export default function SongsClient({ initialSongs, genres, locale }) {
               {/* Default Bottom Bar (Gradient always visible to make text readable) */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 z-20 transition-transform duration-300 group-hover:translate-y-2 group-hover:opacity-0">
                 <h4 className="text-white font-black text-xl tracking-tight leading-tight mb-1">{t(song, 'title', locale)}</h4>
-                <p className="text-[#9d2bee] text-sm font-bold">
+                <p className="text-[#0ea5e9] text-sm font-bold">
                   {song.contributions?.[0]?.contributor
                     ? t(song.contributions[0].contributor, 'name', locale)
                     : song.genres && song.genres.length > 0
@@ -168,15 +169,16 @@ export default function SongsClient({ initialSongs, genres, locale }) {
                   {/* Sound Wave Visual */}
                   {song.projectType !== 'MUSIC_VIDEO' && (
                     <div className="flex gap-1 h-5 items-end pb-1 shrink-0">
-                      <div className="w-1 bg-[#9d2bee] rounded-full h-3 animate-pulse" style={{ animationDelay: '0ms' }} />
-                      <div className="w-1 bg-[#9d2bee] rounded-full h-5 animate-pulse" style={{ animationDelay: '150ms' }} />
-                      <div className="w-1 bg-[#9d2bee] rounded-full h-2 animate-pulse" style={{ animationDelay: '300ms' }} />
-                      <div className="w-1 bg-[#9d2bee] rounded-full h-4 animate-pulse" style={{ animationDelay: '450ms' }} />
+                      <div className="w-1 bg-[#0ea5e9] rounded-full h-3 animate-pulse" style={{ animationDelay: '0ms' }} />
+                      <div className="w-1 bg-[#0ea5e9] rounded-full h-5 animate-pulse" style={{ animationDelay: '150ms' }} />
+                      <div className="w-1 bg-[#0ea5e9] rounded-full h-2 animate-pulse" style={{ animationDelay: '300ms' }} />
+                      <div className="w-1 bg-[#0ea5e9] rounded-full h-4 animate-pulse" style={{ animationDelay: '450ms' }} />
                     </div>
                   )}
                 </div>
               </div>
-            </Link>
+              </Link>
+            </TiltCard>
           ))}
         </div>
       )}
