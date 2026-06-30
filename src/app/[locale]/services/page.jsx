@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/db';
-import { t } from '@/lib/t';
+import { t } from '@/lib/utils/t';
 import { Link } from '@/i18n/routing';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
 import TiltCard from '@/components/ui/TiltCard';

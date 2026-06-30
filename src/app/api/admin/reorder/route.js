@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction } from '@/lib/server-auth';
+import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
 
 export async function PUT(request) {
   try {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { fetchChannelVideos } from '@/lib/youtube';
+import { fetchChannelVideos } from '@/lib/services/youtube';
 
 export async function GET(request) {
   const authHeader = request.headers.get('authorization');

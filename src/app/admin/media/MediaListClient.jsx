@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Trash2, Link as LinkIcon, FileImage, File } from 'lucide-react';
-import { deleteMediaFile } from '@/lib/media-actions';
+import { deleteMediaFile } from '@/lib/actions/media-actions';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 

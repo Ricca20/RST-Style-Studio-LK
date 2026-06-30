@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { CheckCircle2, ChevronRight, MessageCircle, Music, X, Paperclip, DollarSign, Guitar } from 'lucide-react';
-import { buildWhatsAppUrl } from '@/lib/whatsapp';
+import { buildWhatsAppUrl } from '@/lib/services/whatsapp';
 import TiltCard from '@/components/ui/TiltCard';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
 

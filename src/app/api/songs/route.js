@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/server-auth';
+import { checkAuth } from '@/lib/auth/server-auth';
 import { z } from 'zod';
-import { createSlug } from '@/lib/slugify';
+import { createSlug } from '@/lib/utils/slugify';
 
 const songSchema = z.object({
   titleEn: z.string().min(1),

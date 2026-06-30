@@ -5,7 +5,7 @@ import { Server, Save, Activity, LayoutDashboard, Globe, AlertTriangle, PlaySqua
 import Link from 'next/link';
 import FormImageUpload from '@/components/admin/FormImageUpload';
 import RevokeSessionsButton from '@/components/admin/RevokeSessionsButton';
-import { checkAuth, logAuditAction } from '@/lib/server-auth';
+import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
 
 export default async function AdminSettings() {
   let settings = await prisma.studioSettings.findFirst();

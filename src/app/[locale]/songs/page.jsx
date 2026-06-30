@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/db';
 import { Link } from '@/i18n/routing';
-import { t } from '@/lib/t';
+import { t } from '@/lib/utils/t';
 import SongsClient from '@/components/public/SongsClient';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
 

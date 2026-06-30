@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { fetchArtistTopTracks } from '@/lib/spotify';
+import { fetchArtistTopTracks } from '@/lib/services/spotify';
 
 export async function GET(request) {
   const authHeader = request.headers.get('authorization');

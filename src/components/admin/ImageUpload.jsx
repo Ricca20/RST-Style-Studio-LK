@@ -1,6 +1,6 @@
 'use client';
 import { useState, useRef } from 'react';
-import { uploadImage } from '@/lib/uploadImage';
+import { uploadImage } from '@/lib/utils/uploadImage';
 import { ImagePlus, Loader2, X } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 

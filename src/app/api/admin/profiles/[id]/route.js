@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/server-auth';
+import { checkAuth } from '@/lib/auth/server-auth';
 import slugify from 'slugify';
 
 export async function PUT(request, { params }) {

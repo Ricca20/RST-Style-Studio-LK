@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { checkAuth, logAuditAction } from '@/lib/server-auth';
+import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
 
 export async function POST(request) {
   try {

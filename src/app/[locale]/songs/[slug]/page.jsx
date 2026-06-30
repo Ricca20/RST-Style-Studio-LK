@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/db';
-import { t } from '@/lib/t';
+import { t } from '@/lib/utils/t';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { PlayCircle, Film, MonitorPlay } from 'lucide-react';

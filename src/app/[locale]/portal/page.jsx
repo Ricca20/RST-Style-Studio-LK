@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { checkAuth } from '@/lib/server-auth';
+import { checkAuth } from '@/lib/auth/server-auth';
 import prisma from '@/lib/db';
 import PortalClient from './PortalClient';
 import { getTranslations } from 'next-intl/server';

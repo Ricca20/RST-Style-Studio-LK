@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import prisma from '@/lib/db';
-import { t } from '@/lib/t';
+import { t } from '@/lib/utils/t';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
 import TiltCard from '@/components/ui/TiltCard';
 import Hero3DObject from '@/components/3d/Hero3DObject';

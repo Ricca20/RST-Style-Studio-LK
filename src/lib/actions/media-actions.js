@@ -2,7 +2,7 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { requireRole, logAuditAction } from '@/lib/server-auth';
+import { requireRole, logAuditAction } from '@/lib/auth/server-auth';
 import { revalidatePath } from 'next/cache';
 
 async function getSupabaseAdmin() {

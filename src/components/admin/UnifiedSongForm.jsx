@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createSlug } from '@/lib/slugify';
+import { createSlug } from '@/lib/utils/slugify';
 import { toast } from 'sonner';
 import { Eye, X } from 'lucide-react';
 import ConfirmModal from '@/components/ui/ConfirmModal';

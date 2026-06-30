@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { fetchPagePosts } from '@/lib/facebook';
+import { fetchPagePosts } from '@/lib/services/facebook';
 
 export async function GET(request) {
   const authHeader = request.headers.get('authorization');

@@ -1,4 +1,4 @@
-import { createClient } from './supabase';
+import { createClient } from '../services/supabase';
 
 export async function uploadImage(file) {
   if (!file) throw new Error('No file provided');

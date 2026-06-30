@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/server-auth';
+import { checkAuth } from '@/lib/auth/server-auth';
 
 export async function GET(request) {
   try {
@@ -89,14 +89,14 @@ export async function POST(request) {
       .then(settings => {
         if (settings?.adminAlertEmail) {
           // sendEmail helper handles Resend connection
-          import('@/lib/sendEmail').then(({ sendAdminQuotationAlert }) => {
+          import('@/lib/services/sendEmail').then(({ sendAdminQuotationAlert }) => {
             sendAdminQuotationAlert(quotation, settings.adminAlertEmail);
           });
         }
       }).catch(err => console.error("Failed to process alert email:", err));
 
     // Send In-App Notification to Admins
-    import('@/lib/notification').then(({ broadcastNotification }) => {
+    import('@/lib/services/notification').then(({ broadcastNotification }) => {
       broadcastNotification(['SUPER_ADMIN', 'ADMIN'], {
         title: 'New Quotation Request',
         message: `${name} has submitted a new quotation request${genre ? ` for ${genre}` : ''}.`,

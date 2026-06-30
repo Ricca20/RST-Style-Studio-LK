@@ -1,6 +1,6 @@
 import prisma from '@/lib/db';
 import { Shield, Clock, User, Activity, AlertCircle } from 'lucide-react';
-import { requireRole } from '@/lib/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
 import { redirect } from 'next/navigation';
 
 import AdminSearchFilter from '@/components/admin/AdminSearchFilter';
