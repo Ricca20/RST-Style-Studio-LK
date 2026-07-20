@@ -9,8 +9,6 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Award,
-  Share2,
   Shield,
   Image as ImageIcon,
   Trash2

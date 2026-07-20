@@ -75,6 +75,16 @@ function SortableProfileCard({ profile, onToggleActive, onEdit, onDelete }) {
           </label>
         )}
         <div className="flex items-center gap-2" onPointerDown={e => e.stopPropagation()}>
+          {profile.slug && (
+            <a
+              href={`/contributors/${profile.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-gray-500 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg text-sm flex items-center font-medium"
+            >
+              <Eye className="w-3.5 h-3.5 mr-1" /> View
+            </a>
+          )}
           <button onClick={() => onEdit(profile)} className="text-gray-500 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg text-sm flex items-center font-medium">
             <Edit2 className="w-3.5 h-3.5 mr-1" /> Edit
           </button>
@@ -291,12 +301,22 @@ export default function AdminProfilesPage() {
           <h1 className="text-3xl font-bold text-gray-900">Manage Profiles</h1>
           <p className="text-gray-500 mt-1">Create and manage public profiles for your core team</p>
         </div>
-        <button
-          onClick={() => { resetForm(); setShowForm(true); }}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm"
-        >
-          <Plus className="w-5 h-5 mr-2" /> Add Profile
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/contributors"
+            target="_blank"
+            rel="noreferrer"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2.5 rounded-lg font-medium flex items-center transition border border-gray-300 shadow-sm text-sm"
+          >
+            <Eye className="w-4 h-4 mr-2" /> View Live Roster
+          </a>
+          <button
+            onClick={() => { resetForm(); setShowForm(true); }}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm"
+          >
+            <Plus className="w-5 h-5 mr-2" /> Add Profile
+          </button>
+        </div>
       </div>
 
       <AdminSearchFilter 

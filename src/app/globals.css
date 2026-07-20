@@ -361,27 +361,83 @@
 
 /* Glass Navigation Effect */
 .glass-nav {
-  background: rgba(15, 23, 42, 0.6);
-  /* slate-900 */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  background: rgba(10, 10, 10, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Glass Panel Effect (for form cards, etc.) */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.7);
-  /* Deep slate with 70% opacity */
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ── Aerospace HUD Glassmorphism System ───────────────────────────── */
+.aerospace-container {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    inset 0 0 25px rgba(14, 165, 233, 0.05);
+}
+
+.aerospace-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.015) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05), 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aerospace-card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(14, 165, 233, 0.06) 100%);
+  border-color: rgba(14, 165, 233, 0.45);
+  box-shadow: 
+    0 12px 40px 0 rgba(0, 0, 0, 0.5),
+    0 0 25px rgba(14, 165, 233, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+}
+
+.aerospace-input {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.aerospace-input:focus, .aerospace-input:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(14, 165, 233, 0.55);
+  box-shadow: 0 0 18px rgba(14, 165, 233, 0.3);
+  outline: none;
+}
+
+/* Luminous Aerospace Typography */
+.aerospace-title {
+  color: #ffffff;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 0 30px rgba(14, 165, 233, 0.25);
+}
+
+.aerospace-subtitle {
+  color: rgba(226, 232, 240, 0.9);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.95);
 }
 
 /* Neon text glow */
 .text-glow {
-  text-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+  text-shadow: 0 0 20px rgba(14, 165, 233, 0.4), 0 2px 10px rgba(0, 0, 0, 0.8);
 }
 
 /* Neon box glow on hover */
@@ -541,4 +597,315 @@
 
 .preserve-3d {
   transform-style: preserve-3d;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   3D FOOTER — DJ Console Inspired
+   ═══════════════════════════════════════════════════════════════ */
+
+.footer-3d-root {
+  position: relative;
+  background: #060409;
+  padding-top: 5rem;
+  padding-bottom: 2rem;
+  overflow: hidden;
+  border-top: 1px solid rgba(14, 165, 233, 0.08);
+}
+
+/* ── Background Effects ── */
+.footer-bg-glow {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.footer-bg-glow-left {
+  background: #0ea5e9;
+  top: -100px;
+  left: -200px;
+}
+
+.footer-bg-glow-right {
+  background: #a855f7;
+  bottom: -100px;
+  right: -200px;
+}
+
+.footer-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30%, black 70%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── Console Panel (main 3D card) ── */
+.footer-console {
+  margin-bottom: 2.5rem;
+}
+
+.footer-console-inner {
+  position: relative;
+  background: #111111;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 30px 60px -15px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(14, 165, 233, 0.05),
+    inset 0 1px 2px rgba(255, 255, 255, 0.06),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+  background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
+  background-size: 6px 6px;
+  transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  overflow: hidden;
+}
+
+.footer-console-inner:hover {
+  box-shadow:
+    0 40px 80px -20px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(14, 165, 233, 0.1),
+    0 0 40px rgba(14, 165, 233, 0.03),
+    inset 0 1px 2px rgba(255, 255, 255, 0.08),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Glowing Edge Light (top border accent) ── */
+.footer-edge-light {
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #0ea5e9, #7dd3fc, #0ea5e9, transparent);
+  box-shadow: 0 0 15px rgba(14, 165, 233, 0.4), 0 0 30px rgba(14, 165, 233, 0.1);
+}
+
+/* ── Logo Ring ── */
+.footer-logo-ring {
+  padding: 3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0ea5e9, #a855f7, #0ea5e9);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+  animation: footer-ring-spin 8s linear infinite;
+}
+
+@keyframes footer-ring-spin {
+  to { filter: hue-rotate(360deg); }
+}
+
+/* ── Neon Vertical Divider ── */
+.footer-neon-divider {
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, #0ea5e9, transparent);
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
+  border-radius: 2px;
+  align-self: stretch;
+  opacity: 0.6;
+}
+
+/* ── Section Title ── */
+.footer-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* ── Footer Links ── */
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #7dd3fc;
+  transform: translateX(4px);
+}
+
+.footer-link-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.footer-link:hover .footer-link-dot {
+  background: #0ea5e9;
+  box-shadow: 0 0 8px rgba(14, 165, 233, 0.6);
+}
+
+.footer-link-text {
+  transition: all 0.3s ease;
+}
+
+/* ── Contact Items ── */
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  transition: color 0.3s;
+}
+
+.footer-contact-item:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.footer-contact-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(14, 165, 233, 0.08);
+  border: 1px solid rgba(14, 165, 233, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0ea5e9;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+.footer-contact-item:hover .footer-contact-icon {
+  background: rgba(14, 165, 233, 0.15);
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.15);
+}
+
+/* ── Social Buttons ── */
+.footer-social-btn {
+  perspective: 600px;
+  text-decoration: none;
+}
+
+.footer-social-btn-inner {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.footer-social-btn:hover .footer-social-btn-inner {
+  background: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.3);
+  color: #7dd3fc;
+  transform: translateY(-4px) rotateX(-8deg);
+  box-shadow:
+    0 10px 25px -5px rgba(14, 165, 233, 0.2),
+    0 0 15px rgba(14, 165, 233, 0.1);
+}
+
+/* ── Vinyl Disc Animation ── */
+.footer-vinyl-container {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.footer-vinyl {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #111 0%, #222 30%, #111 60%, #1a1a1a 100%);
+  position: relative;
+  animation: footer-vinyl-spin 4s linear infinite;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.05),
+    0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes footer-vinyl-spin {
+  to { transform: rotate(360deg); }
+}
+
+.footer-vinyl-groove {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.footer-vinyl-groove-1 {
+  inset: 15%;
+}
+
+.footer-vinyl-groove-2 {
+  inset: 25%;
+}
+
+.footer-vinyl-groove-3 {
+  inset: 35%;
+}
+
+.footer-vinyl-label {
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 6px rgba(14, 165, 233, 0.4);
+}
+
+.footer-vinyl-label-inner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0a0a0a;
+}
+
+/* ── Waveform Path Animation ── */
+.footer-waveform-path {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: footer-wave-draw 3s ease-out forwards, footer-wave-pulse 4s ease-in-out 3s infinite;
+}
+
+@keyframes footer-wave-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes footer-wave-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Bottom Bar ── */
+.footer-bottom-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+@media (min-width: 768px) {
+  .footer-bottom-bar {
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }

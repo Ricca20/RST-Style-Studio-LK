@@ -45,9 +45,18 @@ export default async function AdminSongs({ searchParams }) {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Manage Songs</h1>
-        <Link href="/admin/songs/new" className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium flex items-center transition shadow-sm">
-          <Plus className="w-5 h-5 mr-2" /> Add Song
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/songs"
+            target="_blank"
+            className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-medium flex items-center transition border border-gray-300 shadow-sm text-sm"
+          >
+            View Live Catalog
+          </Link>
+          <Link href="/admin/songs/new" className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg font-medium flex items-center transition shadow-sm">
+            <Plus className="w-5 h-5 mr-2" /> Add Song
+          </Link>
+        </div>
       </div>
 
       <AdminSearchFilter 

@@ -52,20 +52,9 @@ export default async function LocaleLayout({ children, params }) {
     <NextIntlClientProvider locale={locale} messages={messages}>
       <div className="flex min-h-screen flex-col text-white relative">
         
-        {/* Global Video Background */}
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#0a0a0a]">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover scale-[1.35]"
-            poster="/logo.PNG"
-          >
-            <source src="/Herovideo.MP4" type="video/mp4" />
-          </video>
-          {/* Dark overlay to ensure content remains readable */}
-          <div className="absolute inset-0 bg-black/40" />
+        {/* Global Sleek Aerospace Background & Ambient Glow */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#060913]">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#0ea5e9]/10 via-[#9d2bee]/5 to-transparent rounded-full blur-[160px] opacity-70" />
         </div>
 
         <GlobalScene />

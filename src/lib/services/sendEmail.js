@@ -32,3 +32,31 @@ export async function sendAdminQuotationAlert(quotation, toEmail) {
     console.error('Error sending email alert:', error);
   }
 }
+
+export async function sendContactEmail(inquiry, toEmail) {
+  if (!resend || !toEmail) {
+    console.warn('RESEND_API_KEY or target email not configured. Contact email alert logged.');
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: 'RST Style Studio <noreply@rststylestudiolk.com>',
+      to: [toEmail],
+      subject: `New Studio Inquiry: ${inquiry.name} [${inquiry.service}]`,
+      html: `
+        <h2>New Studio Contact Form Inquiry</h2>
+        <p><strong>Name:</strong> ${inquiry.name}</p>
+        <p><strong>Artist/Band:</strong> ${inquiry.artistName || 'N/A'}</p>
+        <p><strong>Email:</strong> ${inquiry.email}</p>
+        <p><strong>Phone / WhatsApp:</strong> ${inquiry.phone}</p>
+        <p><strong>Service Requested:</strong> ${inquiry.service}</p>
+        <p><strong>Preferred Session Date:</strong> ${inquiry.preferredDate || 'Flexible'}</p>
+        <p><strong>Notes / Specification:</strong></p>
+        <p>${inquiry.notes || 'N/A'}</p>
+      `,
+    });
+  } catch (error) {
+    console.error('Error sending contact email:', error);
+  }
+}

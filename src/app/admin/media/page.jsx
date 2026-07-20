@@ -94,9 +94,18 @@ export default function AdminMediaPage() {
     <div className="max-w-6xl mx-auto space-y-8 pb-20">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Media Library</h1>
-          <p className="text-gray-500 mt-1">Manage and upload your studio assets.</p>
+          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Studio Media & Gallery Manager</h1>
+          <p className="text-gray-500 mt-1">Upload and manage images. Any photos uploaded here automatically sync to the public <strong className="text-gray-700">/media</strong> Studio Moments gallery.</p>
         </div>
+        <a
+          href="/media"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium text-sm shadow-sm transition"
+        >
+          <ExternalLink className="w-4 h-4" />
+          <span>View Live /media Gallery</span>
+        </a>
       </div>
 
       <div className="bg-white rounded-2xl border p-6 shadow-sm">

@@ -130,7 +130,7 @@ export default function QuotePage() {
         {/* Glow effect */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0ea5e9]/20 rounded-full blur-[120px] pointer-events-none" />
         
-        <div className="max-w-lg w-full bg-[#1e293b] border border-white/5 rounded-3xl p-10 text-center relative z-10 shadow-2xl">
+        <div className="max-w-lg w-full bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl p-10 text-center relative z-10 shadow-2xl">
           <div className="w-24 h-24 bg-[#0ea5e9]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(14, 165, 233,0.3)]">
             <CheckCircle2 className="w-12 h-12 text-[#0ea5e9]" />
           </div>
@@ -177,7 +177,7 @@ export default function QuotePage() {
 
         {/* Floating Budget Bar */}
         <div className="sticky top-20 z-30 mb-8">
-          <div className="bg-[#1e293b]/80 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl px-6 py-4 flex items-center justify-between max-w-xl mx-auto">
+          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl px-6 py-4 flex items-center justify-between max-w-xl mx-auto">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-[#0ea5e9]/20 flex items-center justify-center border border-[#0ea5e9]/30">
                 <DollarSign className="w-6 h-6 text-[#0ea5e9]" />
@@ -192,7 +192,7 @@ export default function QuotePage() {
         </div>
 
         {/* Form Container */}
-        <div className="bg-[#1e293b] rounded-3xl shadow-2xl overflow-hidden border border-white/5 p-8 md:p-12 min-h-[450px] flex flex-col relative">
+        <div className="bg-black/40 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/5 p-8 md:p-12 min-h-[450px] flex flex-col relative">
 
           {/* Step 1: Core Roles */}
           {step === 1 && (
@@ -224,7 +224,7 @@ export default function QuotePage() {
                                 <button
                                   type="button"
                                   onClick={() => handleSelectPerson(role.key, person, role.label)}
-                                  className={`relative text-left p-4 rounded-xl border transition-all duration-300 h-full w-full block ${isSelected ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 shadow-[0_0_20px_rgba(14, 165, 233,0.15)]' : 'border-white/10 bg-[#0f172a] hover:border-white/30 hover:bg-white/5'}`}
+                                  className={`relative text-left p-4 rounded-xl border transition-all duration-300 h-full w-full block ${isSelected ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 shadow-[0_0_20px_rgba(14, 165, 233,0.15)]' : 'border-white/10 bg-black/40 backdrop-blur-sm hover:border-white/30 hover:bg-white/5'}`}
                                 >
                                   <div className="flex items-center gap-4">
                                     {person.imageUrl ? (
@@ -284,7 +284,7 @@ export default function QuotePage() {
                               <button
                                 type="button"
                                 onClick={() => handleSelectPerson(role.key, person, role.label)}
-                                className={`relative text-left p-4 rounded-xl border transition-all duration-300 block w-full h-full ${isSelected ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 shadow-[0_0_20px_rgba(14, 165, 233,0.15)]' : 'border-white/10 bg-[#0f172a] hover:border-white/30 hover:bg-white/5'}`}
+                                className={`relative text-left p-4 rounded-xl border transition-all duration-300 block w-full h-full ${isSelected ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 shadow-[0_0_20px_rgba(14, 165, 233,0.15)]' : 'border-white/10 bg-black/40 backdrop-blur-sm hover:border-white/30 hover:bg-white/5'}`}
                               >
                                 <div className="flex items-center gap-4">
                                   {person.imageUrl ? (
@@ -336,7 +336,7 @@ export default function QuotePage() {
                         key={g}
                         type="button"
                         onClick={() => setGenre(genre === g ? '' : g)}
-                        className={`px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-300 ${genre === g ? 'bg-[#0ea5e9] border-[#0ea5e9] text-white shadow-[0_0_15px_rgba(14, 165, 233,0.4)]' : 'bg-[#0f172a] border-white/10 text-white/70 hover:border-white/30 hover:text-white'}`}
+                        className={`px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-300 ${genre === g ? 'bg-[#0ea5e9] border-[#0ea5e9] text-white shadow-[0_0_15px_rgba(14, 165, 233,0.4)]' : 'bg-black/40 backdrop-blur-sm border-white/10 text-white/70 hover:border-white/30 hover:text-white'}`}
                       >
                         {g}
                       </button>
@@ -351,7 +351,7 @@ export default function QuotePage() {
                     value={description}
                     onChange={e => setDescription(e.target.value)}
                     placeholder="Describe the mood, theme, lyrics idea, reference songs, or anything else about your vision..."
-                    className="w-full bg-[#0f172a] border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] resize-y transition-colors"
+                    className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] resize-y transition-colors"
                   />
                 </div>
 
@@ -366,20 +366,18 @@ export default function QuotePage() {
                       onChange={e => setAttachmentInput(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addAttachment())}
                       placeholder="Paste a link (Google Drive, Dropbox, etc.)"
-                      className="flex-1 bg-[#0f172a] border-white/10 border rounded-xl px-5 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors"
+                      className="flex-1 bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors"
                     />
                     <button type="button" onClick={addAttachment} className="bg-[#0ea5e9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0ea5e9]/90 transition-colors">Add</button>
                   </div>
-                  {attachmentUrls.length > 0 && (
-                    <div className="space-y-3">
-                      {attachmentUrls.map((att, i) => (
-                        <div key={i} className="flex items-center justify-between bg-[#0f172a] px-5 py-3 rounded-xl border border-white/10 text-sm">
-                          <span className="text-[#0ea5e9] truncate flex-1 mr-4">{att.url}</span>
-                          <button onClick={() => removeAttachment(i)} className="text-red-400 hover:text-red-500 shrink-0 p-1 bg-white/5 rounded-md hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="flex flex-col gap-2 mt-2">
+                    {attachmentUrls.map((att, i) => (
+                      <div key={i} className="flex items-center justify-between bg-black/40 backdrop-blur-sm px-5 py-3 rounded-xl border border-white/10 text-sm">
+                        <span className="text-[#0ea5e9] truncate flex-1 mr-4">{att.url}</span>
+                        <button onClick={() => removeAttachment(i)} className="text-red-400 hover:text-red-500 shrink-0 p-1 bg-white/5 rounded-md hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -394,20 +392,20 @@ export default function QuotePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-white uppercase tracking-widest pl-1">Your Name *</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Kasun" className="w-full bg-[#0f172a] border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Kasun" className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-white uppercase tracking-widest pl-1">Phone (WhatsApp) *</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+94 77..." className="w-full bg-[#0f172a] border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+94 77..." className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="block text-sm font-bold text-white uppercase tracking-widest pl-1">Email <span className="text-white/30 normal-case tracking-normal font-normal">(Optional)</span></label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className="w-full bg-[#0f172a] border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
+                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
                 </div>
               </div>
 
               {/* Summary */}
-              <div className="bg-gradient-to-br from-[#1e293b] to-[#0f172a] rounded-2xl p-8 border border-[#0ea5e9]/30 shadow-[0_0_30px_rgba(14, 165, 233,0.1)] relative overflow-hidden">
+              <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-8 border border-[#0ea5e9]/30 shadow-[0_0_30px_rgba(14, 165, 233,0.1)] relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#0ea5e9]/10 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none" />
                 
                 <h3 className="font-black text-xl text-white mb-6 flex items-center gap-2 tracking-tight">
@@ -418,7 +416,7 @@ export default function QuotePage() {
                 {Object.values(selections).length > 0 ? (
                   <div className="space-y-3 mb-6">
                     {Object.values(selections).map((sel, i) => (
-                      <div key={i} className="flex justify-between items-center text-sm bg-white/5 border border-white/5 px-4 py-3 rounded-xl">
+                      <div key={i} className="flex justify-between items-center text-sm bg-black/40 border border-white/5 px-4 py-3 rounded-xl">
                         <span className="text-white/80 font-medium"><strong className="text-white">{sel.roleLabel}</strong> — {sel.name}</span>
                         <span className="font-bold text-[#0ea5e9] bg-[#0ea5e9]/10 px-3 py-1 rounded-full">Rs {sel.price?.toLocaleString()}</span>
                       </div>
@@ -430,9 +428,9 @@ export default function QuotePage() {
                   </div>
                 )}
                 
-                {genre && <div className="inline-block bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm mb-6"><strong className="text-white mr-2">Genre:</strong>{genre}</div>}
                 
-                <div className="flex items-center justify-between bg-[#0f172a] rounded-xl p-6 border-l-4 border-l-[#0ea5e9] mt-4 shadow-inner">
+                {genre && <div className="inline-block bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm mb-6"><strong className="text-white mr-2">Genre:</strong>{genre}</div>}
+                <div className="flex items-center justify-between bg-black/40 backdrop-blur-md rounded-xl p-6 border-l-4 border-l-[#0ea5e9] mt-4 shadow-inner">
                   <span className="text-white/60 text-sm font-bold uppercase tracking-widest">Estimated Range</span>
                   <span className="text-4xl font-black text-white">Rs {totalBudget > 0 ? `${minBudget.toLocaleString()} – ${maxBudget.toLocaleString()}` : '0'}</span>
                 </div>

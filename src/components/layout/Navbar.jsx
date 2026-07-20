@@ -4,7 +4,7 @@ import { Link, usePathname } from '@/i18n/routing';
 import LocaleSwitcher from '@/components/shared/LocaleSwitcher';
 import { useState, useEffect } from 'react';
 import MagneticButton from '@/components/ui/MagneticButton';
-import { Home, Info, Music, Users, Wrench, Mail, VolumeX, Volume2 } from 'lucide-react';
+import { Home, Info, Music, Users, Wrench, Mail, VolumeX, Volume2, Camera } from 'lucide-react';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
@@ -20,12 +20,13 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { href: '/', label: t('home') },
-    { href: '/about', label: t('about') },
+    { href: '/', label: t('home') || 'Home' },
+    { href: '/about', label: t('about') || 'About' },
+    { href: '/media', label: 'Media' },
+    { href: '/contributors', label: 'Contributors' },
     { href: '/songs', label: t('songs') || 'Portfolio' },
-    { href: '/profiles', label: t('profiles') || 'Profiles' },
-    { href: '/services', label: t('services') },
-    { href: '/contact', label: t('contact') },
+    { href: '/services', label: t('services') || 'Services' },
+    { href: '/contact', label: t('contact') || 'Contact' },
   ];
 
   return (
@@ -57,7 +58,7 @@ export default function Navbar() {
               
               let Icon = Home;
               if (link.href === '/about') Icon = Info;
-              if (link.href === '/songs') Icon = Music;
+              if (link.href === '/media') Icon = Camera;
 
               return (
                 <Link key={link.href} href={link.href} className={`dj-link-blue ${isActive ? 'active' : ''}`}>
@@ -96,10 +97,11 @@ export default function Navbar() {
 
           {/* Right Links */}
           <div className="hidden lg:flex items-center gap-6 px-2">
-            {navLinks.slice(3, 6).map((link) => {
+            {navLinks.slice(3).map((link) => {
               const isActive = pathname.startsWith(link.href);
               
-              let Icon = Users;
+              let Icon = Music;
+              if (link.href === '/contributors') Icon = Users;
               if (link.href === '/services') Icon = Wrench;
               if (link.href === '/contact') Icon = Mail;
 

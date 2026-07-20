@@ -114,7 +114,7 @@ export default async function SongDetailPage({ params }) {
             {/* Genre Chip */}
             <div className="flex flex-wrap gap-3 mb-8">
               {song.genres && song.genres.map(g => (
-                <div key={g} className="px-4 py-1.5 rounded-full bg-[#1e293b] border border-white/10 text-white/80 text-sm font-medium">
+                <div key={g} className="px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 text-white/80 text-sm font-medium">
                   {g}
                 </div>
               ))}
@@ -128,7 +128,7 @@ export default async function SongDetailPage({ params }) {
             )}
 
             {/* Audio Player (visual + embeds) */}
-            <div className="bg-[#1e293b]/50 backdrop-blur-sm border border-white/10 rounded-2xl p-6 mb-10 shadow-xl">
+            <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 mb-10 shadow-xl">
               {song.youtubeUrl ? (
                 <div className="aspect-video rounded-xl overflow-hidden">
                   <iframe
@@ -226,11 +226,11 @@ export default async function SongDetailPage({ params }) {
                     const displayName = c.profile?.name || c.name;
 
                     const Content = (
-                      <div className="flex items-center gap-4 bg-[#1e293b]/30 p-3 rounded-xl border border-white/5 hover:bg-[#1e293b] transition-colors h-full">
+                      <div className="flex items-center gap-4 bg-black/40 backdrop-blur-sm p-3 rounded-xl border border-white/5 hover:bg-white/10 transition-colors h-full">
                         {avatarUrl ? (
                           <img src={avatarUrl} alt={displayName} className="w-12 h-12 rounded-full object-cover shadow-md" />
                         ) : (
-                          <div className="w-12 h-12 rounded-full bg-[#0b1120] flex items-center justify-center shadow-md">
+                          <div className="w-12 h-12 rounded-full bg-black/60 flex items-center justify-center shadow-md">
                             <span className="material-symbols-outlined text-white/30 text-xl">person</span>
                           </div>
                         )}
@@ -260,7 +260,7 @@ export default async function SongDetailPage({ params }) {
         </div>
 
         {/* CTA Banner */}
-        <div className="relative w-full rounded-2xl overflow-hidden bg-[#1e293b] border border-white/5 mb-20">
+        <div className="relative w-full rounded-2xl overflow-hidden bg-black/40 backdrop-blur-md border border-white/5 mb-20">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#0ea5e9]/20 to-transparent" />
           <div className="relative z-10 p-10 md:p-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="max-w-xl">
@@ -294,7 +294,7 @@ export default async function SongDetailPage({ params }) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedSongs.map((rs) => (
                 <Link key={rs.id} href={`/songs/${rs.slug}`} className="group cursor-pointer">
-                  <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-[#1e293b]">
+                  <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-black/40">
                     {rs.coverImage ? (
                       <img
                         src={rs.coverImage}
