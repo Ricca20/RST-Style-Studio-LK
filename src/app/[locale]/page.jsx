@@ -5,6 +5,10 @@ import { t } from '@/lib/utils/t';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
 import TiltCard from '@/components/ui/TiltCard';
 import FeaturedSongsSection from '@/components/public/FeaturedSongsSection';
+import ServicesOverviewSection from '@/components/public/ServicesOverviewSection';
+import CtaSection from '@/components/public/CtaSection';
+import Image from 'next/image';
+import { User, ArrowUpRight, ArrowRight, Award, Disc, Activity, Heart } from 'lucide-react';
 
 export default async function HomePage({ params }) {
   const { locale } = await params;
@@ -66,12 +70,17 @@ export default async function HomePage({ params }) {
 
         {/* Scroll Indicator — minimal, floating at bottom */}
         <div className="relative z-20 flex flex-col items-center gap-2 mb-10 opacity-75 animate-pulse">
-          <span className="text-[11px] font-mono text-white/70 uppercase tracking-[0.25em]">SCROLL TO EXPLORE</span>
+          <span className="handwritten-subtitle text-lg text-white/60">scroll to explore</span>
           <div className="w-5 h-8 rounded-full border border-white/40 flex justify-center pt-2">
             <div className="w-1 h-2 bg-[#0ea5e9] rounded-full animate-bounce" />
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 2: SERVICES OVERVIEW
+          ═══════════════════════════════════════════════════════════ */}
+      <ServicesOverviewSection />
 
       {/* ═══════════════════════════════════════════════════════════
           SECTION 3: FEATURED RELEASES CAROUSEL
@@ -86,21 +95,22 @@ export default async function HomePage({ params }) {
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
             <div>
-              <span className="text-[#0ea5e9] font-mono text-xs font-bold tracking-widest uppercase block mb-2">
+              <span className="section-label">
                 The Sound Architects
               </span>
-              <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-                MEET THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#0ea5e9] to-[#9d2bee]">ENGINEERS</span>
+              <h2 className="section-heading text-4xl md:text-6xl">
+                MEET THE <span className="accent">ENGINEERS</span>
               </h2>
+              <p className="handwritten-accent text-2xl md:text-3xl mt-3">
+                the creative minds behind the music
+              </p>
             </div>
             <Link
               href="/profiles"
               className="inline-flex items-center gap-2 text-[#0ea5e9] hover:text-white font-bold text-sm tracking-wide uppercase transition-colors group"
             >
               <span>View Full Roster</span>
-              <span className="material-symbols-outlined text-base group-hover:translate-x-1 transition-transform">
-                arrow_forward
-              </span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
 
@@ -129,15 +139,17 @@ export default async function HomePage({ params }) {
                     {/* Portrait Image Container */}
                     <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-white/[0.03] mb-6 border border-white/10">
                       {profile.imageUrl ? (
-                        <img
+                        <Image
                           src={profile.imageUrl}
                           alt={profile.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         />
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-white/10 to-transparent text-white/30">
-                          <span className="material-symbols-outlined text-7xl mb-2">person</span>
-                          <span className="text-[10px] font-mono tracking-widest uppercase">Engineer ID 0{idx + 1}</span>
+                          <User className="w-16 h-16 mb-2 text-white/30" />
+                          <span className="mono-label">Engineer ID 0{idx + 1}</span>
                         </div>
                       )}
 
@@ -146,7 +158,7 @@ export default async function HomePage({ params }) {
 
                       {/* Floating Link Arrow */}
                       <div className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full bg-[#0ea5e9] text-white flex items-center justify-center shadow-[0_0_15px_#0ea5e9] transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all">
-                        <span className="material-symbols-outlined text-lg">arrow_outward</span>
+                        <ArrowUpRight className="w-5 h-5" />
                       </div>
                     </div>
 
@@ -156,21 +168,21 @@ export default async function HomePage({ params }) {
                     </div>
 
                     {/* Name */}
-                    <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-[#0ea5e9] transition-colors drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    <h3 className="card-title text-2xl mb-2 group-hover:text-[#0ea5e9]">
                       {profile.name}
                     </h3>
 
                     {/* Bio */}
                     {profile.bio && (
-                      <p className="text-slate-200/90 text-xs sm:text-sm line-clamp-3 leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                      <p className="card-desc line-clamp-3">
                         {profile.bio}
                       </p>
                     )}
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-300">
-                    <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#0ea5e9] animate-pulse" />ACTIVE</span>
-                    <span className="text-white/70 group-hover:text-[#0ea5e9] transition-colors">VIEW DOSSIER →</span>
+                  <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                    <span className="mono-label flex items-center gap-1.5 text-slate-300"><span className="w-1.5 h-1.5 rounded-full bg-[#0ea5e9] animate-pulse" />ACTIVE</span>
+                    <span className="mono-label text-white/70 group-hover:text-[#0ea5e9] transition-colors">VIEW DOSSIER →</span>
                   </div>
                 </Link>
               </TiltCard>
@@ -185,12 +197,23 @@ export default async function HomePage({ params }) {
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-20 px-6 md:px-10 bg-transparent border-t border-white/10">
         <div className="max-w-7xl mx-auto">
+          {/* Section intro */}
+          <div className="text-center mb-14">
+            <span className="section-label">Studio Performance</span>
+            <h2 className="section-heading text-3xl md:text-5xl mt-2">
+              NUMBERS THAT <span className="accent">SPEAK</span>
+            </h2>
+            <p className="handwritten-subtitle text-xl md:text-2xl mt-3">
+              a decade of crafting sonic experiences
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: 'YEARS IN INDUSTRY', value: '10+', desc: 'Dedicated audio excellence', icon: 'verified' },
-              { label: 'MASTERED TRACKS', value: '100+', desc: 'Across Sinhala Pop & R&B', icon: 'album' },
-              { label: 'STUDIO PROJECTS', value: '120+', desc: 'Commercials, movies & albums', icon: 'graphic_eq' },
-              { label: 'SONIC PASSION', value: '∞', desc: 'Uncompromised fidelity', icon: 'favorite' },
+              { label: 'YEARS IN INDUSTRY', value: '10+', desc: 'Dedicated audio excellence', icon: <Award className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: 'MASTERED TRACKS', value: '100+', desc: 'Across Sinhala Pop & R&B', icon: <Disc className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: 'STUDIO PROJECTS', value: '120+', desc: 'Commercials, movies & albums', icon: <Activity className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: 'SONIC PASSION', value: '∞', desc: 'Uncompromised fidelity', icon: <Heart className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
             ].map((stat, idx) => (
               <div
                 key={idx}
@@ -202,16 +225,14 @@ export default async function HomePage({ params }) {
                 <div className="absolute bottom-3 left-3 w-3.5 h-3.5 rounded-full bg-gray-800/80 border border-white/20 flex items-center justify-center text-white/30 text-[8px]">+</div>
                 <div className="absolute bottom-3 right-3 w-3.5 h-3.5 rounded-full bg-gray-800/80 border border-white/20 flex items-center justify-center text-white/30 text-[8px]">+</div>
 
-                <span className="material-symbols-outlined text-3xl text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]">
-                  {stat.icon}
-                </span>
-                <span className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-1 font-mono drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                {stat.icon}
+                <span className="stat-value text-4xl sm:text-5xl mb-1">
                   {stat.value}
                 </span>
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-1 drop-shadow-[0_1px_4px_rgba(0,0,0,0.9)]">
+                <span className="stat-label block mb-1.5">
                   {stat.label}
                 </span>
-                <span className="text-[11px] font-mono text-slate-400 hidden sm:block">
+                <span className="stat-desc hidden sm:block">
                   {stat.desc}
                 </span>
               </div>
@@ -219,6 +240,11 @@ export default async function HomePage({ params }) {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 8: CALL TO ACTION (CTA)
+          ═══════════════════════════════════════════════════════════ */}
+      <CtaSection />
     </div>
   );
 }

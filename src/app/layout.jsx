@@ -1,23 +1,31 @@
-import { Space_Grotesk, Noto_Sans, Noto_Sans_Sinhala } from 'next/font/google';
+import { Outfit, Plus_Jakarta_Sans, Noto_Sans_Sinhala, Caveat } from 'next/font/google';
 import './globals.css';
-const spaceGrotesk = Space_Grotesk({
+
+const outfit = Outfit({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
 });
 
-const notoSans = Noto_Sans({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  weight: ['400', '500', '700'],
+  weight: ['400', '500', '600', '700'],
 });
 
 const notoSinhala = Noto_Sans_Sinhala({
   subsets: ['sinhala'],
   variable: '--font-noto-sinhala',
   display: 'swap',
+});
+
+const caveat = Caveat({
+  subsets: ['latin'],
+  variable: '--font-handwritten',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
 });
 
 export const metadata = {
@@ -29,7 +37,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${spaceGrotesk.variable} ${notoSans.variable} ${notoSinhala.variable} font-[family-name:var(--font-display)] antialiased bg-[#0f172a] text-white overflow-x-hidden`}
+        className={`${outfit.variable} ${plusJakarta.variable} ${notoSinhala.variable} ${caveat.variable} font-[family-name:var(--font-sans)] antialiased bg-[#0f172a] text-white overflow-x-hidden`}
       >
         {children}
       </body>

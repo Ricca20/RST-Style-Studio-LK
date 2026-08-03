@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Link } from '@/i18n/routing';
 import { t } from '@/lib/utils/t';
 import TiltCard from '@/components/ui/TiltCard';
+import Image from 'next/image';
+import { ArrowRight, Disc, Play, PlayCircle, Headphones, ArrowUpRight } from 'lucide-react';
 
 export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
   // If no featured songs exist in DB yet, provide fallback demo tracks so the design shines
@@ -49,13 +51,15 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0ea5e9]/10 border border-[#0ea5e9]/30 text-[#0ea5e9] text-xs font-bold uppercase tracking-widest mb-3 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-[#0ea5e9]" />
+            <span className="section-label">
               Mastered at RST Studio
-            </div>
-            <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-              FEATURED <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">RELEASES</span>
+            </span>
+            <h2 className="section-heading text-4xl md:text-6xl">
+              FEATURED <span className="accent">RELEASES</span>
             </h2>
+            <p className="handwritten-accent text-2xl md:text-3xl mt-3">
+              our latest sonic creations
+            </p>
           </div>
           
           <Link
@@ -63,9 +67,7 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-white text-sm font-bold transition-all hover:border-[#0ea5e9] group self-start md:self-auto"
           >
             <span>View Full Catalog (100+ Tracks)</span>
-            <span className="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform text-[#0ea5e9]">
-              arrow_forward
-            </span>
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform text-[#0ea5e9]" />
           </Link>
         </div>
 
@@ -100,19 +102,22 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
                         <div className="absolute inset-12 rounded-full border border-white/5 pointer-events-none" />
                       </div>
 
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10" />
                       {/* Cover Image or DJ Waveform Placeholder */}
                       {song.coverImage ? (
-                        <img
+                        <Image
                           src={song.coverImage}
                           alt={title}
-                          className="w-full h-full object-cover relative z-10 rounded-2xl shadow-xl transition-transform duration-500 group-hover:scale-105"
+                          fill
+                          className="object-cover relative z-10 rounded-2xl shadow-xl transition-transform duration-700 group-hover:scale-110"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       ) : (
                         <div className="relative z-10 w-full h-full bg-gradient-to-br from-white/10 to-transparent flex flex-col items-center justify-center p-6 text-center">
                           <div className="w-16 h-16 rounded-full bg-[#0ea5e9]/20 border border-[#0ea5e9]/40 flex items-center justify-center text-[#0ea5e9] mb-3 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
-                            <span className="material-symbols-outlined text-3xl">album</span>
+                            <Disc className="w-8 h-8" />
                           </div>
-                          <span className="text-xs font-mono font-bold text-white/60 tracking-widest uppercase">
+                          <span className="mono-label">
                             Master Tape
                           </span>
                         </div>
@@ -121,7 +126,7 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
                       {/* Play overlay badge */}
                       <div className="absolute inset-0 z-20 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                         <div className="w-16 h-16 rounded-full bg-[#0ea5e9] text-white flex items-center justify-center shadow-[0_0_25px_#0ea5e9] transform scale-75 group-hover:scale-100 transition-transform">
-                          <span className="material-symbols-outlined text-3xl ml-1">play_arrow</span>
+                          <Play className="w-8 h-8 ml-1 fill-current" />
                         </div>
                       </div>
                     </div>
@@ -144,14 +149,14 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
                     </div>
 
                     {/* Track Title */}
-                    <h3 className="text-2xl font-bold text-white tracking-tight mb-2 group-hover:text-[#0ea5e9] transition-colors line-clamp-1 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                    <h3 className="card-title text-xl sm:text-2xl mt-1 mb-2 group-hover:text-[#0ea5e9] line-clamp-1">
                       {title}
                     </h3>
                   </div>
 
                   {/* Card Footer: Platform Links */}
                   <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
-                    <span className="text-xs font-mono text-slate-300 uppercase flex items-center gap-1.5 font-bold">
+                    <span className="mono-label text-slate-300 flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]" />
                       HI-RES AUDIO
                     </span>
@@ -165,7 +170,7 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
                           className="w-8 h-8 rounded-full bg-white/10 hover:bg-red-600 hover:text-white flex items-center justify-center text-slate-300 transition-colors"
                           title="Watch on YouTube"
                         >
-                          <span className="material-symbols-outlined text-base">play_circle</span>
+                          <PlayCircle className="w-4 h-4" />
                         </a>
                       )}
                       {song.spotifyUrl && (
@@ -176,7 +181,7 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
                           className="w-8 h-8 rounded-full bg-white/10 hover:bg-green-600 hover:text-white flex items-center justify-center text-slate-300 transition-colors"
                           title="Listen on Spotify"
                         >
-                          <span className="material-symbols-outlined text-base">headphones</span>
+                          <Headphones className="w-4 h-4" />
                         </a>
                       )}
                       <Link
@@ -184,7 +189,7 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
                         className="w-8 h-8 rounded-full bg-[#0ea5e9]/20 hover:bg-[#0ea5e9] text-[#0ea5e9] hover:text-white flex items-center justify-center transition-colors ml-1 shadow-[0_0_10px_rgba(14,165,233,0.2)]"
                         title="Track Details"
                       >
-                        <span className="material-symbols-outlined text-base">arrow_outward</span>
+                        <ArrowUpRight className="w-4 h-4" />
                       </Link>
                     </div>
                   </div>
