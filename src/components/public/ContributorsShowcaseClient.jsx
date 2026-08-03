@@ -201,11 +201,8 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-[#1e293b] to-[#0f172a] text-white/20 p-6 text-center">
-                            <Users className="w-16 h-16 mb-3 text-[#0ea5e9]/40" />
-                            <span className="text-[11px] font-mono tracking-widest uppercase text-white/50">
-                              {profile.mainRole || 'Studio Artist'}
-                            </span>
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-[#060913] text-white/10 group-hover:text-white/20 transition-colors">
+                            <Users className="w-20 h-20" />
                           </div>
                         )}
 
@@ -225,39 +222,39 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
                       </div>
 
                       {/* Glowing Role Badge */}
-                      <div className="flex items-center justify-between gap-2 mb-3">
-                        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#0ea5e9]/15 border border-[#0ea5e9]/30 text-[#0ea5e9] text-xs font-mono font-bold uppercase tracking-wider shadow-[0_0_15px_rgba(14,165,233,0.15)]">
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#0ea5e9]/10 border border-[#0ea5e9]/30 text-[#0ea5e9] text-[11px] font-mono font-bold uppercase tracking-wider">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#0ea5e9] animate-pulse" />
                           {profile.mainRole || 'Studio Artist'}
                         </div>
 
                         {profile.creditsCount > 0 && (
-                          <span className="text-[11px] font-mono text-cyan-300 bg-cyan-950/50 border border-cyan-800/60 px-2.5 py-0.5 rounded-full">
+                          <span className="text-[11px] font-mono font-bold text-cyan-400 bg-cyan-950/40 border border-cyan-800/60 px-3 py-1.5 rounded-md shrink-0">
                             {profile.creditsCount} {profile.creditsCount === 1 ? 'Credit' : 'Credits'}
                           </span>
                         )}
                       </div>
 
                       {/* Contributor Name */}
-                      <h3 className="text-2xl font-black text-white tracking-tight mb-2 group-hover:text-[#0ea5e9] transition-colors flex items-center gap-2">
+                      <h3 className="card-title text-2xl mb-2 group-hover:text-[#0ea5e9] transition-colors">
                         {profile.name}
                       </h3>
 
                       {/* Bio Display */}
                       {profile.bio && (
-                        <div className="bg-black/40 backdrop-blur-sm p-3.5 rounded-xl border border-white/5 font-mono text-xs text-gray-300 line-clamp-3 leading-relaxed mb-4">
+                        <p className="card-desc line-clamp-3 mb-4">
                           {profile.bio}
-                        </div>
+                        </p>
                       )}
                     </div>
 
                     {/* Footer Actions / Socials */}
-                    <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-gray-400 mt-auto">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500" />
-                        <span>VERIFIED ROSTER</span>
-                      </div>
-                      <span className="text-white/60 group-hover:text-[#0ea5e9] transition-colors font-bold flex items-center gap-1">
+                    <div className="pt-4 border-t border-white/10 flex items-center justify-between mt-auto">
+                      <span className="mono-label flex items-center gap-1.5 text-slate-300">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        ACTIVE ROSTER
+                      </span>
+                      <span className="mono-label text-white/70 group-hover:text-[#0ea5e9] transition-colors">
                         VIEW DOSSIER →
                       </span>
                     </div>
