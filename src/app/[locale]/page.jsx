@@ -8,7 +8,7 @@ import FeaturedSongsSection from '@/components/public/FeaturedSongsSection';
 import ServicesOverviewSection from '@/components/public/ServicesOverviewSection';
 import CtaSection from '@/components/public/CtaSection';
 import Image from 'next/image';
-import { User, ArrowUpRight, ArrowRight, Award, Disc, Activity, Heart } from 'lucide-react';
+import { User, ArrowUpRight, ArrowRight, Award, Disc, Activity, Heart, Gamepad2, Trophy } from 'lucide-react';
 
 export default async function HomePage({ params }) {
   const { locale } = await params;
@@ -237,6 +237,65 @@ export default async function HomePage({ params }) {
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          SECTION 8: MUSIC ARCADE (GAMES)
+          ═══════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-6 md:px-10 relative overflow-hidden bg-[#0a0f1d] border-t border-white/10">
+        <div className="absolute right-0 top-0 w-96 h-96 bg-gradient-to-br from-[#0ea5e9]/20 to-[#9d2bee]/20 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3" />
+        
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
+          <div className="md:w-1/2">
+            <span className="section-label">Interactive Experience</span>
+            <h2 className="section-heading text-4xl md:text-5xl mt-2 mb-6">
+              THE MUSIC <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">ARCADE</span>
+            </h2>
+            <p className="text-xl text-white/60 mb-6 leading-relaxed">
+              Test your musical skills, play mini-games, and climb the monthly leaderboard.
+            </p>
+            
+            <div className="flex items-center gap-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 p-4 rounded-2xl mb-8 shadow-[0_0_30px_rgba(234,179,8,0.15)]">
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-yellow-500/30">
+                <Trophy className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h4 className="text-yellow-400 font-bold text-lg">Monthly Rewards</h4>
+                <p className="text-white/70 text-sm">Top players win exclusive studio discounts & free recording sessions!</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link 
+                href="/games"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee] hover:scale-105 transition-transform rounded-xl font-bold text-white shadow-lg shadow-[#0ea5e9]/20"
+              >
+                <Gamepad2 className="w-5 h-5" />
+                Play Now
+              </Link>
+              <Link 
+                href="/games/leaderboards"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-white transition-colors"
+              >
+                View Leaderboard
+              </Link>
+            </div>
+          </div>
+          
+          <div className="md:w-1/2 flex justify-center">
+            {/* Visual placeholder for games */}
+            <div className="relative w-full max-w-sm aspect-square">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#0ea5e9]/30 to-[#9d2bee]/30 rounded-3xl transform rotate-6 border border-white/20" />
+              <div className="absolute inset-0 bg-[#060913] rounded-3xl transform -rotate-3 border border-white/20 flex flex-col items-center justify-center p-8 shadow-2xl">
+                <div className="w-20 h-20 bg-gradient-to-br from-[#0ea5e9] to-[#9d2bee] rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-[#0ea5e9]/40">
+                  <Gamepad2 className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2 text-center">5 Mini Games</h3>
+                <p className="text-white/50 text-center text-sm">Trivia, Pitch Match, Name That Tune, Theory Master & Rhythm Tap</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>

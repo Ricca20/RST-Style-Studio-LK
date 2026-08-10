@@ -11,7 +11,8 @@ import {
   LogOut,
   Shield,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  Gamepad2
 } from 'lucide-react';
 
 export default function AdminSidebar({ user, role = 'ADMIN' }) {
@@ -28,6 +29,7 @@ export default function AdminSidebar({ user, role = 'ADMIN' }) {
     { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield, roles: ['SUPER_ADMIN'] },
     { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Trash Bin', href: '/admin/trash', icon: Trash2, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Arcade Games', href: '/admin/games', icon: Gamepad2, roles: ['SUPER_ADMIN', 'ADMIN'] },
   ];
 
   const links = allLinks.filter(link => link.roles.includes(role));

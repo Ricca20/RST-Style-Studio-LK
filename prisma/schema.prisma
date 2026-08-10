@@ -283,3 +283,77 @@ model ClaimRequest {
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   song      Song        @relation(fields: [songId], references: [id], onDelete: Cascade)
 }
+
+// ── Game Player (Lightweight Registration) ──
+model GamePlayer {
+  id              String               @id @default(uuid())
+  email           String               @unique
+  username        String               @unique
+  language        String               @default("en") // si, en, it
+  verifiedAt      DateTime?            // Email verification timestamp
+  verificationToken String?
+  createdAt       DateTime             @default(now())
+  
+  scores          GameScore[]
+  monthlyRanks    MonthlyLeaderboard[]
+}
+
+// ── Individual Game Scores ──
+model GameScore {
+  id            String      @id @default(uuid())
+  playerId      String
+  gameType      GameType
+  month         Int         // 1-12
+  year          Int
+  score         Int
+  ipAddress     String?
+  createdAt     DateTime    @default(now())
+  
+  player        GamePlayer  @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  
+  // Ensure only ONE play per game per month per player
+  @@unique([playerId, gameType, month, year])
+  @@index([gameType, month, year, score(sort: Desc)])
+}
+
+enum GameType {
+  TRIVIA
+  PITCH_MATCH
+  THEORY
+  RHYTHM_TAP
+}
+
+// ── Monthly Leaderboard & Prize Management ──
+model MonthlyLeaderboard {
+  id            String      @id @default(uuid())
+  gameType      GameType
+  month         Int
+  year          Int
+  prizeDetails  String?     // Configured by admin
+  
+  // Winner tracking
+  winnerId      String?
+  winnerScore   Int?
+  adminApproved Boolean     @default(false)
+  emailSentAt   DateTime?
+  
+  createdAt     DateTime    @default(now())
+  
+  winner        GamePlayer? @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+  
+  @@unique([gameType, month, year])
+}
+
+// ── Trivia Questions ──
+model TriviaQuestion {
+  id            String      @id @default(uuid())
+  difficulty    String      // EASY, MEDIUM, HARD
+  questionEn    String
+  questionSi    String?
+  questionIt    String?
+  options       Json        // Array of { id, textEn, textSi, textIt }
+  correctOption String
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+}
+
