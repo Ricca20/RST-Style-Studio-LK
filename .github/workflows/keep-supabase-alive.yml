@@ -1,0 +1,31 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Runs every Monday and Thursday at noon UTC
+    - cron: '0 12 * * 1,4'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          # Make a simple query to keep the database active
+          # We use limit=1 to minimize data transfer
+          RESPONSE=$(curl -s -w "\n%{http_code}" "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/SocialCache?limit=1" \
+          -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+          -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}")
+          
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Successfully pinged Supabase!"
+            exit 0
+          else
+            echo "Failed to ping Supabase. HTTP Status: $HTTP_CODE"
+            echo "Response: $BODY"
+            exit 1
+          fi
