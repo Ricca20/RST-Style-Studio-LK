@@ -4,6 +4,9 @@ import { routing } from '@/i18n/routing';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import GlobalScene from '@/components/3d/GlobalScene';
+import GoogleAnalytics from '@/components/shared/GoogleAnalytics';
+import HtmlLangSetter from '@/components/shared/HtmlLangSetter';
+import prisma from '@/lib/db';
 
 export const metadata = {
   title: {
@@ -41,6 +44,17 @@ export default async function LocaleLayout({ children, params }) {
     notFound();
   }
 
+  // Fetch Google Analytics ID from studio settings
+  let gaId = null;
+  try {
+    const settings = await prisma.studioSettings.findFirst({
+      select: { googleAnalyticsId: true },
+    });
+    gaId = settings?.googleAnalyticsId || null;
+  } catch (e) {
+    // Silently fail — GA is non-critical
+  }
+
   let messages;
   try {
     messages = (await import(`@/messages/${locale}.json`)).default;
@@ -50,6 +64,8 @@ export default async function LocaleLayout({ children, params }) {
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <HtmlLangSetter locale={locale} />
+      <GoogleAnalytics gaId={gaId} />
       <div className="flex min-h-screen flex-col text-white relative">
         
         {/* Global Sleek Aerospace Background & Ambient Glow */}

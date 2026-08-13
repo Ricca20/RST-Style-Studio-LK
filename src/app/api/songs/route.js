@@ -26,18 +26,31 @@ const songSchema = z.object({
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')) : undefined;
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
     const isFeatured = searchParams.get('isFeatured') === 'true' ? true : undefined;
 
-    const songs = await prisma.song.findMany({
-      where: isFeatured !== undefined ? { isFeatured } : undefined,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        contributions: true
-      }
-    });
-    return NextResponse.json(songs);
+    // Always filter out soft-deleted and draft songs for public access
+    const where = {
+      deletedAt: null,
+      isDraft: false,
+      ...(isFeatured !== undefined && { isFeatured }),
+    };
+
+    const [songs, totalCount] = await Promise.all([
+      prisma.song.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          contributions: true
+        }
+      }),
+      prisma.song.count({ where }),
+    ]);
+
+    return NextResponse.json({ data: songs, totalCount, page, limit });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch songs' }, { status: 500 });
   }

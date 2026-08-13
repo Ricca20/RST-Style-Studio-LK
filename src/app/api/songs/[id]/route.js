@@ -100,8 +100,10 @@ export async function DELETE(request, { params }) {
     }
 
     const { id } = await params;
-    await prisma.song.delete({
-      where: { id }
+    // Soft delete — set deletedAt timestamp instead of permanent deletion
+    await prisma.song.update({
+      where: { id },
+      data: { deletedAt: new Date() }
     });
 
     return NextResponse.json({ success: true });

@@ -104,3 +104,59 @@ export async function DELETE(request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function POST(request) {
+  try {
+    const userContext = await checkAuth();
+    if (!userContext || !userContext.dbUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    const file = formData.get('file');
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    }
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json({ error: 'File exceeds 5MB limit' }, { status: 400 });
+    }
+
+    const supabase = await getSupabaseAdmin();
+    
+    const fileExt = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g, '');
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from('media')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Error uploading image to Supabase:', error);
+      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('media')
+      .getPublicUrl(fileName);
+
+    await logAuditAction(
+      userContext.dbUser.id,
+      'UPLOAD_MEDIA',
+      'MediaBucket',
+      fileName,
+      { status: 'Success' },
+      request
+    );
+
+    return NextResponse.json({ url: publicUrl }, { status: 201 });
+  } catch (error) {
+    console.error('Error processing upload:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
