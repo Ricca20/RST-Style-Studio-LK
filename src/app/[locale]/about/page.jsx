@@ -49,7 +49,7 @@ export default async function AboutPage() {
                 {/* Main Portrait Display */}
                 <div className="aspect-[4/5] rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/10">
                   <img
-                    src="/Samapth1.JPG"
+                    src="/sampath1.jpg"
                     alt="Founding Composer Portrait"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                   />
@@ -306,7 +306,7 @@ export default async function AboutPage() {
           </div>
 
           {/* ───────────────────────────────────────────────────────────
-              STAGE 02: HARDWARE & ANALOG EXPANSION (/Studio2.jpg)
+              STAGE 02: HARDWARE & ANALOG EXPANSION (/studio2.jpg)
               ─────────────────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center relative">
             
@@ -365,7 +365,7 @@ export default async function AboutPage() {
 
                   <div className="aspect-video rounded-2xl bg-black/60 relative overflow-hidden">
                     <img
-                      src="/Studio2.jpg"
+                      src="/studio2.jpg"
                       alt="Studio Stage 02 - Hardware Expansion"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                     />
@@ -393,7 +393,7 @@ export default async function AboutPage() {
           </div>
 
           {/* ───────────────────────────────────────────────────────────
-              STAGE 03: MODERN HYBRID SANCTUARY (/Studio3.jpg)
+              STAGE 03: MODERN HYBRID SANCTUARY (/studio3.jpg)
               ─────────────────────────────────────────────────────────── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center relative">
             
@@ -414,7 +414,7 @@ export default async function AboutPage() {
 
                   <div className="aspect-video rounded-2xl bg-black/60 relative overflow-hidden">
                     <img
-                      src="/Studio3.jpg"
+                      src="/studio3.jpg"
                       alt="Studio Stage 03 - Current Process"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                     />

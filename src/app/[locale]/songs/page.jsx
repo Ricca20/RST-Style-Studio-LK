@@ -4,6 +4,14 @@ import { Link } from '@/i18n/routing';
 import { t } from '@/lib/utils/t';
 import SongsClient from '@/components/public/SongsClient';
 
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  return {
+    title: 'Portfolio & Songs | RST Style Studio LK',
+    description: 'Listen to our portfolio of mastered tracks, productions, and arrangements.',
+  };
+}
+
 export default async function SongsPage({ params }) {
   const { locale } = await params;
 

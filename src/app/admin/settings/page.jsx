@@ -7,7 +7,14 @@ import FormImageUpload from '@/components/admin/FormImageUpload';
 import RevokeSessionsButton from '@/components/admin/RevokeSessionsButton';
 import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
 
+import { redirect } from 'next/navigation';
+
 export default async function AdminSettings() {
+  const userContext = await checkAuth();
+  if (!userContext || userContext.dbUser.role !== 'SUPER_ADMIN') {
+    redirect('/admin');
+  }
+
   let settings = await prisma.studioSettings.findFirst();
   if (!settings) {
     settings = await prisma.studioSettings.create({
@@ -17,7 +24,10 @@ export default async function AdminSettings() {
 
   async function updateSettings(formData) {
     'use server';
-    const userContext = await checkAuth();
+    const context = await checkAuth();
+    if (!context || context.dbUser.role !== 'SUPER_ADMIN') {
+      throw new Error('Unauthorized');
+    }
 
     const data = {
       name: formData.get('name') || '',
@@ -62,10 +72,10 @@ export default async function AdminSettings() {
 
     await prisma.studioSettings.updateMany({ data });
 
-    if (userContext?.dbUser?.id) {
+    if (context?.dbUser?.id) {
       const headersList = await headers();
       const ip = headersList.get('x-forwarded-for') || null;
-      await logAuditAction(userContext.dbUser.id, 'UPDATE_SETTINGS', 'Settings', settings.id, { status: 'Success' }, { ip });
+      await logAuditAction(context.dbUser.id, 'UPDATE_SETTINGS', 'Settings', settings.id, { status: 'Success' }, { ip });
     }
 
     revalidatePath('/admin/settings');

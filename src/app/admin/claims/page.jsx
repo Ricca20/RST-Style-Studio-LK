@@ -44,62 +44,70 @@ export default function AdminClaimsPage() {
     }
   };
 
-  if (loading) return <div className="p-8 text-white/50">Loading claims...</div>;
+  if (loading) return <div className="p-8 text-gray-500">Loading claims...</div>;
 
   return (
-    <div className="p-8 max-w-5xl">
-      <h1 className="text-3xl font-bold text-white mb-2">Song Claims Review</h1>
-      <p className="text-white/60 mb-8">Review claims from artists who want to be credited on your songs.</p>
+    <div className="max-w-6xl mx-auto pb-20">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Song Claims Review</h1>
+        <p className="text-gray-500 mt-2">Review claims from artists who want to be credited on your songs.</p>
+      </div>
 
-      <div className="bg-[#1e293b] border border-white/5 rounded-2xl overflow-hidden">
+      <div className="bg-white border rounded-2xl overflow-hidden shadow-sm">
         {claims.length === 0 ? (
-          <div className="p-8 text-center text-white/50">No pending claims.</div>
+          <div className="p-8 text-center text-gray-500">No pending claims.</div>
         ) : (
-          <table className="w-full text-left">
-            <thead className="bg-black/20 text-white/50 text-sm">
-              <tr>
-                <th className="p-4">Artist (User)</th>
-                <th className="p-4">Song</th>
-                <th className="p-4">Claimed Role</th>
-                <th className="p-4">Proof / Note</th>
-                <th className="p-4">Status</th>
-                <th className="p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5 text-white">
-              {claims.map((claim) => (
-                <tr key={claim.id} className="hover:bg-white/5 transition-colors">
-                  <td className="p-4 font-medium">{claim.user?.name || claim.userId}</td>
-                  <td className="p-4">{claim.song?.titleEn}</td>
-                  <td className="p-4">{claim.role}</td>
-                  <td className="p-4 text-white/50 text-sm">{claim.proof || '-'}</td>
-                  <td className="p-4">
-                    {claim.status === 'PENDING' && <span className="text-yellow-400 bg-yellow-400/10 px-2 py-1 rounded text-xs">PENDING</span>}
-                    {claim.status === 'APPROVED' && <span className="text-green-400 bg-green-400/10 px-2 py-1 rounded text-xs">APPROVED</span>}
-                    {claim.status === 'REJECTED' && <span className="text-red-400 bg-red-400/10 px-2 py-1 rounded text-xs">REJECTED</span>}
-                  </td>
-                  <td className="p-4 flex gap-2">
-                    {claim.status === 'PENDING' && (
-                      <>
-                        <button 
-                          onClick={() => handleUpdateStatus(claim.id, 'APPROVED')}
-                          className="bg-green-500/20 text-green-400 hover:bg-green-500/30 px-3 py-1 rounded text-sm transition-colors"
-                        >
-                          Approve
-                        </button>
-                        <button 
-                          onClick={() => handleUpdateStatus(claim.id, 'REJECTED')}
-                          className="bg-red-500/20 text-red-400 hover:bg-red-500/30 px-3 py-1 rounded text-sm transition-colors"
-                        >
-                          Reject
-                        </button>
-                      </>
-                    )}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-gray-50 border-b text-sm text-gray-500">
+                <tr>
+                  <th className="py-4 px-6 font-medium">Artist (User)</th>
+                  <th className="py-4 px-6 font-medium">Song</th>
+                  <th className="py-4 px-6 font-medium">Claimed Role</th>
+                  <th className="py-4 px-6 font-medium">Proof / Note</th>
+                  <th className="py-4 px-6 font-medium">Status</th>
+                  <th className="py-4 px-6 font-medium">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y text-sm">
+                {claims.map((claim) => (
+                  <tr key={claim.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="py-4 px-6 font-medium text-gray-900">{claim.user?.name || claim.user?.email || claim.userId}</td>
+                    <td className="py-4 px-6 font-medium text-gray-800">{claim.song?.titleEn || claim.song?.titleSi || '-'}</td>
+                    <td className="py-4 px-6">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border">
+                        {claim.role}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-gray-500 max-w-xs truncate">{claim.proof || '-'}</td>
+                    <td className="py-4 px-6">
+                      {claim.status === 'PENDING' && <span className="text-yellow-700 bg-yellow-50 border border-yellow-200 px-2.5 py-1 rounded-md text-xs font-medium">PENDING</span>}
+                      {claim.status === 'APPROVED' && <span className="text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-md text-xs font-medium">APPROVED</span>}
+                      {claim.status === 'REJECTED' && <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md text-xs font-medium">REJECTED</span>}
+                    </td>
+                    <td className="py-4 px-6 flex gap-2">
+                      {claim.status === 'PENDING' && (
+                        <>
+                          <button 
+                            onClick={() => handleUpdateStatus(claim.id, 'APPROVED')}
+                            className="bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button 
+                            onClick={() => handleUpdateStatus(claim.id, 'REJECTED')}
+                            className="bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 px-3 py-1.5 rounded-md text-xs font-medium transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 
 // Only initialize if the key exists to avoid crashing if it's not configured yet
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const fromEmail = process.env.RESEND_FROM_EMAIL || 'RST Style Studio <noreply@rststylestudiolk.com>';
 
 export async function sendAdminQuotationAlert(quotation, toEmail) {
   if (!resend) {
@@ -12,7 +13,7 @@ export async function sendAdminQuotationAlert(quotation, toEmail) {
 
   try {
     await resend.emails.send({
-      from: 'RST Style Studio <noreply@rststylestudiolk.com>', // Replace with your verified domain
+      from: fromEmail,
       to: [toEmail],
       subject: `New Quotation Request: ${quotation.name}`,
       html: `
@@ -41,7 +42,7 @@ export async function sendContactEmail(inquiry, toEmail) {
 
   try {
     await resend.emails.send({
-      from: 'RST Style Studio <noreply@rststylestudiolk.com>',
+      from: fromEmail,
       to: [toEmail],
       subject: `New Studio Inquiry: ${inquiry.name} [${inquiry.service}]`,
       html: `

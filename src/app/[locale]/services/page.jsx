@@ -3,6 +3,14 @@ import prisma from '@/lib/db';
 import { Link } from '@/i18n/routing';
 import ServicesPageClient from '@/components/public/ServicesPageClient';
 
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  return {
+    title: 'Services & Pricing | RST Style Studio LK',
+    description: 'Explore our music production, mixing, mastering services and collaborative pricing.',
+  };
+}
+
 export default async function ServicesPage({ params }) {
   const { locale } = await params;
 
@@ -52,16 +60,7 @@ export default async function ServicesPage({ params }) {
     console.error('Failed fetching services page data:', e);
   }
 
-  // Fallback demo services if DB is empty
-  if (services.length === 0) {
-    services = [
-      { id: 'rec', nameEn: 'Vocal & Instrument Tracking', descriptionEn: 'Acoustically isolated vocal booths equipped with Neumann U87 and AKG C414 microphones through tube preamps.', icon: 'mic', basePrice: 15000 },
-      { id: 'mix', nameEn: 'Analog Summing & Mixing', descriptionEn: '24-channel analog summing console combined with surgical 64-bit digital dynamic EQs and harmonic saturation.', icon: 'mix', basePrice: 25000 },
-      { id: 'master', nameEn: 'Stereo & Atmos Mastering', descriptionEn: 'Loudness optimized mastering for Spotify, Apple Music, and TIDAL with Dolby Atmos 7.1.4 spatial audio options.', icon: 'master', basePrice: 20000 },
-      { id: 'prod', nameEn: 'Full Song Production & Scoring', descriptionEn: 'Complete musical arrangement, live instrumentation, synth programming, and vocal melody construction.', icon: 'default', basePrice: 50000 },
-    ];
-  }
-
+  // Removed fallback demo services per Phase 1 audit recommendations
   return (
     <div className="min-h-screen bg-transparent text-white pt-24 pb-32 relative overflow-hidden">
       {/* Ambient lighting */}

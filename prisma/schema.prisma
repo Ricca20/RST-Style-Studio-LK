@@ -357,3 +357,15 @@ model TriviaQuestion {
   createdAt     DateTime    @default(now())
 }
 
+
+model HonoraryMention {
+  id          String    @id @default(uuid())
+  name        String
+  title       String?
+  description String?
+  imageUrl    String?
+  awardedAt   DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}

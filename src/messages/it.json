@@ -17,10 +17,14 @@
     "cta": "Inizia il tuo progetto"
   },
   "Stats": {
-    "songs": "Canzoni Prodotte",
-    "projects": "Progetti Completati",
-    "contributors": "Artisti Collaboratori",
-    "years": "Anni di Esperienza"
+    "yearsLabel": "ANNI NEL SETTORE",
+    "yearsDesc": "Eccellenza audio dedicata",
+    "masteredLabel": "TRACCE MASTERIZZATE",
+    "masteredDesc": "Attraverso Pop Cingalese & R&B",
+    "projectsLabel": "PROGETTI IN STUDIO",
+    "projectsDesc": "Spot pubblicitari, film e album",
+    "passionLabel": "PASSIONE SONICA",
+    "passionDesc": "Fedeltà senza compromessi"
   },
   "Common": {
     "learnMore": "Scopri di più",

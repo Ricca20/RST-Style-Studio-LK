@@ -23,7 +23,12 @@ export async function POST(request) {
     }
 
     // Fetch studio settings for target email address
-    const settings = await prisma.studioSettings.findFirst();
+    const settings = await prisma.studioSettings.findFirst({
+      select: {
+        adminAlertEmail: true,
+        email: true,
+      }
+    });
     const targetEmail = settings?.adminAlertEmail || settings?.email || 'hello@rststylestudiolk.com';
 
     // Send email alert

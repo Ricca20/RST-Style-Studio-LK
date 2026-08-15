@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { CheckCircle2, ChevronRight, MessageCircle, Music, X, Paperclip, DollarSign, Guitar } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/services/whatsapp';
+import { calculateBudgetEstimate } from '@/lib/utils/budget';
 import TiltCard from '@/components/ui/TiltCard';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
 
@@ -57,9 +58,7 @@ export default function QuotePage() {
       .catch(e => console.error(e));
   }, []);
 
-  const totalBudget = Object.values(selections).reduce((sum, sel) => sum + (sel?.price || 0), 0);
-  const minBudget = Math.floor(totalBudget * 0.85);
-  const maxBudget = Math.ceil(totalBudget * 1.15);
+  const { totalBudget, minBudget, maxBudget } = calculateBudgetEstimate(selections);
 
   const handleSelectPerson = (role, person, roleLabel) => {
     setSelections(prev => {

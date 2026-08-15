@@ -2,6 +2,14 @@ import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/db';
 import ContactClient from '@/components/public/ContactClient';
 
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  return {
+    title: 'Contact Us | RST Style Studio LK',
+    description: 'Get in touch with RST Style Studio for bookings and inquiries.',
+  };
+}
+
 export default async function ContactPage({ params }) {
   const { locale } = await params;
 

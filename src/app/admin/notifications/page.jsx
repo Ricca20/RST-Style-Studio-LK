@@ -11,6 +11,9 @@ export default function NotificationsPage() {
   const [clearConfirm, setClearConfirm] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
+  const [broadcastConfirm, setBroadcastConfirm] = useState(false);
+  const [broadcastData, setBroadcastData] = useState({ title: '', message: '', type: 'SYSTEM' });
+
   const fetchNotifications = async () => {
     try {
       const res = await fetch('/api/admin/notifications');
@@ -28,6 +31,28 @@ export default function NotificationsPage() {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  const handleBroadcast = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/admin/notifications/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(broadcastData)
+      });
+      if (res.ok) {
+        toast.success('Notification broadcasted successfully');
+        setBroadcastConfirm(false);
+        setBroadcastData({ title: '', message: '', type: 'SYSTEM' });
+        fetchNotifications();
+      } else {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to broadcast');
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   const markAllAsRead = async () => {
     try {
@@ -104,7 +129,14 @@ export default function NotificationsPage() {
           <p className="text-gray-500 mt-1">Review alerts, quotation requests, and system updates.</p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
+          <button 
+            onClick={() => setBroadcastConfirm(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-lg text-sm font-medium hover:bg-indigo-100 transition"
+          >
+            <Bell className="w-4 h-4" />
+            Broadcast
+          </button>
           <button 
             onClick={markAllAsRead}
             disabled={loading || notifications.length === 0}
@@ -178,6 +210,63 @@ export default function NotificationsPage() {
         confirmText="Yes, Clear History"
         isLoading={isClearing}
       />
+
+      {broadcastConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl">
+            <h2 className="text-xl font-bold mb-4 text-gray-900">Broadcast Notification</h2>
+            <form onSubmit={handleBroadcast} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <input 
+                  type="text" 
+                  required 
+                  value={broadcastData.title}
+                  onChange={(e) => setBroadcastData({...broadcastData, title: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. System Maintenance"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                <textarea 
+                  required 
+                  value={broadcastData.message}
+                  onChange={(e) => setBroadcastData({...broadcastData, message: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 h-24 resize-none"
+                  placeholder="Detailed message..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select 
+                  value={broadcastData.type}
+                  onChange={(e) => setBroadcastData({...broadcastData, type: e.target.value})}
+                  className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                >
+                  <option value="SYSTEM">System Alert</option>
+                  <option value="TEAM">Team Update</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+                <button 
+                  type="button" 
+                  onClick={() => setBroadcastConfirm(false)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                >
+                  Broadcast
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

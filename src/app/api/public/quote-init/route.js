@@ -6,7 +6,10 @@ export async function GET() {
     const collaborators = await prisma.collaborator.findMany({
       where: { isActive: true },
       orderBy: [{ role: 'asc' }],
-      include: {
+      select: {
+        id: true,
+        role: true,
+        price: true,
         profile: {
           select: {
             name: true,
@@ -32,7 +35,13 @@ export async function GET() {
     }
 
     // Fetch studio settings for contact info
-    const settings = await prisma.studioSettings.findFirst();
+    const settings = await prisma.studioSettings.findFirst({
+      select: {
+        whatsapp: true,
+        email: true,
+        phone: true
+      }
+    });
 
     return NextResponse.json({
       collaborators: grouped,

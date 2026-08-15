@@ -12,7 +12,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { status, sendEmail } = body;
+    const { status, sendEmail, sendWhatsApp } = body;
 
     if (!['PENDING', 'REVIEWED', 'ACCEPTED', 'REJECTED'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
@@ -85,7 +85,20 @@ export async function PUT(request, { params }) {
       }
     }
 
-    return NextResponse.json(updatedQuote);
+    let whatsappUrl = null;
+    if (sendWhatsApp && quotation.phone) {
+      let waMessage = '';
+      if (status === 'ACCEPTED') waMessage = `Hi ${quotation.name},\n\nGreat news! Your quotation request has been ACCEPTED. We will reach out shortly to discuss the next steps.`;
+      if (status === 'REJECTED') waMessage = `Hi ${quotation.name},\n\nThank you for reaching out. After careful review, we regret to inform you that we are unable to accept your project at this time.`;
+      if (status === 'REVIEWED') waMessage = `Hi ${quotation.name},\n\nJust a quick update: Our team is currently reviewing your quotation request. We'll be in touch shortly!`;
+      
+      if (waMessage) {
+        const phoneDigits = quotation.phone.replace(/\D/g, '');
+        whatsappUrl = `https://wa.me/${phoneDigits}?text=${encodeURIComponent(waMessage)}`;
+      }
+    }
+
+    return NextResponse.json({ ...updatedQuote, whatsappUrl });
   } catch (error) {
     console.error('Error updating quotation status:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

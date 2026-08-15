@@ -6,7 +6,7 @@ const DEMO_PROFILES = {
     name: 'RST Studio',
     mainRole: 'Lead Sound Engineer & Founder',
     bio: 'Mastering engineer with over a decade of analog recording and acoustic sculpture experience at RST Style Studio LK.',
-    imageUrl: '/logo.PNG',
+    imageUrl: '/logo.png',
     slug: 'rst-studio',
     socialLinks: { instagram: 'https://instagram.com', spotify: 'https://spotify.com' }
   },
@@ -41,11 +41,29 @@ export async function generateMetadata({ params }) {
   const profile = await prisma.profile.findUnique({ where: { slug } });
   const demo = DEMO_PROFILES[slug];
   const name = profile?.name || demo?.name || 'Studio Contributor';
+  const role = profile?.mainRole || demo?.mainRole || 'Contributor';
+  const bio = profile?.bio || demo?.bio || `View ${name}'s profile on RST Style Studio.`;
 
   return {
-    title: `${name} | Sound Architects | RST Studio`,
-    description: profile?.bio || demo?.bio || `Explore ${name}'s studio productions and discography on RST Style Studio LK.`,
+    title: `${name} - ${role} | RST Studio`,
+    description: bio,
   };
+}
+
+export async function generateStaticParams() {
+  const profiles = await prisma.profile.findMany({
+    where: { isActive: true },
+    select: { slug: true }
+  });
+  
+  const params = profiles.map((p) => ({ slug: p.slug }));
+  Object.keys(DEMO_PROFILES).forEach((slug) => {
+    if (!params.find(p => p.slug === slug)) {
+      params.push({ slug });
+    }
+  });
+  
+  return params;
 }
 
 export default async function ProfileDetailPage({ params }) {

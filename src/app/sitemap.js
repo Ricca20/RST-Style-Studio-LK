@@ -11,7 +11,15 @@ export default async function sitemap() {
     '/songs',
     '/profiles',
     '/services',
-    '/quote'
+    '/quote',
+    '/media',
+    '/games',
+    '/games/leaderboards',
+    '/games/trivia',
+    '/games/rhythm-tap',
+    '/games/pitch-match',
+    '/games/name-that-tune',
+    '/games/theory-master'
   ];
 
   const locales = ['en', 'si', 'it'];

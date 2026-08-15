@@ -13,7 +13,7 @@ export const contentType = 'image/png';
 // Image generation
 export default function Icon() {
   // Read the local logo file
-  const logoPath = path.join(process.cwd(), 'public', 'logo.PNG');
+  const logoPath = path.join(process.cwd(), 'public', 'logo.png');
   const logoBuffer = fs.readFileSync(logoPath);
   // Convert buffer to base64
   const logoBase64 = `data:image/png;base64,${logoBuffer.toString('base64')}`;

@@ -17,10 +17,14 @@
     "cta": "Start Your Project"
   },
   "Stats": {
-    "songs": "Songs Produced",
-    "projects": "Projects Completed",
-    "contributors": "Artists Collaborated",
-    "years": "Years Experience"
+    "yearsLabel": "YEARS IN INDUSTRY",
+    "yearsDesc": "Dedicated audio excellence",
+    "masteredLabel": "MASTERED TRACKS",
+    "masteredDesc": "Across Sinhala Pop & R&B",
+    "projectsLabel": "STUDIO PROJECTS",
+    "projectsDesc": "Commercials, movies & albums",
+    "passionLabel": "SONIC PASSION",
+    "passionDesc": "Uncompromised fidelity"
   },
   "Common": {
     "learnMore": "Learn More",

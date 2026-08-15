@@ -35,7 +35,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html className="dark" suppressHydrationWarning>
       <body
         className={`${outfit.variable} ${plusJakarta.variable} ${notoSinhala.variable} ${caveat.variable} font-[family-name:var(--font-sans)] antialiased bg-[#0f172a] text-white overflow-x-hidden`}
       >

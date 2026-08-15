@@ -12,7 +12,9 @@ import {
   Shield,
   Image as ImageIcon,
   Trash2,
-  Gamepad2
+  Gamepad2,
+  DollarSign,
+  HandCoins
 } from 'lucide-react';
 
 export default function AdminSidebar({ user, role = 'ADMIN' }) {
@@ -21,12 +23,15 @@ export default function AdminSidebar({ user, role = 'ADMIN' }) {
   const allLinks = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR', 'VIEWER'] },
     { name: 'Profiles', href: '/admin/profiles', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
+    { name: 'Collaborators', href: '/admin/collaborators', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Claims', href: '/admin/claims', icon: HandCoins, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Songs', href: '/admin/songs', icon: Music, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
     { name: 'Music Videos', href: '/admin/videos', icon: FileVideo, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
     { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Clients CRM', href: '/admin/clients', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Media Library', href: '/admin/media', icon: ImageIcon, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
     { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield, roles: ['SUPER_ADMIN'] },
+    { name: 'Pricing Config', href: '/admin/pricing', icon: DollarSign, roles: ['SUPER_ADMIN'] },
     { name: 'Settings', href: '/admin/settings', icon: Settings, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Trash Bin', href: '/admin/trash', icon: Trash2, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Arcade Games', href: '/admin/games', icon: Gamepad2, roles: ['SUPER_ADMIN', 'ADMIN'] },

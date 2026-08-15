@@ -10,9 +10,18 @@ import CtaSection from '@/components/public/CtaSection';
 import Image from 'next/image';
 import { User, ArrowUpRight, ArrowRight, Award, Disc, Activity, Heart, Gamepad2, Trophy } from 'lucide-react';
 
+export async function generateMetadata({ params }) {
+  const { locale } = await params;
+  return {
+    title: 'Home | RST Style Studio LK',
+    description: 'Professional music production, mixing, and mastering studio in Sri Lanka.',
+  };
+}
+
 export default async function HomePage({ params }) {
   const { locale } = await params;
   const tHero = await getTranslations({ locale, namespace: 'Hero' });
+  const tStats = await getTranslations({ locale, namespace: 'Stats' });
 
   // Fetch data from Prisma — fallback gracefully if DB is empty or unavailable
   let featuredSongs = [];
@@ -42,6 +51,20 @@ export default async function HomePage({ params }) {
     console.error("Failed fetching Home Page data:", e);
   }
 
+  let totalSongsCount = 120; // Fallback
+  let masteredTracksCount = 100; // Fallback
+
+  try {
+    const stats = await Promise.all([
+      prisma.song.count({ where: { deletedAt: null } }),
+      prisma.song.count({ where: { deletedAt: null, projectType: { in: ['MIXING_MASTERING', 'POST_PRODUCTION'] } } })
+    ]);
+    if (stats[0] > 0) totalSongsCount = stats[0];
+    if (stats[1] > 0) masteredTracksCount = stats[1];
+  } catch (e) {
+    console.error("Failed fetching stats:", e);
+  }
+
   return (
     <div className="flex flex-col bg-transparent text-white">
       {/* ═══════════════════════════════════════════════════════════
@@ -57,9 +80,9 @@ export default async function HomePage({ params }) {
             loop
             playsInline
             className="w-full h-full object-cover"
-            poster="/logo.PNG"
+            poster="/logo.png"
           >
-            <source src="/Herovideo.MP4" type="video/mp4" />
+            <source src="/herovideo.mp4" type="video/mp4" />
           </video>
           {/* Gentle bottom fade to smoothly transition into the section below without blurring or dulling video clarity */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#060913] via-transparent to-transparent opacity-80 pointer-events-none" />
@@ -117,7 +140,7 @@ export default async function HomePage({ params }) {
           {/* Profiles Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {(featuredProfiles.length > 0 ? featuredProfiles : [
-              { id: '1', name: 'RST Studio', mainRole: 'Lead Sound Engineer & Founder', bio: 'Mastering engineer with over a decade of analog recording and acoustic sculpture experience.', imageUrl: '/logo.PNG', slug: 'rst-studio' },
+              { id: '1', name: 'RST Studio', mainRole: 'Lead Sound Engineer & Founder', bio: 'Mastering engineer with over a decade of analog recording and acoustic sculpture experience.', imageUrl: '/logo.png', slug: 'rst-studio' },
               { id: '2', name: 'Kasun De Silva', mainRole: 'Senior Producer & Arranger', bio: 'Specialist in modern synthwave, orchestral film scoring, and vocal harmony arrangements.', imageUrl: null, slug: 'kasun' },
               { id: '3', name: 'Thilini Perera', mainRole: 'Vocalist & Vocal Coach', bio: 'Classical and pop vocal trainer helping artists deliver emotionally resonant performances.', imageUrl: null, slug: 'thilini' },
               { id: '4', name: 'Amila Fernando', mainRole: 'Mixing & Mastering Engineer', bio: 'Dolby Atmos certified mix engineer specializing in deep bass and panoramic stereo imaging.', imageUrl: null, slug: 'amila' },
@@ -210,10 +233,10 @@ export default async function HomePage({ params }) {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: 'YEARS IN INDUSTRY', value: '10+', desc: 'Dedicated audio excellence', icon: <Award className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
-              { label: 'MASTERED TRACKS', value: '100+', desc: 'Across Sinhala Pop & R&B', icon: <Disc className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
-              { label: 'STUDIO PROJECTS', value: '120+', desc: 'Commercials, movies & albums', icon: <Activity className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
-              { label: 'SONIC PASSION', value: '∞', desc: 'Uncompromised fidelity', icon: <Heart className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: tStats('yearsLabel'), value: '10+', desc: tStats('yearsDesc'), icon: <Award className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: tStats('masteredLabel'), value: `${masteredTracksCount}+`, desc: tStats('masteredDesc'), icon: <Disc className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: tStats('projectsLabel'), value: `${totalSongsCount}+`, desc: tStats('projectsDesc'), icon: <Activity className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
+              { label: tStats('passionLabel'), value: '∞', desc: tStats('passionDesc'), icon: <Heart className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
             ].map((stat, idx) => (
               <div
                 key={idx}

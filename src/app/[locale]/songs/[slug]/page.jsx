@@ -26,6 +26,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
+export async function generateStaticParams() {
+  const songs = await prisma.song.findMany({
+    where: { deletedAt: null },
+    select: { slug: true }
+  });
+  
+  return songs.map((s) => ({ slug: s.slug }));
+}
+
 export default async function SongDetailPage({ params }) {
   const { slug, locale } = await params;
   const tSongs = await getTranslations({ locale, namespace: 'Songs' });

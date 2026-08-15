@@ -52,6 +52,12 @@ export default async function AuditLogsPage({ searchParams }) {
           </h1>
           <p className="text-gray-500 mt-2">Track who is making changes inside your studio dashboard.</p>
         </div>
+        <a 
+          href="/api/admin/audit-logs/export" 
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm"
+        >
+          Download CSV
+        </a>
       </div>
 
       <AdminSearchFilter 

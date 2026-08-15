@@ -32,6 +32,7 @@ export default function AdminQuotationsPage() {
   const [statusConfirm, setStatusConfirm] = useState(null);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [sendAutomatedEmail, setSendAutomatedEmail] = useState(true);
+  const [sendAutomatedWhatsApp, setSendAutomatedWhatsApp] = useState(true);
 
   const page = parseInt(searchParams.get('page') || '1');
   const pageSize = 15;
@@ -64,15 +65,22 @@ export default function AdminQuotationsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           status: statusConfirm.newStatus, 
-          sendEmail: sendAutomatedEmail && !!statusConfirm.email 
+          sendEmail: sendAutomatedEmail && !!statusConfirm.email,
+          sendWhatsApp: sendAutomatedWhatsApp && !!statusConfirm.phone 
         })
       });
-      if (!res.ok) throw new Error('Failed to update status');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to update status');
       
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank');
+      }
+
       setQuotations(prev => prev.map(q => q.id === statusConfirm.id ? { ...q, status: statusConfirm.newStatus } : q));
       toast.success(`Status updated to ${statusConfirm.newStatus}`);
       setStatusConfirm(null);
       setSendAutomatedEmail(true);
+      setSendAutomatedWhatsApp(true);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -310,7 +318,7 @@ export default function AdminQuotationsPage() {
                                 key={s}
                                 onClick={() => {
                                   if (quote.status !== s) {
-                                    setStatusConfirm({ id: quote.id, newStatus: s, email: quote.email, name: quote.name });
+                                    setStatusConfirm({ id: quote.id, newStatus: s, email: quote.email, phone: quote.phone, name: quote.name });
                                   }
                                 }}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition ${
@@ -399,23 +407,46 @@ export default function AdminQuotationsPage() {
                 Are you sure you want to change the status to <span className={`px-2 py-0.5 rounded text-xs font-bold ${STATUS_COLORS[statusConfirm.newStatus]}`}>{statusConfirm.newStatus}</span>?
               </p>
 
-              {statusConfirm.email && ['ACCEPTED', 'REJECTED', 'REVIEWED'].includes(statusConfirm.newStatus) && (
-                <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex items-start gap-3 mb-6">
-                  <input 
-                    type="checkbox" 
-                    id="sendEmailCheckbox" 
-                    checked={sendAutomatedEmail} 
-                    onChange={(e) => setSendAutomatedEmail(e.target.checked)}
-                    className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <div>
-                    <label htmlFor="sendEmailCheckbox" className="text-sm font-semibold text-blue-900 block cursor-pointer">
-                      Send automated email notification
-                    </label>
-                    <p className="text-xs text-blue-700 mt-1">
-                      This will send an email to {statusConfirm.email} notifying them that their quotation has been {statusConfirm.newStatus.toLowerCase()}.
-                    </p>
-                  </div>
+              {['ACCEPTED', 'REJECTED', 'REVIEWED'].includes(statusConfirm.newStatus) && (
+                <div className="space-y-3 mb-6">
+                  {statusConfirm.email && (
+                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex items-start gap-3">
+                      <input 
+                        type="checkbox" 
+                        id="sendEmailCheckbox" 
+                        checked={sendAutomatedEmail} 
+                        onChange={(e) => setSendAutomatedEmail(e.target.checked)}
+                        className="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <div>
+                        <label htmlFor="sendEmailCheckbox" className="text-sm font-semibold text-blue-900 block cursor-pointer">
+                          Send automated email notification
+                        </label>
+                        <p className="text-xs text-blue-700 mt-1">
+                          This will send an email to {statusConfirm.email}.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {statusConfirm.phone && (
+                    <div className="bg-green-50 border border-green-100 p-4 rounded-lg flex items-start gap-3">
+                      <input 
+                        type="checkbox" 
+                        id="sendWhatsAppCheckbox" 
+                        checked={sendAutomatedWhatsApp} 
+                        onChange={(e) => setSendAutomatedWhatsApp(e.target.checked)}
+                        className="mt-1 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                      />
+                      <div>
+                        <label htmlFor="sendWhatsAppCheckbox" className="text-sm font-semibold text-green-900 block cursor-pointer">
+                          Send WhatsApp notification
+                        </label>
+                        <p className="text-xs text-green-700 mt-1">
+                          This will open WhatsApp to notify {statusConfirm.phone}.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

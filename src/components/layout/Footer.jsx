@@ -86,7 +86,7 @@ export default function Footer() {
                 <Link href="/" title="Home" className="dj-knob-container shrink-0" style={{ width: 52, height: 52 }}>
                   <div className="dj-knob">
                     <img
-                      src="/logo.PNG"
+                      src="/logo.png"
                       alt="RST Style Studio"
                       className="h-6 w-6 rounded-full object-cover"
                     />

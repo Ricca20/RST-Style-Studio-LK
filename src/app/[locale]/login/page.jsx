@@ -30,8 +30,8 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push('/admin');
       router.refresh();
+      router.push('/admin');
     }
   };
 
@@ -44,7 +44,7 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <img src="/logo.PNG" alt="Logo" className="h-12 w-12 rounded-full object-cover" />
+            <img src="/logo.png" alt="Logo" className="h-12 w-12 rounded-full object-cover" />
             <span className="text-white font-black text-2xl tracking-tighter">RST STUDIO</span>
           </Link>
           <h1 className="text-3xl font-bold text-white">Admin Portal</h1>
