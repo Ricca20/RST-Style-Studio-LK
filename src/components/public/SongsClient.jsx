@@ -413,7 +413,7 @@ export default function SongsClient({ initialSongs = [], genres = [], locale = '
       ) : viewMode === 'VINYL' ? (
 
         /* ── MODE 1: INTERACTIVE VINYL SLEEVE ALBUMS ── */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredSongs.map((song) => {
             const title = t(song, 'title', locale) || song.titleEn || 'Untitled Master';
             const primaryContributor = song.contributions?.[0];
@@ -623,14 +623,14 @@ export default function SongsClient({ initialSongs = [], genres = [], locale = '
                 className="group relative grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-background/50 hover:bg-background/80 backdrop-blur-xl rounded-2xl border border-border hover:border-[#0ea5e9]/60 p-4 transition-all duration-300 shadow-lg cursor-pointer"
               >
                 {/* Track Channel Number */}
-                <div className="col-span-1 flex items-center gap-3">
+                <div className="md:col-span-1 flex items-center gap-3">
                   <span className="w-8 h-8 rounded-full bg-muted/50 border border-border flex items-center justify-center text-xs font-mono font-bold text-muted-foreground group-hover:border-[#0ea5e9] group-hover:text-[#0ea5e9] transition-colors">
                     {String(idx + 1).padStart(2, '0')}
                   </span>
                 </div>
 
                 {/* Track Info + Cover Thumbnail */}
-                <div className="col-span-4 flex items-center gap-4">
+                <div className="md:col-span-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted border border-border shrink-0 relative">
                     {song.coverImage ? (
                       <img src={song.coverImage} alt={title} className="w-full h-full object-cover" />
@@ -654,7 +654,7 @@ export default function SongsClient({ initialSongs = [], genres = [], locale = '
                 </div>
 
                 {/* Artists */}
-                <div className="col-span-3 text-sm text-muted-foreground font-mono truncate">
+                <div className="md:col-span-3 text-sm text-muted-foreground font-mono truncate">
                   {artistName}
                   {song.contributions?.length > 1 && (
                     <span className="ml-1.5 text-xs text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-800/60">
@@ -664,15 +664,15 @@ export default function SongsClient({ initialSongs = [], genres = [], locale = '
                 </div>
 
                 {/* Genre & Format */}
-                <div className="col-span-2 flex items-center gap-2">
+                <div className="md:col-span-2 flex items-center gap-2">
                   <span className="px-2.5 py-1 rounded-full bg-muted/50 border border-border text-xs font-mono text-primary">
                     {song.genres?.[0] || 'Stereo Master'}
                   </span>
                 </div>
 
                 {/* Action CTA */}
-                <div className="col-span-2 flex items-center justify-end">
-                  <span className="px-4 py-2 rounded-xl bg-[#0ea5e9]/20 group-hover:bg-[#0ea5e9] text-[#0ea5e9] group-hover:text-foreground border border-[#0ea5e9]/40 text-xs font-mono font-bold transition-all flex items-center gap-1.5">
+                <div className="md:col-span-2 flex items-center md:justify-end">
+                  <span className="w-full md:w-auto justify-center px-4 py-2 rounded-xl bg-[#0ea5e9]/20 group-hover:bg-[#0ea5e9] text-[#0ea5e9] group-hover:text-foreground border border-[#0ea5e9]/40 text-xs font-mono font-bold transition-all flex items-center gap-1.5">
                     PLAY MASTER <Play className="w-3.5 h-3.5 fill-current" />
                   </span>
                 </div>

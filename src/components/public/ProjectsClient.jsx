@@ -21,10 +21,10 @@ export default function ProjectsClient({ initialProjects, projectTypes, locale }
   return (
     <div className="space-y-8">
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 md:flex-wrap no-scrollbar">
         <button
           onClick={() => setActiveType('ALL')}
-          className={`px-5 py-2.5 rounded-full text-xs font-bold font-mono transition-all ${
+          className={`px-5 py-2.5 rounded-full text-xs font-bold font-mono transition-all whitespace-nowrap shrink-0 ${
             activeType === 'ALL'
               ? 'bg-[#0ea5e9] text-white shadow-[0_0_15px_rgba(14,165,233,0.4)]'
               : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
@@ -36,7 +36,7 @@ export default function ProjectsClient({ initialProjects, projectTypes, locale }
           <button
             key={type}
             onClick={() => setActiveType(type)}
-            className={`px-5 py-2.5 rounded-full text-xs font-bold font-mono transition-all uppercase ${
+            className={`px-5 py-2.5 rounded-full text-xs font-bold font-mono transition-all uppercase whitespace-nowrap shrink-0 ${
               activeType === type
                 ? 'bg-[#0ea5e9] text-white shadow-[0_0_15px_rgba(14,165,233,0.4)]'
                 : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'

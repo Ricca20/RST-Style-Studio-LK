@@ -278,7 +278,7 @@ export default async function SongDetailPage({ params }) {
         {/* CTA Banner */}
         <div className="relative w-full rounded-2xl overflow-hidden bg-black/40 backdrop-blur-md border border-white/5 mb-20">
           <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#0ea5e9]/20 to-transparent" />
-          <div className="relative z-10 p-10 md:p-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+          <div className="relative z-10 p-6 md:p-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="max-w-xl">
               <h3 className="text-3xl font-bold text-white mb-3">Ready to shape your sound?</h3>
               <p className="text-white/60 text-lg">

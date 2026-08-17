@@ -75,7 +75,7 @@ export default async function ServicesPage({ params }) {
               <span className="w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" />
               19-Inch Rack Mount Systems • Live DB Tariffs
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight uppercase">
               STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">RACK & RATES</span>
             </h1>
           </div>

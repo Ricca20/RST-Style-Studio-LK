@@ -57,7 +57,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
       <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-r from-[#0ea5e9]/15 via-purple-600/10 to-[#0ea5e9]/10 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Header Section */}
-      <section className="relative w-full max-w-7xl mx-auto px-4 md:px-10 pt-10 pb-12 border-b border-white/10">
+      <section className="relative w-full max-w-7xl mx-auto px-8 md:px-16 pt-10 pb-12 border-b border-white/10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-[#0ea5e9] text-xs font-mono font-bold uppercase tracking-widest mb-4 shadow-inner">
@@ -74,7 +74,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
         </div>
 
         {/* Live Roster Metrics Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10 pt-8 border-t border-white/10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10 pt-8 border-t border-white/10">
           <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/30 flex items-center justify-center text-[#0ea5e9]">
               <Users className="w-5 h-5" />
@@ -122,7 +122,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
       </section>
 
       {/* Filter and Search Bar */}
-      <section className="max-w-7xl mx-auto px-4 md:px-10 mt-10">
+      <section className="max-w-7xl mx-auto px-8 md:px-16 mt-10">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-black/50 backdrop-blur-xl border border-white/10 p-4 rounded-3xl">
           {/* Search Input */}
           <div className="relative flex-1 max-w-md">
@@ -137,14 +137,14 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
           </div>
 
           {/* Role Pills */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 lg:flex-wrap no-scrollbar">
             {rolesList.map((role) => {
               const active = selectedRole === role.id;
               return (
                 <button
                   key={role.id}
                   onClick={() => setSelectedRole(role.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider transition-all duration-300 ${
+                  className={`px-4 py-2 rounded-xl text-xs font-mono uppercase tracking-wider whitespace-nowrap shrink-0 transition-all duration-300 ${
                     active
                       ? 'bg-[#0ea5e9] text-white font-bold shadow-[0_0_20px_rgba(14,165,233,0.5)] scale-105'
                       : 'bg-white/5 text-gray-300 hover:bg-white/10 hover:text-white border border-white/10'
@@ -159,7 +159,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
       </section>
 
       {/* Grid of Contributors */}
-      <main className="max-w-7xl mx-auto px-4 md:px-10 pt-12">
+      <main className="max-w-7xl mx-auto px-8 md:px-16 pt-12">
         {filteredContributors.length === 0 ? (
           <div className="text-center py-24 bg-black/30 backdrop-blur-md rounded-3xl border border-white/10">
             <Users className="w-12 h-12 text-gray-500 mx-auto mb-4" />
@@ -175,7 +175,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
             {filteredContributors.map((profile, idx) => {
               const hasSlug = Boolean(profile.slug);
               const effectiveSlug = profile.slug || `guest-${profile.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;

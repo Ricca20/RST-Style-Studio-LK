@@ -21,7 +21,7 @@ export default function MediaPage() {
               <span className="w-2 h-2 rounded-full bg-[#0ea5e9] animate-ping" />
               64-BIT VISUAL ARCHIVE ONLINE
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
               STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-cyan-300">MEDIA</span>
             </h1>
           </div>

@@ -26,7 +26,7 @@ export default async function AboutPage() {
             <span className="w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse shadow-[0_0_8px_#0ea5e9]" />
             Foundational Heritage // Maestro Archive
           </div>
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
             THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-cyan-200 to-[#9d2bee]">COMPOSER&apos;S</span> SOUL
           </h2>
           <p className="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto font-light leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
@@ -204,7 +204,7 @@ export default async function AboutPage() {
             <span className="w-2 h-2 rounded-full bg-[#9d2bee] animate-pulse shadow-[0_0_8px_#9d2bee]" />
             Evolutionary Timeline // From Genesis to 64-Bit
           </div>
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
             THE STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">EVOLUTION</span>
           </h2>
           <p className="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto font-light leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
@@ -491,7 +491,7 @@ export default async function AboutPage() {
           <span className="text-[#0ea5e9] font-mono text-xs font-bold tracking-widest uppercase">
             Lead Acoustic Specialist
           </span>
-          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tight">
             THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#0ea5e9] to-[#9d2bee]">ARCHITECT</span>
           </h2>
         </div>
@@ -567,7 +567,7 @@ export default async function AboutPage() {
           <span className="text-[#0ea5e9] font-mono text-xs font-bold tracking-widest uppercase block mb-2">
             Sonic Versatility // Holographic Matrix
           </span>
-          <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight mb-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tight mb-4 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
             MUSIC <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-cyan-300 to-purple-400">GENRES</span>
           </h2>
           <p className="text-slate-200 max-w-xl mx-auto text-sm md:text-base font-light">
@@ -643,7 +643,7 @@ export default async function AboutPage() {
                 SESSION BOOKING CONSOLE ACTIVE
               </div>
 
-              <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight leading-tight mb-6 drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white tracking-tight leading-tight mb-6 drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]">
                 READY TO RECORD <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#0ea5e9] to-cyan-400">YOUR NEXT HIT?</span>
               </h2>

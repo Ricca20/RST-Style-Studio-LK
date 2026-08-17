@@ -48,7 +48,7 @@ export default async function SongsPage({ params }) {
               <span className="w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" />
               {tSongs('latest')}
             </div>
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight uppercase">
               {tSongs('title')}
             </h1>
           </div>
