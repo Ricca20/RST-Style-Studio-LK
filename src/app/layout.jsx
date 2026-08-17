@@ -29,6 +29,7 @@ const caveat = Caveat({
 });
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://rststylestudio.lk'),
   title: 'RST Style Studio LK',
   description: 'Premium music production studio in Sri Lanka',
 };
