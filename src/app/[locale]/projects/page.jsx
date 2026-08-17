@@ -1,38 +1,34 @@
 import { getTranslations } from 'next-intl/server';
 import prisma from '@/lib/db';
-import { Link } from '@/i18n/routing';
-import { t } from '@/lib/utils/t';
-import SongsClient from '@/components/public/SongsClient';
+import ProjectsClient from '@/components/public/ProjectsClient';
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
   return {
-    title: 'Portfolio & Songs | RST Style Studio LK',
-    description: 'Listen to our portfolio of mastered tracks, productions, and arrangements.',
+    title: 'Studio Projects | RST Style Studio LK',
+    description: 'Explore our latest music videos, cover songs, BTS footage, and creative projects.',
   };
 }
 
-export default async function SongsPage({ params }) {
+export default async function ProjectsPage({ params }) {
   const { locale } = await params;
 
-  let songs = [];
+  let projects = [];
   try {
-    songs = await prisma.song.findMany({
+    projects = await prisma.song.findMany({
       where: { 
         deletedAt: null,
-        projectType: 'SONG'
+        projectType: { not: 'SONG' }
       },
       orderBy: { createdAt: 'desc' },
       include: { contributions: { include: { profile: true } } },
     });
   } catch (e) {
-    console.error("Failed fetching songs:", e);
+    console.error("Failed fetching projects:", e);
   }
 
-  // Extract unique genres for filter pills
-  const genres = [...new Set(songs.flatMap((s) => s.genres || []))].filter(Boolean);
-
-    const tSongs = await getTranslations({ locale, namespace: 'Songs' });
+  // Extract unique project types for filter pills
+  const projectTypes = [...new Set(projects.map((p) => p.projectType))].filter(Boolean);
 
   return (
     <div className="min-h-screen bg-transparent text-white pt-24 pb-32 relative overflow-hidden">
@@ -46,21 +42,21 @@ export default async function SongsPage({ params }) {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[#0ea5e9] text-xs font-mono font-bold uppercase tracking-widest mb-3">
               <span className="w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" />
-              {tSongs('latest')}
+              Creative Portfolio
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase">
-              {tSongs('title')}
+              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">PROJECTS</span>
             </h1>
           </div>
           <p className="text-gray-400 max-w-md text-sm md:text-base leading-relaxed font-light">
-            Explore our complete discography of audio masters, music videos, and commercial scores engineered at RST Style Studio.
+            Watch our latest music videos, studio sessions, cover songs, and behind-the-scenes content produced at RST Style Studio.
           </p>
         </div>
       </section>
 
       {/* Content Area */}
       <main className="max-w-7xl mx-auto px-4 md:px-10 pt-8">
-        <SongsClient initialSongs={songs} genres={genres} locale={locale} />
+        <ProjectsClient initialProjects={projects} projectTypes={projectTypes} locale={locale} />
       </main>
     </div>
   );

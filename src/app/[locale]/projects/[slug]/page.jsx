@@ -27,18 +27,18 @@ export async function generateMetadata({ params }) {
 }
 
 export async function generateStaticParams() {
-  const songs = await prisma.song.findMany({
+  const projects = await prisma.song.findMany({
     where: { 
       deletedAt: null,
-      projectType: 'SONG'
+      projectType: { not: 'SONG' }
     },
     select: { slug: true }
   });
   
-  return songs.map((s) => ({ slug: s.slug }));
+  return projects.map((s) => ({ slug: s.slug }));
 }
 
-export default async function SongDetailPage({ params }) {
+export default async function ProjectDetailPage({ params }) {
   const { slug, locale } = await params;
   const tSongs = await getTranslations({ locale, namespace: 'Songs' });
 
@@ -51,15 +51,15 @@ export default async function SongDetailPage({ params }) {
     },
   });
 
-  if (!song || song.deletedAt || song.projectType !== 'SONG') return notFound();
+  if (!song || song.deletedAt || song.projectType === 'SONG') return notFound();
 
-  // Fetch related songs (same genre or just the latest)
+  // Fetch related projects (same genre or just the latest)
   let relatedSongs = [];
   try {
     relatedSongs = await prisma.song.findMany({
       where: { 
         id: { not: song.id },
-        projectType: 'SONG',
+        projectType: { not: 'SONG' },
         deletedAt: null
       },
       take: 4,
@@ -72,8 +72,8 @@ export default async function SongDetailPage({ params }) {
       <main className="max-w-[1280px] mx-auto px-6 md:px-10 lg:px-20 py-8">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm text-white/50 mb-8">
-          <Link href="/songs" className="hover:text-[#0ea5e9] transition-colors">
-            Portfolio
+          <Link href="/projects" className="hover:text-[#0ea5e9] transition-colors">
+            Projects
           </Link>
           <span className="material-symbols-outlined text-base">chevron_right</span>
           {song.genres && song.genres.length > 0 && (
@@ -299,9 +299,9 @@ export default async function SongDetailPage({ params }) {
         {relatedSongs.length > 0 && (
           <div className="mb-20">
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold text-white">More from the Portfolio</h3>
+              <h3 className="text-2xl font-bold text-white">More Projects</h3>
               <Link
-                href="/songs"
+                href="/projects"
                 className="text-[#0ea5e9] hover:text-white transition-colors text-sm font-bold flex items-center gap-1"
               >
                 View All <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -309,7 +309,7 @@ export default async function SongDetailPage({ params }) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedSongs.map((rs) => (
-                <Link key={rs.id} href={`/songs/${rs.slug}`} className="group cursor-pointer">
+                <Link key={rs.id} href={`/projects/${rs.slug}`} className="group cursor-pointer">
                   <div className="relative aspect-square rounded-xl overflow-hidden mb-4 bg-black/40">
                     {rs.coverImage ? (
                       <img

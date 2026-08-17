@@ -66,7 +66,7 @@ export default async function LocaleLayout({ children, params }) {
     <NextIntlClientProvider locale={locale} messages={messages}>
       <HtmlLangSetter locale={locale} />
       <GoogleAnalytics gaId={gaId} />
-      <div className="flex min-h-screen flex-col text-white relative">
+      <div className={`flex min-h-screen flex-col text-white relative ${locale === 'si' ? 'font-[family-name:var(--font-noto-sinhala)]' : ''}`}>
         
         {/* Global Sleek Aerospace Background & Ambient Glow */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#060913]">
