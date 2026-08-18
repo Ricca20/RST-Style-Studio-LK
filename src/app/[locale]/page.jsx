@@ -79,11 +79,11 @@ export default async function HomePage({ params }) {
             muted
             loop
             playsInline
+            preload="auto"
             className="w-full h-full object-contain md:object-cover"
             poster="/logo.png"
-          >
-            <source src="/herovideo.mp4" type="video/mp4" />
-          </video>
+            src="/herovideo.mp4"
+          />
         </div>
 
         {/* Seamless bottom fade that strongly blends the video into the dark background below */}
