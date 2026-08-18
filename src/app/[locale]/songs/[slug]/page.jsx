@@ -23,6 +23,14 @@ export async function generateMetadata({ params }) {
       description,
       images: [{ url: image }],
     },
+    alternates: {
+      canonical: `https://rststylestudio.lk/${locale}/songs/${slug}`,
+      languages: {
+        en: `/en/songs/${slug}`,
+        si: `/si/songs/${slug}`,
+        it: `/it/songs/${slug}`,
+      },
+    },
   };
 }
 
@@ -67,8 +75,26 @@ export default async function SongDetailPage({ params }) {
     });
   } catch (e) {}
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MusicRecording",
+    "name": t(song, 'title', locale),
+    "url": `https://rststylestudio.lk/${locale}/songs/${song.slug}`,
+    "image": song.coverImage || "https://rststylestudio.lk/images/og-default.jpg",
+    "genre": song.genres?.[0] || "Pop",
+    "datePublished": song.createdAt?.toISOString() || new Date().toISOString(),
+    "byArtist": {
+      "@type": "MusicGroup",
+      "name": "RST Style Studio LK"
+    }
+  };
+
   return (
     <div className="min-h-screen bg-transparent pt-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main className="max-w-[1280px] mx-auto px-6 md:px-10 lg:px-20 py-8">
         {/* Breadcrumbs */}
         <div className="flex items-center gap-2 text-sm text-white/50 mb-8">

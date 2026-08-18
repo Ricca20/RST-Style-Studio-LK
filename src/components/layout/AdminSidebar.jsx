@@ -14,7 +14,9 @@ import {
   Trash2,
   Gamepad2,
   DollarSign,
-  HandCoins
+  HandCoins,
+  CloudSync,
+  Award
 } from 'lucide-react';
 
 export default function AdminSidebar({ user, role = 'ADMIN' }) {
@@ -29,6 +31,8 @@ export default function AdminSidebar({ user, role = 'ADMIN' }) {
     { name: 'Music Videos', href: '/admin/videos', icon: FileVideo, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
     { name: 'Quotations', href: '/admin/quotations', icon: MessageSquare, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Clients CRM', href: '/admin/clients', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Honorary Mentions', href: '/admin/honorary-mentions', icon: Award, roles: ['SUPER_ADMIN', 'ADMIN'] },
+    { name: 'Social Sync', href: '/admin/social-sync', icon: CloudSync, roles: ['SUPER_ADMIN', 'ADMIN'] },
     { name: 'Media Library', href: '/admin/media', icon: ImageIcon, roles: ['SUPER_ADMIN', 'ADMIN', 'EDITOR'] },
     { name: 'Audit Logs', href: '/admin/audit-logs', icon: Shield, roles: ['SUPER_ADMIN'] },
     { name: 'Pricing Config', href: '/admin/pricing', icon: DollarSign, roles: ['SUPER_ADMIN'] },

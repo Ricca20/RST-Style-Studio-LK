@@ -240,7 +240,7 @@ export default async function AboutPage() {
 
                   <div className="aspect-video rounded-2xl bg-black/60 relative overflow-hidden">
                     <img
-                      src="/Studio1.jpg"
+                      src="/studio1.jpg"
                       alt="Studio Stage 01 - The Beginning"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
                     />

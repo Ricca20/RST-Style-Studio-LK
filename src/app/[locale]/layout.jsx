@@ -9,6 +9,7 @@ import HtmlLangSetter from '@/components/shared/HtmlLangSetter';
 import prisma from '@/lib/db';
 
 export const metadata = {
+  metadataBase: new URL('https://rststylestudio.lk'),
   title: {
     template: '%s | RST Style Studio LK',
     default: 'RST Style Studio LK - Music Production & Portfolio',
@@ -21,7 +22,7 @@ export const metadata = {
     siteName: 'RST Style Studio LK',
     images: [
       {
-        url: '/images/og-default.jpg', // You can change this to a valid default image URL later
+        url: '/images/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'RST Style Studio LK Cover Image',
@@ -29,6 +30,13 @@ export const metadata = {
     ],
     locale: 'en_US',
     type: 'website',
+  },
+  alternates: {
+    languages: {
+      en: '/en',
+      si: '/si',
+      it: '/it',
+    },
   },
 };
 
@@ -62,12 +70,30 @@ export default async function LocaleLayout({ children, params }) {
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MusicGroup",
+    "name": "RST Style Studio LK",
+    "url": "https://rststylestudio.lk",
+    "logo": "https://rststylestudio.lk/logo.png",
+    "description": "Professional home music studio in Sri Lanka.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "LK"
+    }
+  };
+
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <HtmlLangSetter locale={locale} />
       <GoogleAnalytics gaId={gaId} />
       <div className={`flex min-h-screen flex-col text-white relative w-full max-w-[100vw] overflow-x-hidden ${locale === 'si' ? 'font-[family-name:var(--font-noto-sinhala)]' : ''}`}>
         
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+
         {/* Global Sleek Aerospace Background & Ambient Glow */}
         <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#060913]">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#0ea5e9]/10 via-[#9d2bee]/5 to-transparent rounded-full blur-[160px] opacity-70" />
