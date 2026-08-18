@@ -79,17 +79,15 @@ export default async function HomePage({ params }) {
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain md:object-cover"
             poster="/logo.png"
           >
             <source src="/herovideo.mp4" type="video/mp4" />
           </video>
-          {/* Gentle bottom fade to smoothly transition into the section below without blurring or dulling video clarity */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#060913] via-transparent to-transparent opacity-80 pointer-events-none" />
         </div>
 
-        {/* Subtle bottom gradient to smoothly blend into the sections below */}
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-[#060913] via-[#060913]/40 to-transparent pointer-events-none z-10" />
+        {/* Seamless bottom fade that strongly blends the video into the dark background below */}
+        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#060913] via-[#060913]/90 to-transparent pointer-events-none z-10" />
 
         {/* Scroll Indicator — minimal, floating at bottom */}
         <div className="relative z-20 flex flex-col items-center gap-2 mb-10 opacity-75 animate-pulse">
