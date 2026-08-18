@@ -69,7 +69,7 @@ export default async function GamesArcadeHub() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <span className="section-label">Interactive Experience</span>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mt-2 mb-6 text-white tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-bold mt-2 mb-6 text-white tracking-tight">
             Music <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">Arcade</span>
           </h1>
           <p className="text-xl text-white/60 max-w-2xl mx-auto">

@@ -36,7 +36,7 @@ export default function ServicesOverviewSection() {
   ];
 
   return (
-    <section className="py-24 px-8 md:px-16 relative overflow-hidden bg-transparent border-t border-white/10">
+    <section className="py-24 px-4 md:px-10 relative overflow-hidden bg-transparent border-t border-white/10">
       <div className="max-w-7xl mx-auto relative z-10">
         
         {/* Section Header */}

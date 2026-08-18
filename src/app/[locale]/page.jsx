@@ -79,7 +79,7 @@ export default async function HomePage({ params }) {
             muted
             loop
             playsInline
-            className="w-full h-full object-contain md:object-cover object-center"
+            className="w-full h-full object-cover"
             poster="/logo.png"
           >
             <source src="/herovideo.mp4" type="video/mp4" />
@@ -113,7 +113,7 @@ export default async function HomePage({ params }) {
       {/* ═══════════════════════════════════════════════════════════
           SECTION 4: THE COLLECTIVE — SOUND ARCHITECTS
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 md:py-24 px-4 sm:px-8 md:px-10 relative">
+      <section className="py-24 px-6 md:px-10 relative">
         <div className="max-w-7xl mx-auto">
 
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
@@ -218,7 +218,7 @@ export default async function HomePage({ params }) {
       {/* ═══════════════════════════════════════════════════════════
           SECTION 7: LIVE STUDIO STATS & SOCIAL PROOF COUNTERS
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 md:py-20 px-4 sm:px-8 md:px-10 bg-transparent border-t border-white/10">
+      <section className="py-20 px-6 md:px-10 bg-transparent border-t border-white/10">
         <div className="max-w-7xl mx-auto">
           {/* Section intro */}
           <div className="text-center mb-14">
@@ -231,7 +231,7 @@ export default async function HomePage({ params }) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { label: tStats('yearsLabel'), value: '10+', desc: tStats('yearsDesc'), icon: <Award className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
               { label: tStats('masteredLabel'), value: `${masteredTracksCount}+`, desc: tStats('masteredDesc'), icon: <Disc className="w-8 h-8 text-[#0ea5e9] mb-3 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(14,165,233,0.3)]" /> },
@@ -267,20 +267,20 @@ export default async function HomePage({ params }) {
       {/* ═══════════════════════════════════════════════════════════
           SECTION 8: MUSIC ARCADE (GAMES)
           ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 md:py-20 px-4 sm:px-8 md:px-10 relative overflow-hidden bg-[#0a0f1d] border-t border-white/10">
+      <section className="py-20 px-6 md:px-10 relative overflow-hidden bg-[#0a0f1d] border-t border-white/10">
         <div className="absolute right-0 top-0 w-96 h-96 bg-gradient-to-br from-[#0ea5e9]/20 to-[#9d2bee]/20 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3" />
         
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 relative z-10">
           <div className="md:w-1/2">
             <span className="section-label">Interactive Experience</span>
-            <h2 className="section-heading text-3xl md:text-5xl mt-2 mb-6">
+            <h2 className="section-heading text-4xl md:text-5xl mt-2 mb-6">
               THE MUSIC <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">ARCADE</span>
             </h2>
-            <p className="text-lg md:text-xl text-white/60 mb-6 leading-relaxed">
+            <p className="text-xl text-white/60 mb-6 leading-relaxed">
               Test your musical skills, play mini-games, and climb the monthly leaderboard.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 p-4 rounded-2xl mb-8 shadow-[0_0_30px_rgba(234,179,8,0.15)]">
+            <div className="flex items-center gap-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 p-4 rounded-2xl mb-8 shadow-[0_0_30px_rgba(234,179,8,0.15)]">
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-yellow-500/30">
                 <Trophy className="w-6 h-6 text-white" />
               </div>
@@ -293,14 +293,14 @@ export default async function HomePage({ params }) {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link 
                 href="/games"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee] hover:scale-105 transition-transform rounded-xl font-bold text-white shadow-lg shadow-[#0ea5e9]/20"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee] hover:scale-105 transition-transform rounded-xl font-bold text-white shadow-lg shadow-[#0ea5e9]/20"
               >
                 <Gamepad2 className="w-5 h-5" />
                 Play Now
               </Link>
               <Link 
                 href="/games/leaderboards"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-white transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-bold text-white transition-colors"
               >
                 View Leaderboard
               </Link>

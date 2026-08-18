@@ -4,7 +4,7 @@ import { Link, usePathname } from '@/i18n/routing';
 import LocaleSwitcher from '@/components/shared/LocaleSwitcher';
 import { useState, useEffect } from 'react';
 import MagneticButton from '@/components/ui/MagneticButton';
-import { Home, Info, Music, Users, Wrench, Mail, VolumeX, Volume2, Camera, Menu, X } from 'lucide-react';
+import { Home, Info, Music, Users, Wrench, Mail, VolumeX, Volume2, Camera } from 'lucide-react';
 
 export default function Navbar() {
   const t = useTranslations('Navigation');
@@ -31,13 +31,9 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="fixed top-6 left-0 right-0 z-50 flex justify-between items-center w-full pointer-events-none px-6">
-        
-        {/* Invisible Spacer to perfectly counter-balance the menu button and keep the chassis dead-center on mobile */}
-        <div className="w-12 h-12 lg:hidden pointer-events-none" />
-
+      <div className="fixed top-6 left-0 right-0 z-50 flex justify-center w-full pointer-events-none px-4">
         {/* Main DJ Hardware Chassis */}
-        <nav className={`dj-chassis pointer-events-auto flex items-center justify-center px-4 py-3 w-fit gap-6 transition-all duration-500 hover:scale-[1.02] ${isOpen ? 'opacity-0 pointer-events-none lg:opacity-100 lg:pointer-events-auto' : 'opacity-100'}`}>
+        <nav className="dj-chassis pointer-events-auto flex items-center justify-between px-3 py-3 w-fit gap-6 transition-transform duration-500 hover:scale-[1.02]">
           
           {/* Screws */}
           <div className="dj-screw dj-screw-tl" />
@@ -131,64 +127,42 @@ export default function Navbar() {
               </div>
             </Link>
           </MagneticButton>
-        </nav>
 
-        {/* Mobile Menu Toggle (Detached from chassis for perfect pill symmetry) */}
-        <button
-          className="lg:hidden pointer-events-auto flex items-center justify-center w-12 h-12 text-white/90 hover:text-white bg-[#0f172a]/80 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl transition-all"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Toggle menu"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+          {/* Mobile Menu Toggle (Only visible on small screens) */}
+          <button
+            className="lg:hidden text-white/70 hover:text-white p-2 shrink-0 ml-2 z-10"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            <span className="material-symbols-outlined text-3xl">
+              {isOpen ? 'close' : 'menu'}
+            </span>
+          </button>
+        </nav>
       </div>
 
-      {/* Mobile Menu Overlay Drawer */}
-      <div 
-        className={`fixed inset-0 z-[45] flex justify-end lg:hidden transition-all duration-500 ease-in-out ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-      >
-        <div 
-          className="absolute inset-0 bg-[#0f172a]/60 backdrop-blur-sm" 
-          onClick={() => setIsOpen(false)}
-          aria-hidden="true"
-        />
-        <div 
-          className={`relative w-72 h-full bg-[#1e293b]/90 border-l border-[#0ea5e9]/20 shadow-2xl backdrop-blur-xl flex flex-col pt-28 px-8 gap-6 transition-transform duration-500 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
-        >
-          {navLinks.map((link, idx) => {
-            let Icon = Home;
-            if (link.href === '/about') Icon = Info;
-            if (link.href === '/media') Icon = Camera;
-            if (link.href === '/contributors') Icon = Users;
-            if (link.href === '/songs') Icon = Music;
-            if (link.href === '/services') Icon = Wrench;
-            if (link.href === '/contact') Icon = Mail;
-            
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-4 text-white/80 hover:text-white text-lg font-medium tracking-wide transition-all duration-300 transform ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'}`}
-                style={{ transitionDelay: `${isOpen ? idx * 50 + 150 : 0}ms` }}
-                onClick={() => setIsOpen(false)}
-              >
-                <Icon size={20} className="text-[#0ea5e9]" />
-                {link.label}
-              </Link>
-            );
-          })}
-          
-          <div className={`mt-8 transition-all duration-500 transform ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: `${isOpen ? navLinks.length * 50 + 200 : 0}ms` }}>
+      {/* Mobile Menu Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-[45] bg-[#0f172a]/95 backdrop-blur-md flex flex-col items-center justify-center gap-6 lg:hidden">
+          {navLinks.map((link) => (
             <Link
-              href="/contact"
-              className="w-full flex items-center justify-center bg-[#0ea5e9]/10 text-[#0ea5e9] border border-[#0ea5e9]/50 hover:bg-[#0ea5e9] hover:text-white px-6 py-3 rounded-xl font-semibold transition-all neon-glow"
+              key={link.href}
+              href={link.href}
+              className="text-white text-2xl font-bold hover:text-[#0ea5e9] transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Book Session
+              {link.label}
             </Link>
-          </div>
+          ))}
+          <Link
+            href="/contact"
+            className="mt-4 bg-[#0ea5e9] text-white px-8 py-3 rounded-full font-bold neon-glow"
+            onClick={() => setIsOpen(false)}
+          >
+            Book Session
+          </Link>
         </div>
-      </div>
+      )}
     </>
   );
 }

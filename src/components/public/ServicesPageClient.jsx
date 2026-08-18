@@ -165,39 +165,39 @@ export default function ServicesPageClient({
       {/* ═══════════════════════════════════════════════════════════
           STUDIO NAVIGATION & SECTION BAR
           ═══════════════════════════════════════════════════════════ */}
-      <div className="flex items-center justify-start md:justify-center mb-12 overflow-x-auto pb-4 md:pb-0 px-2 no-scrollbar">
-        <div className="inline-flex p-1.5 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-xl shadow-2xl shrink-0">
+      <div className="flex items-center justify-center mb-12">
+        <div className="inline-flex p-1.5 rounded-2xl bg-black/60 border border-white/10 backdrop-blur-xl shadow-2xl">
           <button
             onClick={() => setActiveTab('SERVICES')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'SERVICES'
                 ? 'bg-[#0ea5e9] text-white shadow-[0_0_20px_rgba(14,165,233,0.5)]'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                : 'text-gray-400 hover:text-white'
             }`}
           >
-            <Sliders className="w-4 h-4 shrink-0" />
+            <Sliders className="w-4 h-4" />
             RACK SERVICES ({services.length})
           </button>
           <button
             onClick={() => setActiveTab('PRICING')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'PRICING'
                 ? 'bg-[#0ea5e9] text-white shadow-[0_0_20px_rgba(14,165,233,0.5)]'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                : 'text-gray-400 hover:text-white'
             }`}
           >
-            <DollarSign className="w-4 h-4 shrink-0" />
+            <DollarSign className="w-4 h-4" />
             ITEMIZED RATES ({pricing.length})
           </button>
           <button
             onClick={scrollToWizard}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'WIZARD'
                 ? 'bg-[#0ea5e9] text-white shadow-[0_0_20px_rgba(14,165,233,0.5)]'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                : 'text-gray-400 hover:text-white'
             }`}
           >
-            <Calculator className="w-4 h-4 shrink-0" />
+            <Calculator className="w-4 h-4" />
             LIVE QUOTATION BUILDER
           </button>
         </div>

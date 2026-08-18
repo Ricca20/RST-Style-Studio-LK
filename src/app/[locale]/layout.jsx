@@ -87,7 +87,7 @@ export default async function LocaleLayout({ children, params }) {
     <NextIntlClientProvider locale={locale} messages={messages}>
       <HtmlLangSetter locale={locale} />
       <GoogleAnalytics gaId={gaId} />
-      <div className={`flex min-h-screen flex-col text-white relative w-full max-w-[100vw] overflow-x-hidden ${locale === 'si' ? 'font-[family-name:var(--font-noto-sinhala)]' : ''}`}>
+      <div className={`flex min-h-screen flex-col text-white relative ${locale === 'si' ? 'font-[family-name:var(--font-noto-sinhala)]' : ''}`}>
         
         <script
           type="application/ld+json"
@@ -101,8 +101,8 @@ export default async function LocaleLayout({ children, params }) {
 
         <GlobalScene />
         <Navbar />
-        <main className="flex-1 relative z-20 w-full overflow-x-hidden">{children}</main>
-        <div className="relative z-20 w-full overflow-x-hidden">
+        <main className="flex-1 relative z-20">{children}</main>
+        <div className="relative z-20">
           <Footer />
         </div>
       </div>

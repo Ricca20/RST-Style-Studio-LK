@@ -42,7 +42,7 @@ export default function FeaturedSongsSection({ songs = [], locale = 'en' }) {
   ];
 
   return (
-    <section className="py-24 px-8 md:px-16 relative overflow-hidden bg-transparent border-t border-b border-white/10">
+    <section className="py-24 px-4 md:px-10 relative overflow-hidden bg-transparent border-t border-b border-white/10">
       {/* Background glow */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[#9d2bee]/15 rounded-full blur-[130px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#0ea5e9]/15 rounded-full blur-[130px] pointer-events-none" />

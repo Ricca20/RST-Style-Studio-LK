@@ -125,7 +125,7 @@ export default function QuoteClient() {
   // Success screen
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-transparent py-32 px-8 md:px-16 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-transparent py-32 px-4 flex items-center justify-center relative overflow-hidden">
         {/* Glow effect */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0ea5e9]/20 rounded-full blur-[120px] pointer-events-none" />
         
@@ -150,13 +150,13 @@ export default function QuoteClient() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent pt-32 pb-16 px-8 md:px-16 relative overflow-hidden">
+    <div className="min-h-screen bg-transparent pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-[#0ea5e9]/10 rounded-full blur-[150px] pointer-events-none" />
       <Scroll3DWrapper intensity={0.2} className="relative z-10 w-full">
         <main className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">{tQuote('title') || 'Build Your Song'}</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">{tQuote('title') || 'Build Your Song'}</h1>
           <p className="text-white/50 text-lg max-w-2xl mx-auto font-light">Choose your team, pick your genre, describe your vision — and get an instant price estimate.</p>
         </div>
 

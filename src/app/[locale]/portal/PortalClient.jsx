@@ -57,7 +57,7 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
       {/* Profile Section */}
-      <div className="glass-panel p-5 md:p-8 rounded-2xl">
+      <div className="glass-panel p-8 rounded-2xl">
         <h2 className="text-2xl font-bold text-white mb-6">Your Profile</h2>
         {initialProfile?.isApproved === false && (
           <div className="bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 p-4 rounded-xl mb-6 text-sm">
@@ -112,7 +112,7 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
 
       {/* Claims Section */}
       <div className="flex flex-col gap-8">
-        <div className="glass-panel p-5 md:p-8 rounded-2xl">
+        <div className="glass-panel p-8 rounded-2xl">
           <h2 className="text-2xl font-bold text-white mb-6">Claim a Song</h2>
           <form onSubmit={handleClaimSubmit} className="flex flex-col gap-4">
             <div>
@@ -163,7 +163,7 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
           </form>
         </div>
 
-        <div className="glass-panel p-5 md:p-8 rounded-2xl">
+        <div className="glass-panel p-8 rounded-2xl">
           <h2 className="text-2xl font-bold text-white mb-6">Your Claims</h2>
           {localClaims.length === 0 ? (
             <p className="text-white/40 text-sm">You haven&apos;t claimed any songs yet.</p>
