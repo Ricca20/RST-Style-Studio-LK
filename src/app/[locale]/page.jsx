@@ -8,6 +8,7 @@ import FeaturedSongsSection from '@/components/public/FeaturedSongsSection';
 import ServicesOverviewSection from '@/components/public/ServicesOverviewSection';
 import CtaSection from '@/components/public/CtaSection';
 import Image from 'next/image';
+import HeroVideo from '@/components/shared/HeroVideo';
 import { User, ArrowUpRight, ArrowRight, Award, Disc, Activity, Heart, Gamepad2, Trophy } from 'lucide-react';
 
 export async function generateMetadata({ params }) {
@@ -74,16 +75,7 @@ export default async function HomePage({ params }) {
       <section className="relative flex min-h-screen w-full flex-col items-center justify-end overflow-hidden">
         {/* Intro Video Background — ONLY for the first section */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-[#060913]">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="w-full h-full object-contain md:object-cover"
-            poster="/logo.png"
-            src="/herovideo.mp4"
-          />
+          <HeroVideo />
         </div>
 
         {/* Seamless bottom fade that strongly blends the video into the dark background below */}
