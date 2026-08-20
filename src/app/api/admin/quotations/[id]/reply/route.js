@@ -3,6 +3,7 @@ import prisma from '@/lib/db';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Resend } from 'resend';
+import { requireRole } from '@/lib/auth/server-auth';
 
 async function checkAdmin() {
   const cookieStore = await cookies();

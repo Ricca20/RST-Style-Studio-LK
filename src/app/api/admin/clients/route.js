@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/auth/server-auth';
+import { checkAuth, requireRole } from '@/lib/auth/server-auth';
 
 export async function GET(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     // Fetch all non-deleted quotations
     const quotations = await prisma.quotationRequest.findMany({

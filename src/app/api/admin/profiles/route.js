@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/auth/server-auth';
+import { checkAuth, requireRole } from '@/lib/auth/server-auth';
 import slugify from 'slugify';
 
 export async function GET() {
   try {
-    const user = await checkAuth();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const profiles = await prisma.profile.findMany({
       where: { deletedAt: null },
@@ -20,8 +21,9 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const user = await checkAuth();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const body = await request.json();
     const { name, mainRole, bio, imageUrl, galleryImages, socialLinks, isActive } = body;

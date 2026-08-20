@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function POST(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const cookieStore = await cookies();
     

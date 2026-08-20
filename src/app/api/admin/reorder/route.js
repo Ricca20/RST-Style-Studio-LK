@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function PUT(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const { type, items } = await request.json(); // type: 'SERVICE' | 'PROFILE', items: [{ id, sortOrder }]
 

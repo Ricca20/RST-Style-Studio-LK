@@ -33,7 +33,7 @@ export default function Navbar() {
     <>
       <div className="fixed top-6 left-0 right-0 z-50 flex justify-center w-full pointer-events-none px-4">
         {/* Main DJ Hardware Chassis */}
-        <nav className="dj-chassis pointer-events-auto flex items-center justify-between px-3 py-3 w-fit gap-6 transition-transform duration-500 hover:scale-[1.02]">
+        <nav className="dj-chassis pointer-events-auto flex items-center justify-between px-3 py-3 w-fit gap-6 transition-transform duration-500">
           
           {/* Screws */}
           <div className="dj-screw dj-screw-tl" />
@@ -41,12 +41,12 @@ export default function Navbar() {
           <div className="dj-screw dj-screw-bl" />
           <div className="dj-screw dj-screw-br" />
 
-          {/* Left Knob (Home) */}
-          <Link href="/" title="Home" className="dj-knob-container shrink-0">
+          {/* Left Knob */}
+          <div className="dj-knob-container shrink-0">
             <div className="dj-knob">
               <div className="dj-knob-center-blue" />
             </div>
-          </Link>
+          </div>
 
           {/* Blue Separator */}
           <div className="dj-separator-blue shrink-0" />
@@ -119,13 +119,13 @@ export default function Navbar() {
             <LocaleSwitcher />
           </div>
 
-          {/* Right Knob (Book Session) */}
+          {/* Right Knob */}
           <MagneticButton>
-            <Link href="/contact" title="Book Session" className="dj-knob-container shrink-0">
+            <div className="dj-knob-container shrink-0">
               <div className="dj-knob">
                 <div className="dj-knob-center-blue animate-pulse" />
               </div>
-            </Link>
+            </div>
           </MagneticButton>
 
           {/* Mobile Menu Toggle (Only visible on small screens) */}

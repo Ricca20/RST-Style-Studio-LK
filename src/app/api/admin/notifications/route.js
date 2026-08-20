@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/auth/server-auth';
+import { checkAuth, requireRole } from '@/lib/auth/server-auth';
 
 // Cleanup older read notifications automatically on fetch (older than 30 days)
 async function cleanupOldNotifications() {
@@ -21,10 +21,11 @@ async function cleanupOldNotifications() {
 // GET all notifications for the current user
 export async function GET(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     // Fire & Forget Cleanup
     cleanupOldNotifications();
@@ -49,10 +50,11 @@ export async function GET(request) {
 // PATCH to mark specific or all notifications as read
 export async function PATCH(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const body = await request.json();
     const { id, markAll } = body;
@@ -84,10 +86,11 @@ export async function PATCH(request) {
 // DELETE to clear all notifications for the user
 export async function DELETE(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     await prisma.notification.deleteMany({
       where: { userId: userContext.dbUser.id }

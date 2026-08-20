@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function PUT(request, { params }) {
   const { id } = await params;
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const body = await request.json();
     const {
@@ -79,10 +80,11 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   const { id } = await params;
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const song = await prisma.song.findUnique({ where: { id }, select: { titleEn: true } });
 

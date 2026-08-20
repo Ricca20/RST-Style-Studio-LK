@@ -45,6 +45,10 @@ const nextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.youtube.com https://s.ytimg.com; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data: https://*.supabase.co https://i.ytimg.com https://*.scdn.co https://graph.facebook.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; frame-src 'self' https://www.youtube.com https://open.spotify.com; connect-src 'self' https://*.supabase.co; report-uri /api/csp-report;"
+          },
         ],
       },
     ];

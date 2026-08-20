@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function PUT(request, { params }) {
   const { id } = await params;

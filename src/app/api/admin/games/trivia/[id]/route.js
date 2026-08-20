@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { requireRole } from '@/lib/auth/server-auth';
 
 export async function PUT(request, { params }) {
   try {
@@ -17,8 +18,9 @@ export async function PUT(request, { params }) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const body = await request.json();
     const { difficulty, questionEn, questionSi, options, correctOption, isActive } = body;
@@ -55,8 +57,9 @@ export async function DELETE(request, { params }) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     await prisma.triviaQuestion.delete({
       where: { id }

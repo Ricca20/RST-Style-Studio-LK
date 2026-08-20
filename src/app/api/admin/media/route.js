@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 // Helper to init supabase admin client
 async function getSupabaseAdmin() {
@@ -20,10 +20,11 @@ async function getSupabaseAdmin() {
 
 export async function GET(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const supabase = await getSupabaseAdmin();
     const { data, error } = await supabase.storage.from('media').list('', {
@@ -55,10 +56,11 @@ export async function GET(request) {
 
 export async function DELETE(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const { searchParams } = new URL(request.url);
     let fileNames = [];
@@ -107,10 +109,11 @@ export async function DELETE(request) {
 
 export async function POST(request) {
   try {
-    const userContext = await checkAuth();
-    if (!userContext || !userContext.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const userContext = authResult.user;
 
     const formData = await request.formData();
     const file = formData.get('file');

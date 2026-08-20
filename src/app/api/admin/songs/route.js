@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { requireRole } from '@/lib/auth/server-auth';
 
 export async function POST(request) {
   try {
@@ -18,10 +19,9 @@ export async function POST(request) {
       }
     );
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const body = await request.json();
     const {

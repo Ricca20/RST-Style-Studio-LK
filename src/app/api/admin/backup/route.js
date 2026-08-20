@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/auth/server-auth';
+import { checkAuth, requireRole } from '@/lib/auth/server-auth';
 import * as XLSX from 'xlsx';
 
 export async function GET(request) {

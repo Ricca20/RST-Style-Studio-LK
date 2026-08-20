@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { requireRole } from '@/lib/auth/server-auth';
 
 async function checkAdmin() {
   const cookieStore = await cookies();

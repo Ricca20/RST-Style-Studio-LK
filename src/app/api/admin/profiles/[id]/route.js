@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/auth/server-auth';
+import { checkAuth, requireRole } from '@/lib/auth/server-auth';
 import slugify from 'slugify';
 
 export async function PUT(request, { params }) {
   try {
-    const user = await checkAuth();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const { id } = await params;
     const body = await request.json();
@@ -38,8 +39,9 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const user = await checkAuth();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const { id } = await params;
     await prisma.profile.update({ where: { id }, data: { deletedAt: new Date() } });

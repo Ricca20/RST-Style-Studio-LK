@@ -402,7 +402,13 @@ export default function ServicesPageClient({
                   { num: 3, title: 'Project Details' },
                   { num: 4, title: 'Estimate & Submit' },
                 ].map((s) => (
-                  <div key={s.num} className="flex items-center gap-2">
+                  <div 
+                    key={s.num} 
+                    className={`flex items-center gap-2 ${s.num < step ? 'cursor-pointer hover:opacity-80' : ''}`}
+                    onClick={() => {
+                      if (s.num < step) setStep(s.num);
+                    }}
+                  >
                     <span
                       className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all ${
                         step === s.num

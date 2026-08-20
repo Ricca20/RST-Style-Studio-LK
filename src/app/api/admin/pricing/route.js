@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function GET() {
   try {
-    const context = await checkAuth();
-    if (!context || !context.dbUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
+    const context = authResult.user;
 
     const configs = await prisma.pricingConfig.findMany({
       orderBy: { createdAt: 'desc' }

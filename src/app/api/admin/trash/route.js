@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction } from '@/lib/auth/server-auth';
+import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function GET(request) {
   try {
-    const user = await checkAuth();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const [deletedSongs, deletedProfiles, deletedServices] = await Promise.all([
       prisma.song.findMany({ where: { deletedAt: { not: null } }, select: { id: true, titleEn: true, deletedAt: true } }),
@@ -27,8 +28,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const user = await checkAuth();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+    const user = authResult.user;
 
     const body = await request.json();
     const { action, type, id } = body; // action: 'RESTORE' or 'DELETE_PERMANENT'
