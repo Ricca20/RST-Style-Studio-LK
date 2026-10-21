@@ -54,8 +54,5 @@
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "vitest": "^4.1.8"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
   }
 }

@@ -1,165 +1,91 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
-import { Timer, CheckCircle, XCircle, Trophy, ArrowRight, LogIn } from 'lucide-react';
-import GameRegistrationModal from './GameRegistrationModal';
+import { useState, useEffect, useRef, useEffectEvent } from 'react';
+import { useLocale } from 'next-intl';
+import { Timer } from 'lucide-react';
+import { GameError, GameFinished, GameLoading, gameFetch, localized, nowMs } from './GameStatus';
+
+const SECONDS_PER_QUESTION = 15; // the server allows the same per-question limit
 
 export default function TriviaGame() {
+  const locale = useLocale();
+  const [phase, setPhase] = useState('loading'); // loading, playing, submitting, finished, error
   const [questions, setQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState([]); // { questionId, selectedOptionId, timeTakenMs }
-  const [gameState, setGameState] = useState('loading'); // loading, playing, submitting, finished, error
-  const [scoreData, setScoreData] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(15);
-  const [questionStartTime, setQuestionStartTime] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [timeLeft, setTimeLeft] = useState(SECONDS_PER_QUESTION);
+  const [score, setScore] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Mutable game data that must not trigger re-renders or go stale in timers
+  const tokenRef = useRef(null);
+  const answersRef = useRef([]);
+  const questionStartRef = useRef(0);
 
   useEffect(() => {
-    fetchQuestions();
+    let cancelled = false;
+    gameFetch('/api/games/trivia')
+      .then(({ questions: served, token }) => {
+        if (cancelled) return;
+        tokenRef.current = token;
+        questionStartRef.current = nowMs();
+        setQuestions(served);
+        setPhase('playing');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err);
+        setPhase('error');
+      });
+    return () => { cancelled = true; };
   }, []);
 
-  const fetchQuestions = async () => {
+  const submit = async (answers) => {
+    setPhase('submitting');
     try {
-      const res = await fetch('/api/games/trivia');
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('unauthorized');
-        throw new Error('Failed to load questions');
-      }
-      const data = await res.json();
-      setQuestions(data);
-      setGameState('playing');
-      setQuestionStartTime(Date.now());
+      const data = await gameFetch('/api/games/trivia/submit', {
+        method: 'POST',
+        body: JSON.stringify({ token: tokenRef.current, answers }),
+      });
+      setScore(data.score);
+      setPhase('finished');
     } catch (err) {
-      setGameState('error');
-      setErrorMessage(err.message === 'unauthorized' ? 'Please register or login to play.' : 'Could not load questions. Try again later.');
+      setError(err);
+      setPhase('error');
     }
   };
 
-  // Timer logic
-  useEffect(() => {
-    if (gameState !== 'playing') return;
-
-    if (timeLeft <= 0) {
-      handleAnswerSelect(null); // Time's up
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft, gameState]);
-
-  const handleAnswerSelect = useCallback((optionId) => {
-    const timeTakenMs = Date.now() - questionStartTime;
-    const currentQ = questions[currentIdx];
-
-    setAnswers(prev => [...prev, {
-      questionId: currentQ.id,
-      selectedOptionId: optionId, // null if timed out
-      timeTakenMs
-    }]);
+  // optionId is null when the timer runs out
+  const answer = (optionId) => {
+    const question = questions[currentIdx];
+    const timeTakenMs = Math.min(nowMs() - questionStartRef.current, SECONDS_PER_QUESTION * 1000);
+    answersRef.current = [...answersRef.current, { questionId: question.id, selectedOptionId: optionId, timeTakenMs }];
 
     if (currentIdx + 1 < questions.length) {
-      setCurrentIdx(prev => prev + 1);
-      setTimeLeft(15);
-      setQuestionStartTime(Date.now());
+      questionStartRef.current = nowMs();
+      setCurrentIdx(currentIdx + 1);
+      setTimeLeft(SECONDS_PER_QUESTION);
     } else {
-      setGameState('submitting');
-    }
-  }, [currentIdx, questions, questionStartTime]);
-
-  useEffect(() => {
-    if (gameState === 'submitting') {
-      submitScore();
-    }
-  }, [gameState]);
-
-  const submitScore = async () => {
-    try {
-      const res = await fetch('/api/games/trivia/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit score');
-      
-      setScoreData(data);
-      setGameState('finished');
-    } catch (err) {
-      setGameState('error');
-      setErrorMessage(err.message);
+      submit(answersRef.current);
     }
   };
 
-  if (gameState === 'loading') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-white/50">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-[#0ea5e9] rounded-full animate-spin mb-4" />
-        <p>Loading questions...</p>
-      </div>
-    );
-  }
+  const onTick = useEffectEvent(() => {
+    const remaining = SECONDS_PER_QUESTION - Math.floor((nowMs() - questionStartRef.current) / 1000);
+    if (remaining <= 0) answer(null);
+    else setTimeLeft(remaining);
+  });
 
-  if (gameState === 'error') {
-    const isAuthError = errorMessage === 'Please register or login to play.';
-    
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6">
-        <XCircle className="w-16 h-16 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">Oops!</h2>
-        <p className="text-red-400 mb-6">{errorMessage}</p>
-        
-        {isAuthError ? (
-          <>
-            <button 
-              onClick={() => document.getElementById('register-trigger').click()}
-              className="px-6 py-3 bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee] hover:scale-105 rounded-xl font-bold text-white transition-transform flex items-center gap-2"
-            >
-              <LogIn className="w-5 h-5" />
-              Register Now
-            </button>
-            {/* Hidden trigger to simplify state management, or we can just use a state */}
-            <GameRegistrationModal isOpen={true} onClose={() => window.location.href = '/games'} />
-          </>
-        ) : (
-          <button 
-            onClick={() => window.location.reload()}
-            className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
-          >
-            Try Again
-          </button>
-        )}
-      </div>
-    );
-  }
+  // Restart the countdown for each question
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    const timer = setInterval(onTick, 250);
+    return () => clearInterval(timer);
+  }, [phase, currentIdx]);
 
-  if (gameState === 'finished' && scoreData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6 animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-gradient-to-br from-[#0ea5e9] to-[#9d2bee] rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(14,165,233,0.5)]">
-          <Trophy className="w-12 h-12 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Game Over!</h2>
-        <p className="text-white/70 mb-8">You successfully completed the SL Music IQ challenge.</p>
-        
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 w-full max-w-md">
-          <span className="block text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">Your Final Score</span>
-          <span className="block text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">
-            {scoreData.score}
-          </span>
-          <span className="block text-xs text-white/40 mt-4">Leaderboard updated automatically</span>
-        </div>
-
-        <a 
-          href="/games"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white font-semibold transition-colors"
-        >
-          Back to Arcade <ArrowRight className="w-4 h-4" />
-        </a>
-      </div>
-    );
+  if (phase === 'loading') return <GameLoading label="Loading questions…" />;
+  if (phase === 'submitting') return <GameLoading label="Calculating your score…" />;
+  if (phase === 'error') return <GameError error={error} />;
+  if (phase === 'finished') {
+    return <GameFinished subtitle="You completed the SL Music IQ challenge." score={score} />;
   }
 
   const currentQ = questions[currentIdx];
@@ -167,14 +93,14 @@ export default function TriviaGame() {
 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col items-center min-h-[500px]">
-      
+
       {/* Header Info */}
       <div className="w-full flex justify-between items-center mb-8 bg-white/5 border border-white/10 p-4 rounded-xl">
         <div className="flex flex-col">
           <span className="text-xs text-white/50 uppercase font-bold tracking-wider mb-1">Question</span>
           <span className="text-xl font-bold text-white">{currentIdx + 1} <span className="text-white/30">/ {questions.length}</span></span>
         </div>
-        
+
         <div className={`flex items-center gap-2 px-4 py-2 rounded-lg font-mono text-xl font-bold ${timeLeft <= 5 ? 'bg-red-500/20 text-red-400' : 'bg-white/10 text-white'}`}>
           <Timer className="w-5 h-5" />
           {timeLeft}s
@@ -190,7 +116,7 @@ export default function TriviaGame() {
 
       {/* Question */}
       <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-10 leading-tight">
-        {currentQ.questionEn}
+        {localized(currentQ, 'question', locale)}
       </h2>
 
       {/* Options */}
@@ -198,11 +124,11 @@ export default function TriviaGame() {
         {currentQ.options.map((opt) => (
           <button
             key={opt.id}
-            onClick={() => handleAnswerSelect(opt.id)}
+            onClick={() => answer(opt.id)}
             className="w-full p-4 md:p-6 text-left bg-white/5 hover:bg-[#0ea5e9]/20 border border-white/10 hover:border-[#0ea5e9]/50 rounded-xl text-white font-medium transition-all hover:scale-[1.02] active:scale-[0.98] group"
           >
             <div className="flex items-center justify-between">
-              <span>{opt.textEn}</span>
+              <span>{localized(opt, 'text', locale)}</span>
               <div className="w-5 h-5 rounded-full border-2 border-white/20 group-hover:border-[#0ea5e9] transition-colors" />
             </div>
           </button>

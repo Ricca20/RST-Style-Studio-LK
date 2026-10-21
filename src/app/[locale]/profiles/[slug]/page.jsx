@@ -1,69 +1,47 @@
+import { notFound } from 'next/navigation';
 import prisma from '@/lib/db';
+import { guestNameFromSlug, isGuestSlug, legacyGuestKey } from '@/lib/utils/guestSlug';
 import ExtendedContributorProfileClient from '@/components/public/ExtendedContributorProfileClient';
 
-const DEMO_PROFILES = {
-  'rst-studio': {
-    name: 'RST Studio',
-    mainRole: 'Lead Sound Engineer & Founder',
-    bio: 'Mastering engineer with over a decade of analog recording and acoustic sculpture experience at RST Style Studio LK.',
-    imageUrl: '/logo.png',
-    slug: 'rst-studio',
-    socialLinks: { instagram: 'https://instagram.com', spotify: 'https://spotify.com' }
-  },
-  'kasun': {
-    name: 'Kasun De Silva',
-    mainRole: 'Senior Producer & Arranger',
-    bio: 'Specialist in modern synthwave, orchestral film scoring, and vocal harmony arrangements across top Sinhala & English releases.',
-    imageUrl: null,
-    slug: 'kasun',
-    socialLinks: { instagram: 'https://instagram.com' }
-  },
-  'thilini': {
-    name: 'Thilini Perera',
-    mainRole: 'Vocalist & Vocal Coach',
-    bio: 'Classical and pop vocal trainer helping artists deliver emotionally resonant performances.',
-    imageUrl: null,
-    slug: 'thilini',
-    socialLinks: { youtube: 'https://youtube.com' }
-  },
-  'amila': {
-    name: 'Amila Fernando',
-    mainRole: 'Mixing & Mastering Engineer',
-    bio: 'Dolby Atmos certified mix engineer specializing in deep bass and panoramic stereo imaging.',
-    imageUrl: null,
-    slug: 'amila',
-    socialLinks: {}
-  }
-};
+const PUBLIC_PROFILE = { isActive: true, isApproved: true, deletedAt: null };
+
+/** Finds the credited name for a guest slug, or null if nobody by that name is credited. */
+async function findGuestName(slug) {
+  const name = guestNameFromSlug(slug);
+  const exact = await prisma.contribution.findFirst({
+    where: { profileId: null, name: { equals: name, mode: 'insensitive' }, song: { deletedAt: null, isDraft: false } },
+    select: { name: true },
+  });
+  if (exact) return exact.name;
+
+  // Old links used a lossy Latin-only slug; match it against credited guest names
+  const guests = await prisma.contribution.findMany({
+    where: { profileId: null, song: { deletedAt: null, isDraft: false } },
+    select: { name: true },
+    distinct: ['name'],
+  });
+  return guests.find((g) => legacyGuestKey(g.name) === name.toLowerCase())?.name || null;
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const profile = await prisma.profile.findUnique({ where: { slug } });
-  const demo = DEMO_PROFILES[slug];
-  const name = profile?.name || demo?.name || 'Studio Contributor';
-  const role = profile?.mainRole || demo?.mainRole || 'Contributor';
-  const bio = profile?.bio || demo?.bio || `View ${name}'s profile on RST Style Studio.`;
+  const profile = await prisma.profile.findFirst({ where: { slug, ...PUBLIC_PROFILE } });
+  const name = profile?.name || (isGuestSlug(slug) ? await findGuestName(slug) : null);
+  if (!name) return { title: 'Contributor not found | RST Studio' };
 
+  const role = profile?.mainRole || 'Contributor';
   return {
     title: `${name} - ${role} | RST Studio`,
-    description: bio,
+    description: profile?.bio || `View ${name}'s credits on RST Style Studio LK productions.`,
   };
 }
 
 export async function generateStaticParams() {
   const profiles = await prisma.profile.findMany({
-    where: { isActive: true },
+    where: PUBLIC_PROFILE,
     select: { slug: true }
   });
-  
-  const params = profiles.map((p) => ({ slug: p.slug }));
-  Object.keys(DEMO_PROFILES).forEach((slug) => {
-    if (!params.find(p => p.slug === slug)) {
-      params.push({ slug });
-    }
-  });
-  
-  return params;
+  return profiles.map((p) => ({ slug: p.slug }));
 }
 
 export default async function ProfileDetailPage({ params }) {
@@ -73,8 +51,8 @@ export default async function ProfileDetailPage({ params }) {
   let credits = [];
 
   try {
-    const dbProfile = await prisma.profile.findUnique({
-      where: { slug },
+    const dbProfile = await prisma.profile.findFirst({
+      where: { slug, ...PUBLIC_PROFILE },
       include: {
         credits: {
           include: {
@@ -104,30 +82,23 @@ export default async function ProfileDetailPage({ params }) {
     console.error("Failed to fetch profile by slug", e);
   }
 
-  // If not found in DB Profile table, check demo profiles or guest contributors
-  if (!profile) {
-    const demo = DEMO_PROFILES[slug];
-    if (demo) {
-      profile = demo;
-    } else {
-      // Decode slug into a human name (e.g., guest-saman-silva -> Saman Silva)
-      const cleanName = slug
-        .replace(/^guest-/, '')
-        .split('-')
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ');
-
+  // Not a public profile: it may be a guest credited on songs without a profile
+  if (!profile && isGuestSlug(slug)) {
+    const guestName = await findGuestName(slug).catch(() => null);
+    if (guestName) {
       profile = {
-        name: cleanName || 'Studio Contributor',
+        name: guestName,
         mainRole: 'Credited Studio Artist',
-        bio: `Credited sound architect and contributor across RST Style Studio LK releases.`,
+        bio: 'Credited sound architect and contributor across RST Style Studio LK releases.',
         imageUrl: null,
-        slug: slug,
+        slug,
         galleryImages: [],
         socialLinks: {}
       };
     }
   }
+
+  if (!profile) notFound();
 
   // Also query any song contributions matching this contributor's name or profile ID
   let allSongCredits = [];
@@ -135,7 +106,7 @@ export default async function ProfileDetailPage({ params }) {
     const matchingContributions = await prisma.contribution.findMany({
       where: {
         OR: [
-          profile.id ? { profileId: profile.id } : {},
+          ...(profile.id ? [{ profileId: profile.id }] : []),
           { name: { equals: profile.name, mode: 'insensitive' } }
         ]
       },
@@ -149,7 +120,7 @@ export default async function ProfileDetailPage({ params }) {
     const uniqueSongsMap = new Map();
 
     merged.forEach(credit => {
-      if (credit.song && !credit.song.isDraft) {
+      if (credit.song && !credit.song.isDraft && !credit.song.deletedAt) {
         if (!uniqueSongsMap.has(credit.song.id)) {
           uniqueSongsMap.set(credit.song.id, {
             song: credit.song,

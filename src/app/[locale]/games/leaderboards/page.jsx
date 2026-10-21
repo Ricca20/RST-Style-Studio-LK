@@ -1,7 +1,8 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Trophy, Medal, Star, ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
 
 const GAMES = [
   { id: 'TRIVIA', name: 'SL Music IQ' },
@@ -13,29 +14,10 @@ const GAMES = [
 
 export default function LeaderboardPage() {
   const [activeGame, setActiveGame] = useState('TRIVIA');
-  const [leaderboardData, setLeaderboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  
+  const { data: leaderboardData, isLoading: loading } = useFetchJson(`/api/games/leaderboard?gameType=${activeGame}`);
+
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
   const currentYear = new Date().getFullYear();
-
-  useEffect(() => {
-    fetchLeaderboard(activeGame);
-  }, [activeGame]);
-
-  const fetchLeaderboard = async (gameType) => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/games/leaderboard?gameType=${gameType}`);
-      if (res.ok) {
-        const data = await res.json();
-        setLeaderboardData(data);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
 
   return (
     <div className="min-h-screen pt-32 pb-20 px-6">
@@ -80,7 +62,7 @@ export default function LeaderboardPage() {
             <div className="flex items-center gap-4">
               <Star className="w-8 h-8 text-yellow-500" />
               <div>
-                <span className="text-xs font-bold text-yellow-500/70 uppercase tracking-widest block mb-1">This Month's Prize</span>
+                <span className="text-xs font-bold text-yellow-500/70 uppercase tracking-widest block mb-1">This Month&apos;s Prize</span>
                 <span className="text-xl font-bold text-white">{leaderboardData.prizeDetails}</span>
               </div>
             </div>

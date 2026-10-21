@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { GAME_SESSION_COOKIE, GAME_SESSION_MAX_AGE, signGameSession } from '@/lib/games/session';
 
 export async function GET(request) {
   try {
@@ -15,8 +16,9 @@ export async function GET(request) {
       where: { email: email }
     });
 
-    if (!player || player.verificationToken !== token) {
-      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 400 });
+    const expired = player?.verificationExpiresAt && player.verificationExpiresAt < new Date();
+    if (!player || !player.verificationToken || player.verificationToken !== token || expired) {
+      return NextResponse.json({ error: 'This link is invalid or has expired. Please request a new one from the Music Arcade.' }, { status: 400 });
     }
 
     // Update player to verified
@@ -24,23 +26,22 @@ export async function GET(request) {
       where: { email: email },
       data: {
         verifiedAt: new Date(),
-        verificationToken: null // One-time use
+        verificationToken: null, // One-time use
+        verificationExpiresAt: null
       }
     });
 
-    // Set a simple game auth cookie
-    // In production, you would sign a JWT here. For this lightweight implementation,
-    // we set a secure cookie with the player ID that we'll read in other game API routes.
-    const response = NextResponse.redirect(new URL('/games', request.url));
-    
-    // Setting cookie (30 days expiration)
+    // Signed so the player id in the cookie cannot be swapped for another player's
+    // Back to the arcade in the player's language (Sinhala is the unprefixed default)
+    const arcadePath = player.language && player.language !== 'si' ? `/${player.language}/games` : '/games';
+    const response = NextResponse.redirect(new URL(arcadePath, request.url));
     response.cookies.set({
-      name: 'game_session',
-      value: player.id,
+      name: GAME_SESSION_COOKIE,
+      value: signGameSession(player.id),
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60, 
+      maxAge: GAME_SESSION_MAX_AGE,
       path: '/',
     });
 

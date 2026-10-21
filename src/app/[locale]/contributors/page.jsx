@@ -15,7 +15,8 @@ export default async function ContributorsPage() {
   try {
     // 1. Fetch full verified profiles with song credit counts
     const dbProfiles = await prisma.profile.findMany({
-      where: { isActive: true, deletedAt: null },
+      // Artist-submitted profiles only appear once an admin approves them
+      where: { isActive: true, isApproved: true, deletedAt: null },
       include: {
         _count: {
           select: { credits: true }
@@ -38,7 +39,8 @@ export default async function ContributorsPage() {
     // 2. Also fetch any unlinked guest contributors credited on songs
     const rawContributions = await prisma.contribution.findMany({
       where: {
-        profileId: null
+        profileId: null,
+        song: { deletedAt: null, isDraft: false }
       },
       select: {
         name: true,
@@ -75,16 +77,7 @@ export default async function ContributorsPage() {
     console.error("Failed to fetch contributors data", e);
   }
 
-  // Fallback demo roster if DB is empty
-  let combinedContributors = [...profiles, ...extraContributors];
-  if (combinedContributors.length === 0) {
-    combinedContributors = [
-      { id: '1', name: 'RST Studio', mainRole: 'Lead Sound Engineer & Founder', bio: 'Mastering engineer with over a decade of analog recording and acoustic sculpture experience.', imageUrl: '/logo.png', slug: 'rst-studio', isApproved: true, creditsCount: 12 },
-      { id: '2', name: 'Kasun De Silva', mainRole: 'Senior Producer & Arranger', bio: 'Specialist in modern synthwave, orchestral film scoring, and vocal harmony arrangements.', imageUrl: null, slug: 'kasun', isApproved: true, creditsCount: 8 },
-      { id: '3', name: 'Thilini Perera', mainRole: 'Vocalist & Vocal Coach', bio: 'Classical and pop vocal trainer helping artists deliver emotionally resonant performances.', imageUrl: null, slug: 'thilini', isApproved: true, creditsCount: 6 },
-      { id: '4', name: 'Amila Fernando', mainRole: 'Mixing & Mastering Engineer', bio: 'Dolby Atmos certified mix engineer specializing in deep bass and panoramic stereo imaging.', imageUrl: null, slug: 'amila', isApproved: true, creditsCount: 5 },
-    ];
-  }
+  const combinedContributors = [...profiles, ...extraContributors];
 
   return <ContributorsShowcaseClient contributors={combinedContributors} />;
 }

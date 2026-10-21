@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useLocale } from 'next-intl';
 import { X, Mail, User, Globe, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 
 export default function GameRegistrationModal({ isOpen, onClose }) {
+  const locale = useLocale();
   const [formData, setFormData] = useState({
     email: '',
     username: ''
@@ -33,7 +35,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, language: locale }),
       });
 
       const data = await res.json();
@@ -85,7 +87,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
               <CheckCircle className="w-12 h-12 text-emerald-400 mb-4" />
               <h3 className="text-xl font-bold text-white mb-2">Check Your Email!</h3>
               <p className="text-sm text-white/70">
-                We've sent a magic link to <strong>{formData.email}</strong>. Click it to verify your account and start playing.
+                We&apos;ve sent a magic link to <strong>{formData.email}</strong>. Click it to verify your account and start playing.
               </p>
 
               <div className="flex flex-col sm:flex-row items-center gap-3 mt-6">
@@ -163,7 +165,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
               <button
                 type="submit"
                 disabled={status === 'loading' || status === 'success'}
-                className="w-full py-3 px-4 bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee] hover:from-[#0c8bc4] hover:to-[#8323c9] text-white font-bold rounded-lg shadow-lg shadow-[#0ea5e9]/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+                className="w-full py-3 px-4 bg-gradient-to-r from-[#0ea5e9] to-rst-accent hover:from-[#0c8bc4] hover:to-[#8323c9] text-white font-bold rounded-lg shadow-lg shadow-[#0ea5e9]/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
               >
                 {status === 'loading' || status === 'success' ? (
                   <div className="flex items-center gap-2">

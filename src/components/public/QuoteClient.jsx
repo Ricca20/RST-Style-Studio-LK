@@ -4,28 +4,11 @@ import { useTranslations } from 'next-intl';
 import { CheckCircle2, ChevronRight, MessageCircle, Music, X, Paperclip, DollarSign, Guitar } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/services/whatsapp';
 import { calculateBudgetEstimate } from '@/lib/utils/budget';
+import BookingStatusNotice from '@/components/public/BookingStatusNotice';
 import TiltCard from '@/components/ui/TiltCard';
 import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
+import { CORE_ROLES as ROLE_ORDER, INSTRUMENT_ROLES } from '@/lib/quoteRoles';
 
-const ROLE_ORDER = [
-  { key: 'LYRICS', label: 'Lyrics', description: 'Songwriter / Lyricist', emoji: '✍️', required: true },
-  { key: 'MELODY', label: 'Melody', description: 'Melody Composer', emoji: '🎵', required: true },
-  { key: 'MUSIC', label: 'Music Arrangement', description: 'Music Arranger / Producer', emoji: '🎹', required: true },
-  { key: 'MIX_MASTER', label: 'Mix & Master', description: 'Mixing & Mastering Engineer', emoji: '🎛️', required: true },
-];
-
-const INSTRUMENT_ROLES = [
-  { key: 'LEAD_GUITAR', label: 'Lead Guitar', emoji: '🎸' },
-  { key: 'RHYTHM_GUITAR', label: 'Rhythm Guitar', emoji: '🎸' },
-  { key: 'BASS_GUITAR', label: 'Bass Guitar', emoji: '🎸' },
-  { key: 'FLUTE', label: 'Flute', emoji: '🪈' },
-  { key: 'SITAR', label: 'Sitar', emoji: '🪕' },
-  { key: 'VIOLIN', label: 'Violin', emoji: '🎻' },
-  { key: 'DRUMS', label: 'Drums', emoji: '🥁' },
-  { key: 'KEYBOARD', label: 'Keyboard', emoji: '🎹' },
-  { key: 'TABLA', label: 'Tabla', emoji: '🪘' },
-  { key: 'SINGING', label: 'Singing / Vocals', emoji: '🎤' },
-];
 
 const GENRES = ['Pop', 'Classical', 'Hip-Hop', 'R&B', 'Rock', 'Jazz', 'EDM', 'Baila', 'Sinhala Folk', 'Bollywood', 'Lo-Fi', 'Acoustic', 'Other'];
 
@@ -58,7 +41,13 @@ export default function QuoteClient() {
       .catch(e => console.error(e));
   }, []);
 
-  const { totalBudget, minBudget, maxBudget } = calculateBudgetEstimate(selections);
+  const minimumBudget = settings?.minimumQuotationBudget || 0;
+  const { tax, totalBudget, minBudget, maxBudget, belowMinimum } = calculateBudgetEstimate(selections, {
+    taxRate: settings?.taxRate,
+    minimumBudget,
+  });
+  const contactPhone = settings?.whatsapp || settings?.phone || null;
+  const [submitError, setSubmitError] = useState('');
 
   const handleSelectPerson = (role, person, roleLabel) => {
     setSelections(prev => {
@@ -88,11 +77,12 @@ export default function QuoteClient() {
   const handlePrev = () => setStep(s => Math.max(s - 1, 1));
 
   const submitQuote = async () => {
-    if (!name.trim() || !phone.trim()) return;
+    if (!name.trim() || !phone.trim() || belowMinimum) return;
     setIsSubmitting(true);
+    setSubmitError('');
     try {
       const selectionsArr = Object.values(selections);
-      await fetch('/api/quotations', {
+      const res = await fetch('/api/quotations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -104,10 +94,14 @@ export default function QuoteClient() {
           estimatedBudget: totalBudget
         })
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to submit. Please try again.');
+      }
       setIsSubmitted(true);
     } catch (e) {
       console.error('Submission failed:', e);
-      alert('Failed to submit. Please try again.');
+      setSubmitError(e.message || 'Failed to submit. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +111,7 @@ export default function QuoteClient() {
     const selectionsArr = Object.values(selections);
     const teamList = selectionsArr.map(s => `• ${s.roleLabel}: ${s.name} (Rs ${s.price?.toLocaleString()})`).join('\n');
     const message = `Hello RST Style Studio!\n\nI am *${name}*.\n\n*Genre:* ${genre || 'Not specified'}\n\n*My Team:*\n${teamList}\n\n*Estimated Budget:* Rs ${minBudget.toLocaleString()} - Rs ${maxBudget.toLocaleString()}\n\n*Description:*\n${description || 'N/A'}\n\nPlease get back to me at ${phone}.`;
-    const contactPhone = settings?.whatsapp || settings?.phone || '+94771234567';
+    if (!contactPhone) return;
     const waUrl = buildWhatsAppUrl(contactPhone, message);
     window.open(waUrl, '_blank');
   };
@@ -138,12 +132,12 @@ export default function QuoteClient() {
             Thank you, <strong className="text-white">{name}</strong>! We have received your quotation request with an estimated budget range of <strong className="text-[#0ea5e9]">Rs {minBudget.toLocaleString()} – Rs {maxBudget.toLocaleString()}</strong>.
             Our team will review and get back to you soon.
           </p>
-          <button
+          {contactPhone && <button
             onClick={openWhatsApp}
             className="w-full bg-[#25D366] hover:bg-[#20b858] text-white px-8 py-4 rounded-xl font-bold transition flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(37,211,102,0.3)]"
           >
             <MessageCircle className="w-6 h-6" /> Also Send via WhatsApp
-          </button>
+          </button>}
         </div>
       </div>
     );
@@ -189,6 +183,8 @@ export default function QuoteClient() {
             <span className="text-xs font-bold text-white/40 bg-white/5 px-3 py-1.5 rounded-full">{Object.keys(selections).length} selected</span>
           </div>
         </div>
+
+        <BookingStatusNotice status={settings?.bookingStatus} className="max-w-xl mx-auto mb-8" />
 
         {/* Form Container */}
         <div className="bg-black/40 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/5 p-8 md:p-12 min-h-[450px] flex flex-col relative">
@@ -429,10 +425,19 @@ export default function QuoteClient() {
                 
                 
                 {genre && <div className="inline-block bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm mb-6"><strong className="text-white mr-2">Genre:</strong>{genre}</div>}
+                {tax > 0 && (
+                  <p className="text-sm text-white/50 mt-4">Includes Rs {tax.toLocaleString()} tax ({settings.taxRate}%).</p>
+                )}
                 <div className="flex items-center justify-between bg-black/40 backdrop-blur-md rounded-xl p-6 border-l-4 border-l-[#0ea5e9] mt-4 shadow-inner">
                   <span className="text-white/60 text-sm font-bold uppercase tracking-widest">Estimated Range</span>
                   <span className="text-4xl font-black text-white">Rs {totalBudget > 0 ? `${minBudget.toLocaleString()} – ${maxBudget.toLocaleString()}` : '0'}</span>
                 </div>
+                {belowMinimum && (
+                  <p className="text-sm text-amber-300 mt-4">
+                    Our minimum project budget is Rs {minimumBudget.toLocaleString()}. Please add more to your team to submit this request.
+                  </p>
+                )}
+                {submitError && <p className="text-sm text-red-400 mt-4">{submitError}</p>}
               </div>
             </div>
           )}
@@ -456,7 +461,7 @@ export default function QuoteClient() {
             ) : (
               <button
                 onClick={submitQuote}
-                disabled={!name.trim() || !phone.trim() || isSubmitting}
+                disabled={!name.trim() || !phone.trim() || isSubmitting || belowMinimum}
                 className="bg-white hover:bg-gray-100 text-[#020617] px-10 py-4 rounded-xl font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transform hover:-translate-y-0.5"
               >
                 {isSubmitting ? (

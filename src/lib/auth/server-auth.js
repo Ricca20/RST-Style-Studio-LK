@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import prisma from '@/lib/db'
+import { getClientIp } from '@/lib/rate-limit'
 
 export async function checkAuth() {
   const cookieStore = await cookies()
@@ -56,7 +57,8 @@ export async function logAuditAction(userId, action, entity, entityId = null, de
   try {
     let ipAddress = null;
     if (request) {
-      ipAddress = request.ip || request.headers.get('x-forwarded-for') || null;
+      const ip = getClientIp(request);
+      ipAddress = ip === 'unknown' ? null : ip;
     }
 
     await prisma.auditLog.create({

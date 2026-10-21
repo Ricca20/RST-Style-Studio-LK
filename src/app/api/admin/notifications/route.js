@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, requireRole } from '@/lib/auth/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
+import { STAFF_ROLES } from '@/lib/auth/admin-access';
 
 // Cleanup older read notifications automatically on fetch (older than 30 days)
 async function cleanupOldNotifications() {
@@ -21,7 +22,7 @@ async function cleanupOldNotifications() {
 // GET all notifications for the current user
 export async function GET(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(STAFF_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
@@ -50,7 +51,7 @@ export async function GET(request) {
 // PATCH to mark specific or all notifications as read
 export async function PATCH(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(STAFF_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
@@ -86,7 +87,7 @@ export async function PATCH(request) {
 // DELETE to clear all notifications for the user
 export async function DELETE(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(STAFF_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }

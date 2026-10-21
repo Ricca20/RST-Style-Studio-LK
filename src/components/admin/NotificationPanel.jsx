@@ -5,37 +5,21 @@ import { Bell, CheckCircle, Info, FileText, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
 
 export default function NotificationPanel() {
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, reload: fetchNotifications } = useFetchJson('/api/admin/notifications');
+  const notifications = data?.data || [];
+  const unreadCount = data?.unreadCount || 0;
   const panelRef = useRef(null);
   const router = useRouter();
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch('/api/admin/notifications');
-      if (res.ok) {
-        const data = await res.json();
-        setNotifications(data.data || []);
-        setUnreadCount(data.unreadCount || 0);
-      }
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Auto-refresh every 2 minutes
   useEffect(() => {
-    fetchNotifications();
-    
-    // Auto-refresh every 2 minutes
     const interval = setInterval(fetchNotifications, 120000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchNotifications]);
 
   // Close panel when clicking outside
   useEffect(() => {
@@ -56,8 +40,7 @@ export default function NotificationPanel() {
         body: JSON.stringify({ id })
       });
       if (res.ok) {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
-        setUnreadCount(Math.max(0, unreadCount - 1));
+        fetchNotifications();
       }
     } catch (error) {
       console.error('Failed to mark read:', error);
@@ -77,8 +60,7 @@ export default function NotificationPanel() {
         body: JSON.stringify({ markAll: true })
       });
       if (res.ok) {
-        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
-        setUnreadCount(0);
+        fetchNotifications();
         toast.success('All notifications marked as read');
       }
     } catch (error) {

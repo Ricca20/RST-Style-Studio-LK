@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, requireRole } from '@/lib/auth/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
+import { ADMIN_ROLES, CONTENT_ROLES } from '@/lib/auth/admin-access';
 import slugify from 'slugify';
 
 export async function PUT(request, { params }) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     const user = authResult.user;
 
@@ -17,7 +18,8 @@ export async function PUT(request, { params }) {
     if (!existing) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
     const data = { mainRole: mainRole !== undefined ? mainRole : null, bio, imageUrl, galleryImages: galleryImages || [], socialLinks, isActive };
-    if (isApproved !== undefined) data.isApproved = isApproved;
+    // Approving artist-submitted profiles is an admin decision
+    if (isApproved !== undefined && ADMIN_ROLES.includes(user.dbUser.role)) data.isApproved = isApproved;
     if (name) {
       data.name = name;
       if (name !== existing.name) {
@@ -39,7 +41,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     const user = authResult.user;
 

@@ -23,7 +23,10 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    
+    if (!body.name?.trim()) {
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    }
+
     const mention = await prisma.honoraryMention.create({
       data: {
         name: body.name,

@@ -19,19 +19,11 @@ export async function PATCH(req, { params }) {
     const claim = await prisma.claimRequest.update({
       where: { id },
       data: { status },
-      include: {
-        user: { include: { Profile: true } },
-        song: true
-      }
+      include: { song: true }
     });
 
     // If approved, create the contribution record
     if (status === 'APPROVED') {
-      const profile = claim.user.Profile; // Note: In prisma schema it's actually just profile relation, I need to check how it's defined
-      // Wait, let's verify the relation. The schema has: `Profile Profile?` inside `User` model?
-      // No, wait, in schema.prisma, `Profile` has `userId String? @unique` and `user User?`. 
-      // So to get the profile from userId, we can just query it.
-      
       const userProfile = await prisma.profile.findUnique({
         where: { userId: claim.userId }
       });

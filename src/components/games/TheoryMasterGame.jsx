@@ -1,15 +1,18 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
-import { BookOpen, Trophy, ArrowRight, Play, CheckCircle, XCircle } from 'lucide-react';
+import { BookOpen, Play } from 'lucide-react';
+import { GameError, GameFinished, GameLoading, gameFetch } from './GameStatus';
 
 export default function TheoryMasterGame() {
-  const [gameState, setGameState] = useState('select_track'); // select_track, playing, submitting, finished, error
+  const [gameState, setGameState] = useState('select_track'); // select_track, loading, playing, submitting, finished, error
   const [track, setTrack] = useState(null); // 'western' or 'eastern'
   const [questions, setQuestions] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [scoreData, setScoreData] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [score, setScore] = useState(null);
+  const [error, setError] = useState(null);
+
+  const tokenRef = useRef(null);
+  const answersRef = useRef([]);
 
   // Audio Context for playing notes
   const audioCtxRef = useRef(null);
@@ -24,18 +27,15 @@ export default function TheoryMasterGame() {
 
   const selectTrack = async (selectedTrack) => {
     setTrack(selectedTrack);
+    setGameState('loading');
     try {
-      const res = await fetch(`/api/games/theory?track=${selectedTrack}`);
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('unauthorized');
-        throw new Error('Failed to load questions');
-      }
-      const data = await res.json();
-      setQuestions(data);
+      const data = await gameFetch(`/api/games/theory?track=${selectedTrack}`);
+      tokenRef.current = data.token;
+      setQuestions(data.questions);
       setGameState('playing');
     } catch (err) {
+      setError(err);
       setGameState('error');
-      setErrorMessage(err.message === 'unauthorized' ? 'Please register or login to play.' : 'Could not load questions.');
     }
   };
 
@@ -72,38 +72,29 @@ export default function TheoryMasterGame() {
     });
   };
 
-  const handleAnswer = (optionId) => {
-    const currentQ = questions[currentIdx];
-    setAnswers(prev => [...prev, { questionId: currentQ.id, selectedOptionId: optionId }]);
-
-    if (currentIdx + 1 < questions.length) {
-      setCurrentIdx(prev => prev + 1);
-    } else {
-      setGameState('submitting');
+  const submitScore = async (answers) => {
+    setGameState('submitting');
+    try {
+      const data = await gameFetch('/api/games/theory/submit', {
+        method: 'POST',
+        body: JSON.stringify({ token: tokenRef.current, answers }),
+      });
+      setScore(data.score);
+      setGameState('finished');
+    } catch (err) {
+      setError(err);
+      setGameState('error');
     }
   };
 
-  useEffect(() => {
-    if (gameState === 'submitting') {
-      submitScore();
-    }
-  }, [gameState]);
+  const handleAnswer = (optionId) => {
+    const currentQ = questions[currentIdx];
+    answersRef.current = [...answersRef.current, { questionId: currentQ.id, selectedOptionId: optionId }];
 
-  const submitScore = async () => {
-    try {
-      const res = await fetch('/api/games/theory/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ track, answers })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit score');
-      
-      setScoreData(data);
-      setGameState('finished');
-    } catch (err) {
-      setGameState('error');
-      setErrorMessage(err.message);
+    if (currentIdx + 1 < questions.length) {
+      setCurrentIdx(currentIdx + 1);
+    } else {
+      submitScore(answersRef.current);
     }
   };
 
@@ -134,46 +125,11 @@ export default function TheoryMasterGame() {
     );
   }
 
-  if (gameState === 'error') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6">
-        <XCircle className="w-16 h-16 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">Oops!</h2>
-        <p className="text-red-400 mb-6">{errorMessage}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  if (gameState === 'finished' && scoreData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6 animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-gradient-to-br from-[#0ea5e9] to-[#9d2bee] rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(14,165,233,0.5)]">
-          <Trophy className="w-12 h-12 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Exam Completed!</h2>
-        <p className="text-white/70 mb-8">You successfully completed the Theory Master exam.</p>
-        
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 w-full max-w-md">
-          <span className="block text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">Your Score</span>
-          <span className="block text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">
-            {scoreData.score}
-          </span>
-        </div>
-
-        <a 
-          href="/games"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white font-semibold transition-colors"
-        >
-          Back to Arcade <ArrowRight className="w-4 h-4" />
-        </a>
-      </div>
-    );
+  if (gameState === 'loading') return <GameLoading label="Loading questions…" />;
+  if (gameState === 'submitting') return <GameLoading label="Marking your exam…" />;
+  if (gameState === 'error') return <GameError error={error} />;
+  if (gameState === 'finished') {
+    return <GameFinished title="Exam Completed!" subtitle="You completed the Theory Master exam." score={score} />;
   }
 
   const currentQ = questions[currentIdx];

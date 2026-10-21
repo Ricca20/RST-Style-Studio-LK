@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, requireRole } from '@/lib/auth/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
+import { CONTENT_ROLES } from '@/lib/auth/admin-access';
 import slugify from 'slugify';
 
 export async function GET() {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     const user = authResult.user;
 
@@ -21,7 +22,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     const user = authResult.user;
 

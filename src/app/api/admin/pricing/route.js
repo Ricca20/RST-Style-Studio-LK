@@ -28,16 +28,24 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { itemKey, type, price, currency } = body;
+    const { itemKey, type, currency } = body;
+    const price = Number(body.price);
+
+    if (typeof itemKey !== 'string' || !itemKey.trim() || !['SERVICE', 'OPTION'].includes(type) || !Number.isFinite(price) || price < 0) {
+      return NextResponse.json({ error: 'A key, a type (SERVICE or OPTION) and a non-negative price are required' }, { status: 400 });
+    }
 
     const newConfig = await prisma.pricingConfig.create({
-      data: { itemKey, type, price, currency: currency || 'LKR' }
+      data: { itemKey: itemKey.trim(), type, price, currency: currency || 'LKR' }
     });
 
     await logAuditAction(context.dbUser.id, 'CREATE_PRICING', 'PricingConfig', newConfig.id, { itemKey, price });
 
     return NextResponse.json(newConfig);
   } catch (error) {
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: 'A pricing item with this key already exists' }, { status: 400 });
+    }
     console.error('Error creating PricingConfig:', error);
     return NextResponse.json({ error: 'Failed to create' }, { status: 500 });
   }

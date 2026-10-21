@@ -1,50 +1,34 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { guardPlay } from '@/lib/games/guard';
+import { createRoundToken } from '@/lib/games/rounds';
+import { shuffle } from '@/lib/games/shuffle';
+import { getClientIp } from '@/lib/rate-limit';
+
+const CLIPS_PER_GAME = 5;
 
 export async function GET(request) {
   try {
-    // Fetch random active tune clips
+    const guard = await guardPlay('NAME_THAT_TUNE', { ip: getClientIp(request) });
+    if (guard.error) return NextResponse.json({ error: guard.error }, { status: guard.status });
+
     const allClips = await prisma.tuneClip.findMany({
       where: { isActive: true },
-      select: {
-        id: true,
-        titleEn: true,
-        audioUrl: true,
-        options: true,
-        // DONT send correctOption!
-      }
+      // correctOption is never sent; answers are scored server-side on submit
+      select: { id: true, titleEn: true, titleSi: true, titleIt: true, audioUrl: true, options: true }
     });
 
-    let selected = [];
-
-    if (allClips.length > 0) {
-      // Shuffle and pick 5
-      const shuffled = allClips.sort(() => 0.5 - Math.random());
-      selected = shuffled.slice(0, 5).map(c => ({
-        ...c,
-        options: Array.isArray(c.options) ? c.options.sort(() => 0.5 - Math.random()) : []
-      }));
-    } else {
-      // MOCK DATA FALLBACK for MVP testing before admin uploads clips
-      selected = [
-        {
-          id: 'mock1',
-          titleEn: 'Guess the classic track',
-          // Using a placeholder public domain audio or silence if needed.
-          // For safety in this MVP, we use an empty data URI to avoid 404s, 
-          // or just assume the frontend handles it gracefully.
-          audioUrl: 'https://actions.google.com/sounds/v1/alarms/beep_short.ogg', 
-          options: [
-            { id: 'o1', textEn: 'Song A' },
-            { id: 'o2', textEn: 'Song B' },
-            { id: 'o3', textEn: 'Song C' },
-            { id: 'o4', textEn: 'Song D' }
-          ]
-        }
-      ];
+    if (allClips.length === 0) {
+      return NextResponse.json({ error: 'No clips available yet. Please check back soon.' }, { status: 404 });
     }
 
-    return NextResponse.json(selected);
+    const clips = shuffle(allClips).slice(0, CLIPS_PER_GAME).map(c => ({
+      ...c,
+      options: shuffle(Array.isArray(c.options) ? c.options : [])
+    }));
+
+    const token = createRoundToken({ playerId: guard.player.id, gameType: 'NAME_THAT_TUNE', ids: clips.map(c => c.id) });
+    return NextResponse.json({ clips, token });
   } catch (error) {
     console.error('Error fetching tunes:', error);
     return NextResponse.json({ error: 'Failed to fetch tune clips' }, { status: 500 });

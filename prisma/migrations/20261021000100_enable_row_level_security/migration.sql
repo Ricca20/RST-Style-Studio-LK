@@ -1,0 +1,26 @@
+-- Supabase exposes every table in the public schema through its REST API using the
+-- public anon key. This app only reads tables through Prisma (which connects as the
+-- table owner and is not affected by RLS), so enabling RLS with no policies blocks
+-- anonymous REST access to all data without changing app behaviour.
+ALTER TABLE "User" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "StudioSettings" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Song" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Contribution" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Profile" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Service" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "PricingConfig" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Collaborator" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "QuotationRequest" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "SocialCache" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "RateLimit" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Notification" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "ClaimRequest" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "GamePlayer" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "GameScore" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "MonthlyLeaderboard" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "TriviaQuestion" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "TuneClip" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Testimonial" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "HonoraryMention" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "_prisma_migrations" ENABLE ROW LEVEL SECURITY;

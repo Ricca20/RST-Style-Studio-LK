@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth } from '@/lib/auth/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
 import { z } from 'zod';
 
 // Zod schema for quotation request validation
@@ -17,9 +18,9 @@ const quotationSchema = z.object({
 
 export async function GET(request) {
   try {
-    const user = await checkAuth();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
 
     const { searchParams } = new URL(request.url);
@@ -42,38 +43,9 @@ export async function GET(request) {
   }
 }
 
-// Simple in-memory rate limiter (resets on serverless cold starts, but catches basic bursts)
-const rateLimitMap = new Map();
-
-function isRateLimited(ip) {
-  const now = Date.now();
-  const windowMs = 60 * 1000; // 1 minute window
-  const maxRequests = 5; // Max 5 requests per minute
-
-  const requestData = rateLimitMap.get(ip) || { count: 0, startTime: now };
-  
-  if (now - requestData.startTime > windowMs) {
-    requestData.count = 1;
-    requestData.startTime = now;
-  } else {
-    requestData.count++;
-  }
-  
-  rateLimitMap.set(ip, requestData);
-  
-  // Cleanup old entries randomly to prevent memory leak
-  if (rateLimitMap.size > 1000) {
-    rateLimitMap.clear();
-  }
-  
-  return requestData.count > maxRequests;
-}
-
 export async function POST(request) {
   try {
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
-    
-    if (isRateLimited(ip)) {
+    if (!(await rateLimit(`quote:${getClientIp(request)}`)).success) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
@@ -117,7 +89,7 @@ export async function POST(request) {
     return NextResponse.json(quotation, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Validation Error', details: error.issues }, { status: 400 });
     }
     console.error('Error creating quotation:', error);
     return NextResponse.json({ error: 'Failed to create quotation' }, { status: 500 });

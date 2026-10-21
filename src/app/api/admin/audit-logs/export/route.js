@@ -2,9 +2,19 @@ import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth/server-auth';
 import prisma from '@/lib/db';
 
+// Quotes every field (values like entity ids can contain commas) and neutralises
+// leading = + - @ so spreadsheet apps don't evaluate a value as a formula.
+function toCsvRow(values) {
+  return values.map((value) => {
+    let text = String(value ?? '');
+    if (/^[=+\-@]/.test(text)) text = `'${text}`;
+    return `"${text.replace(/"/g, '""')}"`;
+  }).join(',');
+}
+
 export async function GET() {
   try {
-    const auth = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const auth = await requireRole(['SUPER_ADMIN']);
     if (!auth.authorized) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const logs = await prisma.auditLog.findMany({
@@ -15,24 +25,21 @@ export async function GET() {
     });
 
     const csvLines = [
-      ['ID', 'Timestamp', 'User Email', 'User Role', 'Action', 'Entity', 'Entity ID', 'IP Address', 'Details'].join(',')
+      toCsvRow(['ID', 'Timestamp', 'User Email', 'User Role', 'Action', 'Entity', 'Entity ID', 'IP Address', 'Details'])
     ];
 
     for (const log of logs) {
-      const details = log.details ? JSON.stringify(log.details).replace(/"/g, '""') : '';
-      const email = log.user ? log.user.email : 'System/Deleted User';
-      const role = log.user ? log.user.role : '';
-      csvLines.push([
+      csvLines.push(toCsvRow([
         log.id,
         new Date(log.createdAt).toISOString(),
-        email,
-        role,
+        log.user ? log.user.email : 'System/Deleted User',
+        log.user ? log.user.role : '',
         log.action,
         log.entity,
         log.entityId || '',
         log.ipAddress || '',
-        `"${details}"`
-      ].join(','));
+        log.details ? JSON.stringify(log.details) : ''
+      ]));
     }
 
     const csvContent = csvLines.join('\n');

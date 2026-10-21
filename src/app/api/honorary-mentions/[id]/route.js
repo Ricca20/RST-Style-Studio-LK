@@ -9,7 +9,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
     
     const mention = await prisma.honoraryMention.update({
@@ -37,7 +37,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
 
-    const id = params.id;
+    const { id } = await params;
     
     // Soft delete
     const mention = await prisma.honoraryMention.update({

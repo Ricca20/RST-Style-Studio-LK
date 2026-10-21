@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 import { sendContactEmail } from '@/lib/services/sendEmail';
-import { rateLimit } from '@/lib/rate-limit';
+import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { broadcastNotification } from '@/lib/services/notification';
 import { z } from 'zod';
 
 const contactSchema = z.object({
@@ -16,8 +17,7 @@ const contactSchema = z.object({
 
 export async function POST(request) {
   try {
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown';
-    const rateLimitResult = rateLimit(ip);
+    const rateLimitResult = await rateLimit(`contact:${getClientIp(request)}`);
     if (!rateLimitResult.success) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
@@ -27,7 +27,7 @@ export async function POST(request) {
     try {
       body = contactSchema.parse(rawBody);
     } catch (validationError) {
-      return NextResponse.json({ error: 'Invalid submission data', details: validationError.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid submission data', details: validationError.issues }, { status: 400 });
     }
 
     const {
@@ -49,8 +49,22 @@ export async function POST(request) {
     });
     const targetEmail = settings?.adminAlertEmail || settings?.email || 'hello@rststylestudiolk.com';
 
-    // Send email alert
-    await sendContactEmail(
+    // Always record the inquiry in the admin notification inbox, so it isn't lost
+    // if email delivery fails; then email it as well.
+    const notified = await broadcastNotification(['SUPER_ADMIN', 'ADMIN'], {
+      title: `Contact inquiry: ${name}`,
+      message: [
+        `Service: ${service}`,
+        `Email: ${email}`,
+        `Phone: ${phone}`,
+        artistName && `Artist/Band: ${artistName}`,
+        preferredDate && `Preferred date: ${preferredDate}`,
+        notes && `Notes: ${notes}`,
+      ].filter(Boolean).join('\n'),
+      type: 'SYSTEM',
+    });
+
+    const emailed = await sendContactEmail(
       {
         name,
         artistName,
@@ -62,6 +76,13 @@ export async function POST(request) {
       },
       targetEmail
     );
+
+    if (!notified && !emailed) {
+      return NextResponse.json(
+        { error: 'We could not deliver your message right now. Please contact us via WhatsApp or email instead.' },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

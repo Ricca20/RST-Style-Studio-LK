@@ -23,6 +23,7 @@ import {
   Music
 } from 'lucide-react';
 import TiltCard from '@/components/ui/TiltCard';
+import { guestSlug } from '@/lib/utils/guestSlug';
 
 // Helper to extract YouTube Video ID & build clean embed URL
 function getYouTubeEmbedUrl(url) {
@@ -218,7 +219,7 @@ export default function SongsClient({ initialSongs = [], genres = [], locale = '
                 </span>
                 <div className="flex flex-wrap gap-3">
                   {activeSong.contributions.map((credit, idx) => {
-                    const slug = credit.profile?.slug || `guest-${credit.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+                    const slug = credit.profile?.slug || guestSlug(credit.name);
                     return (
                       <Link
                         key={idx}
@@ -252,7 +253,7 @@ export default function SongsClient({ initialSongs = [], genres = [], locale = '
         <div className="absolute bottom-3 right-3 w-4 h-4 rounded-full bg-muted border border-border flex items-center justify-center text-foreground/30 text-[9px]">+</div>
 
         {/* Ambient Top Glow */}
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-gradient-to-r from-[#0ea5e9]/20 via-[#9d2bee]/20 to-[#0ea5e9]/20 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-gradient-to-r from-[#0ea5e9]/20 via-rst-accent/20 to-[#0ea5e9]/20 blur-3xl pointer-events-none" />
 
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 pb-6 border-b border-border relative z-10">
           <div>

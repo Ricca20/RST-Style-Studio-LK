@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
+import { getPublicSettings } from '@/lib/settings';
 
 export async function GET() {
   try {
@@ -34,21 +35,18 @@ export async function GET() {
       });
     }
 
-    // Fetch studio settings for contact info
-    const settings = await prisma.studioSettings.findFirst({
-      select: {
-        whatsapp: true,
-        email: true,
-        phone: true
-      }
-    });
+    // Fetch studio settings for contact info and quotation rules
+    const settings = await getPublicSettings();
 
     return NextResponse.json({
       collaborators: grouped,
       settings: settings ? {
         whatsapp: settings.whatsapp,
         email: settings.email,
-        phone: settings.phone
+        phone: settings.phone,
+        bookingStatus: settings.bookingStatus,
+        minimumQuotationBudget: settings.minimumQuotationBudget,
+        taxRate: settings.taxRate,
       } : null
     });
   } catch (error) {

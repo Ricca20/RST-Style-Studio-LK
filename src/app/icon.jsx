@@ -30,7 +30,9 @@ export default function Icon() {
           background: 'transparent',
         }}
       >
-        <img 
+        {/* eslint-disable-next-line @next/next/no-img-element -- rendered by ImageResponse, not the browser */}
+        <img
+          alt=""
           src={logoBase64}
           style={{ width: '130%', height: '130%', objectFit: 'contain' }} 
         />

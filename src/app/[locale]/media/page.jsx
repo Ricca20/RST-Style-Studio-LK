@@ -1,5 +1,6 @@
 import React from 'react';
 import MediaGalleryClient from '@/components/public/MediaGalleryClient';
+import LatestVideosSection from '@/components/public/LatestVideosSection';
 
 export const metadata = {
   title: 'Visual Studio Archive & Media Vault | RST Style Studio',
@@ -35,6 +36,8 @@ export default function MediaPage() {
       <main className="max-w-7xl mx-auto px-4 md:px-10 pt-8">
         <MediaGalleryClient />
       </main>
+
+      <LatestVideosSection />
     </div>
   );
 }

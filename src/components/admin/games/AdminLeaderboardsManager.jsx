@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { Trophy, Gift, CheckCircle, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
 
 export default function AdminLeaderboardsManager() {
-  const [leaderboards, setLeaderboards] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, isLoading, error: loadError, reload: fetchLeaderboards } = useFetchJson('/api/admin/games/leaderboards');
+  const leaderboards = data || [];
   
   const [prizeForm, setPrizeForm] = useState({
     gameType: 'TRIVIA',
@@ -15,23 +16,9 @@ export default function AdminLeaderboardsManager() {
     prizeDetails: ''
   });
 
-  const fetchLeaderboards = async () => {
-    try {
-      const res = await fetch('/api/admin/games/leaderboards');
-      if (res.ok) {
-        const data = await res.json();
-        setLeaderboards(data);
-      }
-    } catch (error) {
-      toast.error('Failed to load leaderboards');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchLeaderboards();
-  }, []);
+    if (loadError) toast.error('Failed to load leaderboards');
+  }, [loadError]);
 
   const handleSetPrize = async (e) => {
     e.preventDefault();
@@ -71,7 +58,9 @@ export default function AdminLeaderboardsManager() {
       });
 
       if (res.ok) {
-        toast.success('Winner approved and notified');
+        const data = await res.json();
+        if (data.warning) toast.warning(data.warning);
+        else toast.success('Winner approved and notified');
         fetchLeaderboards();
       } else {
         const err = await res.json();
@@ -106,6 +95,7 @@ export default function AdminLeaderboardsManager() {
               <option value="TRIVIA">SL Music IQ (Trivia)</option>
               <option value="PITCH_MATCH">Pitch Match</option>
               <option value="THEORY">Theory Master</option>
+              <option value="NAME_THAT_TUNE">Name That Tune</option>
               <option value="RHYTHM_TAP">Rhythm Tap</option>
             </select>
           </div>

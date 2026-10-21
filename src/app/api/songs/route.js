@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, requireRole } from '@/lib/auth/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
+import { CONTENT_ROLES } from '@/lib/auth/admin-access';
 import { z } from 'zod';
 import { createSlug } from '@/lib/utils/slugify';
 
@@ -58,7 +59,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
@@ -96,7 +97,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Error creating song:', error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Validation Error', details: error.issues }, { status: 400 });
     }
     return NextResponse.json({ error: 'Failed to create song' }, { status: 500 });
   }

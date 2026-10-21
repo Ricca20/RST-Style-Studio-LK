@@ -62,20 +62,17 @@ export default async function AdminSettings() {
       googleAnalyticsId: formData.get('googleAnalyticsId') || '',
       facebookPixelId: formData.get('facebookPixelId') || '',
 
-      accentColor: formData.get('accentColor') || '#0ea5e9',
+      accentColor: formData.get('accentColor') || '#9d2bee',
       enableAnimations: formData.get('enableAnimations') === 'on',
 
       adminAlertEmail: formData.get('adminAlertEmail') || '',
-      whatsappApiToken: formData.get('whatsappApiToken') || '',
-      aiPromptContext: formData.get('aiPromptContext') || '',
     };
 
     await prisma.studioSettings.updateMany({ data });
 
     if (context?.dbUser?.id) {
       const headersList = await headers();
-      const ip = headersList.get('x-forwarded-for') || null;
-      await logAuditAction(context.dbUser.id, 'UPDATE_SETTINGS', 'Settings', settings.id, { status: 'Success' }, { ip });
+      await logAuditAction(context.dbUser.id, 'UPDATE_SETTINGS', 'Settings', settings.id, { status: 'Success' }, { headers: headersList });
     }
 
     revalidatePath('/admin/settings');
@@ -205,7 +202,7 @@ export default async function AdminSettings() {
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
               <div>
                 <p className="font-bold text-gray-800 text-sm">Client Reviews</p>
-                <p className="text-sm text-gray-500">Show testimonials section on website</p>
+                <p className="text-sm text-gray-500">Show the testimonials section on the home page (manage them under Testimonials)</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" name="displayClientReviews" defaultChecked={settings.displayClientReviews} className="sr-only peer" />
@@ -305,21 +302,15 @@ export default async function AdminSettings() {
                 </Link>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Admin Alert Email</label>
-                <input type="email" name="adminAlertEmail" defaultValue={settings.adminAlertEmail} placeholder="Where quotation alerts are sent" className="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-slate-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">WhatsApp API Token</label>
-                <input type="password" name="whatsappApiToken" defaultValue={settings.whatsappApiToken} placeholder="For automated client texts" className="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-slate-500 font-mono" />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Admin Alert Email</label>
+              <input type="email" name="adminAlertEmail" defaultValue={settings.adminAlertEmail} placeholder="Where quotation and contact alerts are sent" className="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-slate-500" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                 <div>
-                  <p className="font-bold text-gray-800 text-sm">Live Chat Widget</p>
-                  <p className="text-sm text-gray-500">Enable floating customer support chat</p>
+                  <p className="font-bold text-gray-800 text-sm">WhatsApp Chat Button</p>
+                  <p className="text-sm text-gray-500">Show a floating &ldquo;Chat with us&rdquo; button on every page, using the WhatsApp number above</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" name="enableLiveChat" defaultChecked={settings.enableLiveChat} className="sr-only peer" />
@@ -328,18 +319,14 @@ export default async function AdminSettings() {
               </div>
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                 <div>
-                  <p className="font-bold text-gray-800 text-sm">Auto-Play Trailer/Music</p>
-                  <p className="text-sm text-gray-500">Play background media on homepage load</p>
+                  <p className="font-bold text-gray-800 text-sm">Hero Video Sound</p>
+                  <p className="text-sm text-gray-500">Start the home page video with sound. Browsers often block this until a visitor clicks, so a sound toggle is shown too</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input type="checkbox" name="autoPlayMusic" defaultChecked={settings.autoPlayMusic} className="sr-only peer" />
                   <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-600"></div>
                 </label>
               </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">AI Chatbot Custom Prompt (Optional Context)</label>
-              <textarea name="aiPromptContext" defaultValue={settings.aiPromptContext} rows="4" placeholder="Instructions for the AI chatbot about your studio's services..." className="w-full border rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-slate-500 resize-y" />
             </div>
           </div>
         </section>

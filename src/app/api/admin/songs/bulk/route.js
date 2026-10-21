@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { CONTENT_ROLES } from '@/lib/auth/admin-access';
 
 export async function DELETE(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }

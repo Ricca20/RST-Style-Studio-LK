@@ -1,32 +1,21 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
 import { Plus, Edit2, Trash2, DollarSign } from 'lucide-react';
 
 export default function PricingConfigPage() {
-  const [configs, setConfigs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, error: loadError, reload } = useFetchJson('/api/admin/pricing');
+  const configs = data || [];
+
+  useEffect(() => {
+    if (loadError) toast.error('Failed to load pricing configs');
+  }, [loadError]);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   
   const [formData, setFormData] = useState({ itemKey: '', type: 'SERVICE', price: '', currency: 'LKR' });
 
-  const fetchConfigs = async () => {
-    try {
-      const res = await fetch('/api/admin/pricing');
-      if (res.ok) {
-        setConfigs(await res.json());
-      }
-    } catch (e) {
-      toast.error('Failed to load pricing configs');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchConfigs();
-  }, []);
 
   const openModal = (config = null) => {
     if (config) {
@@ -57,7 +46,7 @@ export default function PricingConfigPage() {
       if (!res.ok) throw new Error('Failed to save');
       toast.success(editing ? 'Updated successfully' : 'Created successfully');
       setModalOpen(false);
-      fetchConfigs();
+      reload();
     } catch (e) {
       toast.error(e.message);
     }
@@ -69,7 +58,7 @@ export default function PricingConfigPage() {
       const res = await fetch(`/api/admin/pricing/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
       toast.success('Deleted successfully');
-      fetchConfigs();
+      reload();
     } catch (e) {
       toast.error(e.message);
     }

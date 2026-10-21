@@ -1,192 +1,183 @@
 'use client';
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Trophy, ArrowRight, XCircle } from 'lucide-react';
+import { useState, useEffect, useRef, useEffectEvent } from 'react';
+import { GameError, GameFinished, GameLoading, gameFetch } from './GameStatus';
 
-// Configuration for beats
 const BEAT_SPEED = 3000; // ms to drop from top to bottom
 const HIT_ZONE_TOP = 80; // %
 const HIT_ZONE_BOTTOM = 90; // %
 const PERFECT_TOLERANCE = 2; // %
+const LEVEL_PAUSE_MS = 2000;
 
-// Level definitions
+// The server's max score (45 beats × 20) and minimum duration assume these levels
 const LEVELS = [
   { bpm: 60, totalBeats: 10 },
   { bpm: 90, totalBeats: 15 },
   { bpm: 120, totalBeats: 20 }
 ];
 
+// Same clock as requestAnimationFrame timestamps. Module-level so components
+// only read it from handlers and frames, never during render.
+const perfNow = () => performance.now();
+
 export default function RhythmTapGame() {
-  const [gameState, setGameState] = useState('intro'); // intro, playing, submitting, finished, error
+  const [phase, setPhase] = useState('intro'); // intro, starting, playing, submitting, finished, error
   const [currentLevel, setCurrentLevel] = useState(0);
   const [score, setScore] = useState(0);
   const [feedback, setFeedback] = useState('');
-  
-  // Game loop state
   const [activeBeats, setActiveBeats] = useState([]);
-  const beatIdCounter = useRef(0);
-  const lastSpawnTime = useRef(0);
-  const activeBeatsRef = useRef([]); // for synchronous access during tap
-  const gameLoopRef = useRef(null);
-  
-  const [scoreData, setScoreData] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState(null);
 
-  // Clean up animation frame on unmount
+  // Everything the animation loop touches lives in refs so it never reads stale state
+  const levelRef = useRef(0);
+  const beatsRef = useRef([]);
+  const spawnedRef = useRef(0);
+  const lastSpawnRef = useRef(0);
+  const scoreRef = useRef(0);
+  const runningRef = useRef(false);
+  const rafRef = useRef(null);
+  const tokenRef = useRef(null);
+  const timeoutsRef = useRef([]);
+  const feedbackTimeoutRef = useRef(null);
+
   useEffect(() => {
+    const timeouts = timeoutsRef.current;
     return () => {
-      if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
+      runningRef.current = false;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      timeouts.forEach(clearTimeout);
+      clearTimeout(feedbackTimeoutRef.current);
     };
   }, []);
 
-  const startGame = () => {
-    setGameState('playing');
-    setScore(0);
-    startLevel(0);
+  const showFeedback = (text) => {
+    setFeedback(text);
+    clearTimeout(feedbackTimeoutRef.current);
+    feedbackTimeoutRef.current = setTimeout(() => setFeedback(''), 1000);
+  };
+
+  const submitScore = async (finalScore) => {
+    setPhase('submitting');
+    try {
+      await gameFetch('/api/games/scores', {
+        method: 'POST',
+        body: JSON.stringify({ gameType: 'RHYTHM_TAP', score: finalScore, token: tokenRef.current }),
+      });
+      setPhase('finished');
+    } catch (err) {
+      setError(err);
+      setPhase('error');
+    }
+  };
+
+  const gameLoop = (timestamp) => {
+    if (!runningRef.current) return;
+
+    const level = LEVELS[levelRef.current];
+    const msPerBeat = 60000 / level.bpm;
+
+    if (spawnedRef.current < level.totalBeats && timestamp - lastSpawnRef.current > msPerBeat) {
+      beatsRef.current = [...beatsRef.current, { id: spawnedRef.current++, spawnTime: timestamp, yPercent: 0, hit: false }];
+      lastSpawnRef.current = timestamp;
+    }
+
+    let activeCount = 0;
+    beatsRef.current = beatsRef.current.map((beat) => {
+      if (beat.hit) return beat;
+      const progress = ((timestamp - beat.spawnTime) / BEAT_SPEED) * 100;
+      if (progress > 100) {
+        showFeedback('Miss!');
+        return { ...beat, hit: true };
+      }
+      activeCount++;
+      return { ...beat, yPercent: progress };
+    });
+    setActiveBeats(beatsRef.current);
+
+    if (spawnedRef.current >= level.totalBeats && activeCount === 0) {
+      runningRef.current = false;
+      timeoutsRef.current.push(setTimeout(() => startLevel(levelRef.current + 1), LEVEL_PAUSE_MS));
+      return;
+    }
+
+    rafRef.current = requestAnimationFrame(gameLoop);
   };
 
   const startLevel = (levelIdx) => {
     if (levelIdx >= LEVELS.length) {
-      submitScore();
+      submitScore(scoreRef.current);
       return;
     }
-    
+
+    levelRef.current = levelIdx;
+    beatsRef.current = [];
+    spawnedRef.current = 0;
+    lastSpawnRef.current = perfNow();
+    runningRef.current = true;
     setCurrentLevel(levelIdx);
     setActiveBeats([]);
-    activeBeatsRef.current = [];
-    beatIdCounter.current = 0;
-    lastSpawnTime.current = performance.now();
-    
-    // Start game loop
-    if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
+    rafRef.current = requestAnimationFrame(gameLoop);
   };
 
-  const gameLoop = useCallback((timestamp) => {
-    if (gameState !== 'playing') return;
-
-    const level = LEVELS[currentLevel];
-    const msPerBeat = 60000 / level.bpm;
-
-    // Spawn new beats
-    if (timestamp - lastSpawnTime.current > msPerBeat && beatIdCounter.current < level.totalBeats) {
-      const newBeat = {
-        id: beatIdCounter.current++,
-        spawnTime: timestamp,
-        yPercent: 0,
-        hit: false
-      };
-      activeBeatsRef.current = [...activeBeatsRef.current, newBeat];
-      lastSpawnTime.current = timestamp;
-    }
-
-    // Update positions
-    let activeCount = 0;
-    activeBeatsRef.current = activeBeatsRef.current.map(beat => {
-      if (beat.hit) return beat;
-      
-      const elapsed = timestamp - beat.spawnTime;
-      const progress = (elapsed / BEAT_SPEED) * 100;
-      
-      if (progress > 100) {
-        // Missed
-        beat.hit = true;
-        setFeedback('Miss!');
-        return beat;
-      }
-      
-      activeCount++;
-      return { ...beat, yPercent: progress };
-    });
-
-    setActiveBeats(activeBeatsRef.current);
-
-    // Check if level complete (all spawned and finished)
-    if (beatIdCounter.current >= level.totalBeats && activeCount === 0) {
-      // Small delay before next level
-      setTimeout(() => {
-        startLevel(currentLevel + 1);
-      }, 2000);
+  const startGame = async () => {
+    setPhase('starting');
+    try {
+      const { token } = await gameFetch('/api/games/start', {
+        method: 'POST',
+        body: JSON.stringify({ gameType: 'RHYTHM_TAP' }),
+      });
+      tokenRef.current = token;
+    } catch (err) {
+      setError(err);
+      setPhase('error');
       return;
     }
 
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [currentLevel, gameState]);
-
-  // Handle Input
-  const handleTap = useCallback(() => {
-    if (gameState !== 'playing') return;
-    
-    // Find the lowest active beat
-    const beats = activeBeatsRef.current.filter(b => !b.hit).sort((a, b) => b.yPercent - a.yPercent);
-    if (beats.length === 0) return;
-
-    const targetBeat = beats[0];
-    
-    // Evaluate hit
-    let points = 0;
-    let text = '';
-    
-    const centerZone = (HIT_ZONE_TOP + HIT_ZONE_BOTTOM) / 2;
-    const diff = Math.abs(targetBeat.yPercent - centerZone);
-
-    if (targetBeat.yPercent >= HIT_ZONE_TOP && targetBeat.yPercent <= HIT_ZONE_BOTTOM) {
-      if (diff <= PERFECT_TOLERANCE) {
-        points = 20;
-        text = 'Perfect! 🔥';
-      } else {
-        points = 10;
-        text = 'Good!';
-      }
-    } else {
-      text = 'Miss!';
-    }
-
-    // Mark as hit
-    activeBeatsRef.current = activeBeatsRef.current.map(b => 
-      b.id === targetBeat.id ? { ...b, hit: true } : b
-    );
-    
-    setScore(prev => prev + points);
-    setFeedback(text);
-    
-    // Visual pop for feedback
-    setTimeout(() => setFeedback(''), 1000);
-
-  }, [gameState]);
-
-  // Keyboard support
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.code === 'Space') {
-        e.preventDefault();
-        handleTap();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleTap]);
-
-
-  const submitScore = async () => {
-    setGameState('submitting');
-    try {
-      const res = await fetch('/api/games/scores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gameType: 'RHYTHM_TAP', score })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit score');
-      
-      setScoreData(data);
-      setGameState('finished');
-    } catch (err) {
-      setGameState('error');
-      setErrorMessage(err.message);
-    }
+    scoreRef.current = 0;
+    setScore(0);
+    setPhase('playing');
+    startLevel(0);
   };
 
-  if (gameState === 'intro') {
+  const handleTap = () => {
+    if (!runningRef.current) return;
+
+    // The lowest beat still falling
+    const target = beatsRef.current.filter((b) => !b.hit).sort((a, b) => b.yPercent - a.yPercent)[0];
+    if (!target) return;
+
+    let points = 0;
+    const centerZone = (HIT_ZONE_TOP + HIT_ZONE_BOTTOM) / 2;
+    if (target.yPercent >= HIT_ZONE_TOP && target.yPercent <= HIT_ZONE_BOTTOM) {
+      points = Math.abs(target.yPercent - centerZone) <= PERFECT_TOLERANCE ? 20 : 10;
+    }
+    showFeedback(points === 20 ? 'Perfect! 🔥' : points === 10 ? 'Good!' : 'Miss!');
+
+    beatsRef.current = beatsRef.current.map((b) => (b.id === target.id ? { ...b, hit: true } : b));
+    scoreRef.current += points;
+    setScore(scoreRef.current);
+  };
+
+  const onKeyDown = useEffectEvent((e) => {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      handleTap();
+    }
+  });
+
+  useEffect(() => {
+    if (phase !== 'playing') return;
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [phase]);
+
+  if (phase === 'starting') return <GameLoading label="Starting game…" />;
+  if (phase === 'submitting') return <GameLoading label="Saving your score…" />;
+  if (phase === 'error') return <GameError error={error} />;
+  if (phase === 'finished') {
+    return <GameFinished title="Stage Clear!" score={score} gradient="from-pink-500 to-purple-600" />;
+  }
+
+  if (phase === 'intro') {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white/5 border border-white/10 rounded-2xl w-full max-w-2xl mx-auto text-center">
         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-pink-500/20">
@@ -196,7 +187,7 @@ export default function RhythmTapGame() {
         <p className="text-white/70 mb-8 max-w-md">
           Hit the spacebar or tap the button when the glowing notes enter the target zone at the bottom.
         </p>
-        <button 
+        <button
           onClick={startGame}
           className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:scale-105 transition-transform rounded-xl font-bold text-white"
         >
@@ -206,47 +197,9 @@ export default function RhythmTapGame() {
     );
   }
 
-  if (gameState === 'finished' && scoreData) {
-    return (
-      <div className="flex flex-col items-center justify-center text-center p-6 animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-6">
-          <Trophy className="w-12 h-12 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Stage Clear!</h2>
-        
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 w-full max-w-md">
-          <span className="block text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">Final Score</span>
-          <span className="block text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">
-            {scoreData.score}
-          </span>
-        </div>
-
-        <a href="/games" className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white font-semibold transition-colors">
-          Back to Arcade <ArrowRight className="w-4 h-4" />
-        </a>
-      </div>
-    );
-  }
-
-  if (gameState === 'error') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6">
-        <XCircle className="w-16 h-16 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">Oops!</h2>
-        <p className="text-red-400 mb-6">{errorMessage}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full max-w-md mx-auto flex flex-col items-center">
-      
+
       {/* Top HUD */}
       <div className="w-full flex justify-between items-center mb-4">
         <div>
@@ -261,29 +214,24 @@ export default function RhythmTapGame() {
 
       {/* Game Track Area */}
       <div className="w-full h-[500px] bg-black/40 border-2 border-white/10 rounded-xl relative overflow-hidden mb-6">
-        
-        {/* Track Lines */}
         <div className="absolute top-0 bottom-0 left-1/4 w-px bg-white/5" />
         <div className="absolute top-0 bottom-0 left-1/2 w-px bg-white/5" />
         <div className="absolute top-0 bottom-0 left-3/4 w-px bg-white/5" />
 
         {/* Hit Zone */}
-        <div 
+        <div
           className="absolute w-full border-t border-b border-pink-500/50 bg-pink-500/10 z-0 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
           style={{ top: `${HIT_ZONE_TOP}%`, bottom: `${100 - HIT_ZONE_BOTTOM}%` }}
         />
 
         {/* Falling Beats */}
-        {activeBeats.map(beat => {
-          if (beat.hit) return null;
-          return (
-            <div 
-              key={beat.id}
-              className="absolute left-1/2 -ml-6 w-12 h-6 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] z-10"
-              style={{ top: `${beat.yPercent}%` }}
-            />
-          );
-        })}
+        {activeBeats.map((beat) => !beat.hit && (
+          <div
+            key={beat.id}
+            className="absolute left-1/2 -ml-6 w-12 h-6 bg-white rounded-full shadow-[0_0_15px_rgba(255,255,255,0.8)] z-10"
+            style={{ top: `${beat.yPercent}%` }}
+          />
+        ))}
 
         {/* Feedback Overlay */}
         {feedback && (
@@ -302,7 +250,6 @@ export default function RhythmTapGame() {
       >
         TAP / SPACE
       </button>
-
     </div>
   );
 }

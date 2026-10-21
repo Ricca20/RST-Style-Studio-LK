@@ -3,33 +3,22 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Copy, Image as ImageIcon, File, Loader2, ExternalLink, CheckSquare, Square } from 'lucide-react';
 import { toast } from 'sonner';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import ImageUpload from '@/components/admin/ImageUpload';
 
 export default function AdminMediaPage() {
-  const [media, setMedia] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: mediaData, isLoading: loading, error: loadError, reload } = useFetchJson('/api/admin/media');
+  const media = mediaData || [];
+
+  useEffect(() => {
+    if (loadError) toast.error('Error loading media library');
+  }, [loadError]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
 
-  const fetchMedia = async () => {
-    try {
-      const res = await fetch('/api/admin/media');
-      if (!res.ok) throw new Error('Failed to fetch media');
-      const data = await res.json();
-      setMedia(data);
-    } catch (error) {
-      toast.error('Error loading media library');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMedia();
-  }, []);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -47,7 +36,7 @@ export default function AdminMediaPage() {
       });
       if (!res.ok) throw new Error('Failed to delete file(s)');
       toast.success(isBulk ? `${filesToDelete.length} files deleted successfully` : 'File deleted successfully');
-      setMedia(media.filter(m => !filesToDelete.includes(m.name)));
+      reload();
       if (isBulk) {
         setSelectedFiles([]);
         setIsSelectMode(false);
@@ -114,11 +103,11 @@ export default function AdminMediaPage() {
           <ImageUpload 
             onUploadMultiple={(urls) => {
               toast.success(`Successfully uploaded ${urls.length} file(s)`);
-              fetchMedia();
+              reload();
             }}
             onUpload={(url) => {
               toast.success('File uploaded successfully');
-              fetchMedia();
+              reload();
             }}
             multiple={true}
             label="Drag & Drop or Click to Upload"

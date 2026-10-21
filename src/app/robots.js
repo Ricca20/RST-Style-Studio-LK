@@ -7,6 +7,6 @@ export default function robots() {
         disallow: ['/admin', '/admin/', '/api/', '/portal/', '/portal'],
       },
     ],
-    sitemap: 'https://rststylestudio.lk/sitemap.xml',
+    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://rststylestudio.lk'}/sitemap.xml`,
   };
 }

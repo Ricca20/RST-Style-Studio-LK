@@ -5,7 +5,7 @@ export default function LocaleLoading() {
         {/* Animated logo pulse */}
         <div className="relative">
           <div className="w-16 h-16 rounded-2xl bg-[#0ea5e9]/10 border border-[#0ea5e9]/30 flex items-center justify-center animate-pulse">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0ea5e9] to-[#9d2bee] animate-spin" style={{ animationDuration: '2s' }} />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#0ea5e9] to-rst-accent animate-spin" style={{ animationDuration: '2s' }} />
           </div>
           <div className="absolute -inset-4 bg-[#0ea5e9]/5 rounded-3xl blur-xl animate-pulse" />
         </div>

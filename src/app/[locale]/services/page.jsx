@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { getPublicSettings } from '@/lib/settings';
 import prisma from '@/lib/db';
 import { Link } from '@/i18n/routing';
 import ServicesPageClient from '@/components/public/ServicesPageClient';
@@ -55,7 +56,7 @@ export default async function ServicesPage({ params }) {
       });
     }
 
-    settings = await prisma.studioSettings.findFirst();
+    settings = await getPublicSettings();
   } catch (e) {
     console.error('Failed fetching services page data:', e);
   }
@@ -65,7 +66,7 @@ export default async function ServicesPage({ params }) {
     <div className="min-h-screen bg-transparent text-white pt-24 pb-32 relative overflow-hidden">
       {/* Ambient lighting */}
       <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-[#0ea5e9]/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-40 left-10 w-[500px] h-[500px] bg-[#9d2bee]/10 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-40 left-10 w-[500px] h-[500px] bg-rst-accent/10 rounded-full blur-[150px] pointer-events-none" />
 
       {/* Hero Section */}
       <section className="relative w-full max-w-7xl mx-auto px-4 md:px-10 pt-10 pb-12 border-b border-white/10 mb-8">
@@ -76,7 +77,7 @@ export default async function ServicesPage({ params }) {
               19-Inch Rack Mount Systems • Live DB Tariffs
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase">
-              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">RACK & RATES</span>
+              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-rst-accent">RACK & RATES</span>
             </h1>
           </div>
           <p className="text-gray-400 max-w-md text-sm md:text-base leading-relaxed font-light">

@@ -1,16 +1,18 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { ADMIN_ROLES, CONTENT_ROLES } from '@/lib/auth/admin-access';
 
 export async function PUT(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const { type, items } = await request.json(); // type: 'SERVICE' | 'PROFILE', items: [{ id, sortOrder }]
+
+    // Editors manage profiles; service ordering stays with admins
+    const authResult = await requireRole(type === 'PROFILE' ? CONTENT_ROLES : ADMIN_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
     const userContext = authResult.user;
-
-    const { type, items } = await request.json(); // type: 'SERVICE' | 'PROFILE', items: [{ id, sortOrder }]
 
     if (!Array.isArray(items)) {
       return NextResponse.json({ error: 'Invalid items format' }, { status: 400 });

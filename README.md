@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# RST Style Studio LK
 
-## Getting Started
+Portfolio, quotation and admin platform for RST Style Studio LK, a home music studio in Sri Lanka.
 
-First, run the development server:
+- **Public site** in Sinhala (default), English and Italian: song/project portfolio, contributor profiles, services, contact, and a Music Arcade with monthly leaderboards.
+- **Quotation wizard**: visitors pick collaborators per role, get a ±15% estimate (plus tax, if configured), and the request is saved and optionally sent via WhatsApp.
+- **Artist portal** (`/portal`): contributors edit their profile and claim credits on songs.
+- **Admin dashboard** (`/admin`): manage songs, videos, profiles, collaborators and prices, quotations, claims, media, games, settings, team roles, audit logs and backups.
+
+See [RST_Style_Studio_LK_Documentation.md](RST_Style_Studio_LK_Documentation.md) for the full product spec.
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · Tailwind CSS 4 · next-intl · Prisma 7 + PostgreSQL (Supabase) · Supabase Auth & Storage · Resend + Nodemailer · Vercel (hosting and cron).
+
+> Next.js 16 has breaking changes from earlier versions, e.g. `middleware.ts` is now `src/proxy.ts`. Check `node_modules/next/dist/docs/` before relying on older patterns.
+
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env        # fill in the values; see comments in the file
+npx prisma migrate deploy   # apply migrations (see "Database" below for existing DBs)
+npx prisma db seed          # optional sample data
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 (redirects to the Sinhala locale). The admin dashboard is at `/admin`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Generate the Prisma client and build for production |
+| `npm start` | Run the production build |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest unit tests |
 
-## Learn More
+## Database
 
-To learn more about Next.js, take a look at the following resources:
+The schema lives in [prisma/schema.prisma](prisma/schema.prisma) and migrations in `prisma/migrations/`. The seed command is configured in [prisma.config.ts](prisma.config.ts).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Existing database created with `db push`:** mark the baseline as already applied, then deploy the remaining migrations:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npx prisma migrate resolve --applied 0_init
+npx prisma migrate deploy
+```
 
-## Deploy on Vercel
+The `enable_row_level_security` migration turns on Postgres RLS for every table. Supabase exposes the `public` schema through its REST API with the public anon key; the app only reads data through Prisma (as the table owner), so RLS with no policies blocks that REST access without affecting the app.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+For schema changes, use `npx prisma migrate dev --name <change>` rather than `db push`, so the change is recorded.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Roles and access
+
+| Role | Access |
+|---|---|
+| `SUPER_ADMIN` | Everything, including settings, pricing config, team roles and backups |
+| `ADMIN` | All content and inbox management in `/admin` |
+| `EDITOR` | Dashboard, songs, videos, profiles and the media library |
+| `VIEWER` | Dashboard only |
+| `CONTRIBUTOR` | Default for any new sign-in; `/portal` only |
+
+Which roles can open each admin page is defined once in [src/lib/auth/admin-access.js](src/lib/auth/admin-access.js) (used by the sidebar and the admin layout). API routes check roles with `requireRole()` from [src/lib/auth/server-auth.js](src/lib/auth/server-auth.js).
+
+## Music Arcade
+
+Players register with an email and username and verify by email (links expire after 24h). Each game issues a signed round token when it starts; submissions must present it, which lets the server check the player, the questions served and the real time taken. Trivia, Theory Master and Name That Tune are scored on the server; Pitch Match and Rhythm Tap are capped at their maximum possible score and minimum play time. Trivia questions and Name That Tune clips are managed under Admin → Arcade Games.
+
+## Scheduled jobs
+
+- **Vercel Cron** ([vercel.json](vercel.json)) syncs YouTube and Facebook daily and Spotify weekly into the `SocialCache` table. Requests are authenticated with `CRON_SECRET` (cron requests are refused if it is unset). Admins can also sync on demand from Admin → Social Sync, and the latest YouTube videos appear on the Media page.
+- **GitHub Actions** ([.github/workflows/keep-supabase-alive.yml](.github/workflows/keep-supabase-alive.yml)) pings Supabase twice a week so the free-tier project is not paused.

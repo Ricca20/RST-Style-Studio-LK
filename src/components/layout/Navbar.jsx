@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import MagneticButton from '@/components/ui/MagneticButton';
 import { Home, Info, Music, Users, Wrench, Mail, VolumeX, Volume2, Camera } from 'lucide-react';
 
-export default function Navbar() {
+export default function Navbar({ showLocaleSwitcher = true }) {
   const t = useTranslations('Navigation');
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
@@ -115,9 +115,11 @@ export default function Navbar() {
           </div>
 
           {/* Locale Switcher (Hidden on small screens to preserve the layout) */}
-          <div className="hidden xl:block px-2">
-            <LocaleSwitcher />
-          </div>
+          {showLocaleSwitcher && (
+            <div className="hidden xl:block px-2">
+              <LocaleSwitcher />
+            </div>
+          )}
 
           {/* Right Knob */}
           <MagneticButton>

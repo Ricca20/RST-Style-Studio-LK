@@ -41,10 +41,45 @@ function YoutubeIcon({ size = 14 }) {
   );
 }
 
+function SpotifyIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+    </svg>
+  );
+}
+
+function TikTokIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+    </svg>
+  );
+}
+
+function XIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+const SOCIAL_LINKS = [
+  { key: 'instagram', label: 'Instagram', Icon: InstagramIcon },
+  { key: 'facebook', label: 'Facebook', Icon: FacebookIcon },
+  { key: 'youtube', label: 'YouTube', Icon: YoutubeIcon },
+  { key: 'spotify', label: 'Spotify', Icon: SpotifyIcon },
+  { key: 'tiktok', label: 'TikTok', Icon: TikTokIcon },
+  { key: 'x', label: 'X', Icon: XIcon },
+];
+
 /* ═══════════════════════════════════════════════════════════════
    MAIN FOOTER COMPONENT — DJ Hardware Chassis Design
    ═══════════════════════════════════════════════════════════════ */
-export default function Footer() {
+export default function Footer({ info }) {
+  const studioName = info?.name || 'RST Style Studio LK';
+  const socials = SOCIAL_LINKS.filter(({ key }) => info?.socials?.[key]);
   const tNav = useTranslations('Navigation');
   const tFooter = useTranslations('Footer');
 
@@ -109,18 +144,23 @@ export default function Footer() {
                 {tFooter('description')}
               </p>
 
-              {/* Social Knobs */}
-              <div className="flex gap-3 mb-4">
-                <a href="#" aria-label="Instagram" className="footer-social-knob">
-                  <InstagramIcon />
-                </a>
-                <a href="#" aria-label="Facebook" className="footer-social-knob">
-                  <FacebookIcon />
-                </a>
-                <a href="#" aria-label="YouTube" className="footer-social-knob">
-                  <YoutubeIcon />
-                </a>
-              </div>
+              {/* Social Knobs — only platforms with a URL in Settings */}
+              {socials.length > 0 && (
+                <div className="flex gap-3 mb-4">
+                  {socials.map(({ key, label, Icon }) => (
+                    <a
+                      key={key}
+                      href={info.socials[key]}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      className="footer-social-knob"
+                    >
+                      <Icon />
+                    </a>
+                  ))}
+                </div>
+              )}
 
               {/* Now Playing decorative slider */}
               <div className="footer-now-playing w-full">
@@ -151,7 +191,7 @@ export default function Footer() {
                 ))}
                 <li>
                   <Link
-                    href="/admin"
+                    href="/login"
                     className="text-white/15 hover:text-[#0ea5e9] text-[10px] transition-colors mt-2 block font-medium tracking-wide uppercase"
                   >
                     {tNav('login')}
@@ -191,17 +231,21 @@ export default function Footer() {
                 <span>{tNav('contact')}</span>
               </div>
               <ul className="flex flex-col gap-2">
-                <li className="footer-contact-row">
-                  <Mail size={13} strokeWidth={1.8} />
-                  <span>hello@rststylestudiolk.com</span>
-                </li>
-                <li className="footer-contact-row">
-                  <Phone size={13} strokeWidth={1.8} />
-                  <span>+94 77 123 4567</span>
-                </li>
+                {info?.email && (
+                  <li className="footer-contact-row">
+                    <Mail size={13} strokeWidth={1.8} />
+                    <a href={`mailto:${info.email}`} className="hover:text-white transition-colors">{info.email}</a>
+                  </li>
+                )}
+                {info?.phone && (
+                  <li className="footer-contact-row">
+                    <Phone size={13} strokeWidth={1.8} />
+                    <a href={`tel:${info.phone.replace(/[^\d+]/g, '')}`} className="hover:text-white transition-colors">{info.phone}</a>
+                  </li>
+                )}
                 <li className="footer-contact-row">
                   <MapPin size={13} strokeWidth={1.8} />
-                  <span>Sri Lanka</span>
+                  <span>{info?.address || 'Sri Lanka'}</span>
                 </li>
               </ul>
             </div>
@@ -225,8 +269,12 @@ export default function Footer() {
         {/* ─── Bottom Bar (outside chassis) ─── */}
         <div className="footer-bottom-bar">
           <p className="text-white/25 text-xs flex items-center gap-1.5">
-            &copy; {new Date().getFullYear()} RST Style Studio LK.{' '}
-            {tFooter('rights')}.
+            {info?.footerText || (
+              <>
+                &copy; {new Date().getFullYear()} {studioName}.{' '}
+                {tFooter('rights')}.
+              </>
+            )}
           </p>
           <div className="flex items-center gap-1 text-white/20 text-xs">
             <span>Made with</span>
@@ -237,18 +285,12 @@ export default function Footer() {
             <span>in Sri Lanka</span>
           </div>
           <div className="flex gap-6">
-            <a
-              href="#"
-              className="text-white/25 hover:text-white/60 text-xs transition-colors"
-            >
+            <Link href="/privacy" className="text-white/25 hover:text-white/60 text-xs transition-colors">
               Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-white/25 hover:text-white/60 text-xs transition-colors"
-            >
+            </Link>
+            <Link href="/terms" className="text-white/25 hover:text-white/60 text-xs transition-colors">
               Terms of Service
-            </a>
+            </Link>
           </div>
         </div>
 

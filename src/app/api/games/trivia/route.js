@@ -1,57 +1,34 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { cookies } from 'next/headers';
+import { guardPlay } from '@/lib/games/guard';
+import { createRoundToken } from '@/lib/games/rounds';
+import { shuffle } from '@/lib/games/shuffle';
+import { getClientIp } from '@/lib/rate-limit';
+
+const QUESTIONS_PER_GAME = 10;
 
 export async function GET(request) {
   try {
-    // Optional: enforce that only registered users can fetch questions to prevent scraping
-    const cookieStore = await cookies();
-    const playerId = cookieStore.get('game_session')?.value;
+    const guard = await guardPlay('TRIVIA', { ip: getClientIp(request) });
+    if (guard.error) return NextResponse.json({ error: guard.error }, { status: guard.status });
 
-    if (!playerId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Fetch 10 random active questions
-    // Prisma doesn't have a native "ORDER BY RAND()" so we fetch IDs and randomize in JS,
-    // or fetch all active and shuffle. Since the pool might not be huge, fetching all active is okay.
-    
     const allQuestions = await prisma.triviaQuestion.findMany({
       where: { isActive: true },
-      select: {
-        id: true,
-        difficulty: true,
-        questionEn: true,
-        questionSi: true,
-        questionIt: true,
-        options: true,
-        // DONT send correctOption to the client! 
-        // We will validate it server-side when they submit the score, 
-        // or we can send it if we trust the client (for MVP, let's send it but obfuscated or just send it and accept client scoring for simplicity)
-        // Wait, the user specifically asked for anti-cheat. 
-        // For true anti-cheat, the client submits an array of { questionId, answerId } and the server calculates the score.
-        // Let's implement that in a separate /api/games/trivia/score endpoint.
-      }
+      // correctOption is never sent; answers are scored server-side on submit
+      select: { id: true, difficulty: true, questionEn: true, questionSi: true, questionIt: true, options: true }
     });
 
     if (allQuestions.length === 0) {
       return NextResponse.json({ error: 'No questions available' }, { status: 404 });
     }
 
-    // Shuffle and pick 10
-    const shuffled = allQuestions.sort(() => 0.5 - Math.random());
-    const selected = shuffled.slice(0, 10);
+    const questions = shuffle(allQuestions).slice(0, QUESTIONS_PER_GAME).map(q => ({
+      ...q,
+      options: shuffle(Array.isArray(q.options) ? q.options : [])
+    }));
 
-    // Shuffle options for each question
-    const sanitizedQuestions = selected.map(q => {
-      const opts = Array.isArray(q.options) ? q.options : [];
-      return {
-        ...q,
-        options: opts.sort(() => 0.5 - Math.random())
-      };
-    });
-
-    return NextResponse.json(sanitizedQuestions);
+    const token = createRoundToken({ playerId: guard.player.id, gameType: 'TRIVIA', ids: questions.map(q => q.id) });
+    return NextResponse.json({ questions, token });
   } catch (error) {
     console.error('Error fetching trivia questions:', error);
     return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 });

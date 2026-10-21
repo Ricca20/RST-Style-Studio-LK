@@ -1,44 +1,31 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import prisma from '@/lib/db';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { requireRole } from '@/lib/auth/server-auth';
+import { nullIfBlank, triviaQuestionSchema } from '@/lib/games/questionSchemas';
 
 export async function PUT(request, { params }) {
   try {
     const { id } = await params;
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-        },
-      }
-    );
-
     const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-    const user = authResult.user;
 
-    const body = await request.json();
-    const { difficulty, questionEn, questionSi, options, correctOption, isActive } = body;
-
+    const data = triviaQuestionSchema.parse(await request.json());
     const question = await prisma.triviaQuestion.update({
       where: { id },
       data: {
-        difficulty,
-        questionEn,
-        questionSi: questionSi || null,
-        options,
-        correctOption,
-        isActive
+        ...data,
+        questionSi: nullIfBlank(data.questionSi),
+        questionIt: nullIfBlank(data.questionIt),
       }
     });
 
     return NextResponse.json(question);
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.issues[0]?.message || 'Validation Error', details: error.issues }, { status: 400 });
+    }
+    console.error('Error updating trivia question:', error);
     return NextResponse.json({ error: 'Failed to update trivia question' }, { status: 500 });
   }
 }
@@ -46,27 +33,13 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-        },
-      }
-    );
-
     const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-    const user = authResult.user;
 
-    await prisma.triviaQuestion.delete({
-      where: { id }
-    });
-
+    await prisma.triviaQuestion.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error deleting trivia question:', error);
     return NextResponse.json({ error: 'Failed to delete trivia question' }, { status: 500 });
   }
 }

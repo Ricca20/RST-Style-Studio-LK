@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
+import { LogOut } from 'lucide-react';
 
 export default function PortalClient({ initialProfile, claims, allSongs, userId }) {
   const [profile, setProfile] = useState(initialProfile || { name: '', bio: '', mainRole: '' });
@@ -20,10 +21,11 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profile)
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         toast.success('Profile saved successfully! It will be reviewed by an admin.');
       } else {
-        toast.error('Failed to save profile.');
+        toast.error(data.error || 'Failed to save profile.');
       }
     } catch (err) {
       toast.error('An error occurred.');
@@ -40,13 +42,13 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(claimForm)
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        const newClaim = await res.json();
-        setLocalClaims([newClaim, ...localClaims]);
+        setLocalClaims([data, ...localClaims]);
         toast.success('Claim submitted successfully! Awaiting admin approval.');
         setClaimForm({ songId: '', role: '', proof: '' });
       } else {
-        toast.error('Failed to submit claim.');
+        toast.error(data.error || 'Failed to submit claim.');
       }
     } catch (err) {
       toast.error('An error occurred.');
@@ -54,7 +56,22 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
     setIsSubmittingClaim(false);
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } finally {
+      window.location.href = '/';
+    }
+  };
+
   return (
+    <>
+    <Toaster position="bottom-right" theme="dark" />
+    <div className="flex justify-end mb-6">
+      <button onClick={handleLogout} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition-colors">
+        <LogOut className="w-4 h-4" /> Log out
+      </button>
+    </div>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
       {/* Profile Section */}
       <div className="glass-panel p-8 rounded-2xl">
@@ -187,5 +204,6 @@ export default function PortalClient({ initialProfile, claims, allSongs, userId 
         </div>
       </div>
     </div>
+    </>
   );
 }
