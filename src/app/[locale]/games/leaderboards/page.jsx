@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Trophy, Medal, Star, ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/routing';
 import { useFetchJson } from '@/lib/hooks/useFetchJson';
+import SectionLabel from '@/components/music/SectionLabel';
+import Equalizer from '@/components/music/Equalizer';
 
 const GAMES = [
   { id: 'TRIVIA', name: 'SL Music IQ' },
@@ -19,103 +21,80 @@ export default function LeaderboardPage() {
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
   const currentYear = new Date().getFullYear();
 
+  const entries = leaderboardData?.leaderboard || [];
+
   return (
-    <div className="min-h-screen pt-32 pb-20 px-6">
-      <div className="max-w-4xl mx-auto">
-        
-        <Link href="/games" className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors mb-8">
-          <ArrowLeft className="w-4 h-4" /> Back to Arcade
+    <section className="px-5 md:px-10 pt-32 md:pt-40">
+      <div className="max-w-5xl mx-auto">
+        <Link href="/games" className="inline-flex items-center gap-2 text-sm font-semibold text-smoke hover:text-ink transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Arcade
         </Link>
 
-        <div className="text-center mb-12 flex flex-col items-center">
-          <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
-            <Trophy className="w-10 h-10 text-yellow-500" />
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold mt-2 mb-4 text-white">
-            Hall of <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-600">Fame</span>
-          </h1>
-          <p className="text-white/60">
-            Top scores for {currentMonth} {currentYear}. Compete to win exclusive studio prizes!
-          </p>
+        <div className="mt-8">
+          <SectionLabel>Charts · {currentMonth} {currentYear}</SectionLabel>
+          <h1 className="display text-[clamp(3rem,9vw,7rem)] mt-5">The top ten.</h1>
+          <p className="mt-5 max-w-xl text-lg text-smoke">This month&apos;s best scores in each game. Top spot wins the prize.</p>
         </div>
 
-        {/* Game Tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-wrap gap-2 mt-10">
           {GAMES.map(g => (
             <button
               key={g.id}
+              type="button"
               onClick={() => setActiveGame(g.id)}
-              className={`px-6 py-3 rounded-full text-sm font-bold transition-all ${
-                activeGame === g.id 
-                  ? 'bg-white text-black shadow-lg shadow-white/20' 
-                  : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'
-              }`}
+              aria-pressed={activeGame === g.id}
+              className={`rounded-full px-4 py-2 text-sm font-semibold border transition-colors ${activeGame === g.id ? 'bg-ink text-paper border-ink' : 'border-ink/15 hover:border-ink/50'}`}
             >
               {g.name}
             </button>
           ))}
         </div>
 
-        {/* Prize Box */}
         {!loading && leaderboardData && (
-          <div className="w-full bg-gradient-to-r from-yellow-500/10 to-amber-600/10 border border-yellow-500/20 rounded-2xl p-6 mb-12 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="mt-8 rounded-[2rem] bg-lime text-ink p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <Star className="w-8 h-8 text-yellow-500" />
+              <Star className="w-7 h-7 fill-current" />
               <div>
-                <span className="text-xs font-bold text-yellow-500/70 uppercase tracking-widest block mb-1">This Month&apos;s Prize</span>
-                <span className="text-xl font-bold text-white">{leaderboardData.prizeDetails}</span>
+                <span className="eyebrow block opacity-60">This month&apos;s prize</span>
+                <span className="font-display font-bold text-2xl">{leaderboardData.prizeDetails}</span>
               </div>
             </div>
-            
-            {leaderboardData.winner ? (
-              <div className="bg-yellow-500/20 px-6 py-3 rounded-xl border border-yellow-500/30">
-                <span className="text-xs text-yellow-500 uppercase font-bold block mb-1">Last Month Winner</span>
-                <span className="font-bold text-white">@{leaderboardData.winner}</span>
+            {leaderboardData.winner && (
+              <div className="rounded-2xl bg-ink text-paper px-5 py-3">
+                <span className="eyebrow block text-paper/50 text-[0.6rem]">Winner</span>
+                <span className="font-bold">@{leaderboardData.winner}</span>
               </div>
-            ) : null}
+            )}
           </div>
         )}
 
-        {/* Leaderboard Table */}
-        <div className="w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+        <div className="mt-6 rounded-[2rem] bg-ink text-paper p-4 md:p-8">
           {loading ? (
-            <div className="py-20 flex justify-center">
-              <div className="w-8 h-8 border-2 border-white/20 border-t-yellow-500 rounded-full animate-spin" />
-            </div>
-          ) : leaderboardData?.leaderboard?.length > 0 ? (
-            <div className="flex flex-col">
-              {leaderboardData.leaderboard.map((entry, idx) => (
-                <div 
-                  key={idx}
-                  className={`flex items-center justify-between p-6 ${idx !== leaderboardData.leaderboard.length - 1 ? 'border-b border-white/5' : ''} ${idx === 0 ? 'bg-yellow-500/5' : idx === 1 ? 'bg-slate-300/5' : idx === 2 ? 'bg-amber-700/5' : ''}`}
-                >
-                  <div className="flex items-center gap-6">
-                    <div className="w-8 flex justify-center">
-                      {idx === 0 ? <Medal className="w-8 h-8 text-yellow-500" /> :
-                       idx === 1 ? <Medal className="w-8 h-8 text-slate-300" /> :
-                       idx === 2 ? <Medal className="w-8 h-8 text-amber-700" /> :
-                       <span className="text-xl font-bold text-white/30">#{idx + 1}</span>}
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-bold text-lg text-white">@{entry.username}</span>
-                      <span className="text-xs text-white/40">{new Date(entry.date).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70">
-                    {entry.score}
-                  </div>
-                </div>
+            <div className="py-16 flex justify-center"><Equalizer bars={7} className="h-10 text-lime" /></div>
+          ) : entries.length > 0 ? (
+            <ol>
+              {entries.map((entry, idx) => (
+                <li key={idx} className={`flex items-center gap-5 py-4 px-3 ${idx !== entries.length - 1 ? 'border-b border-paper/10' : ''}`}>
+                  <span className={`w-10 text-center font-display font-bold text-2xl tabular-nums ${idx === 0 ? 'text-lime' : 'text-paper/40'}`}>
+                    {idx < 3 ? <Medal className={`w-7 h-7 mx-auto ${idx === 0 ? 'text-lime' : idx === 1 ? 'text-paper/70' : 'text-amber-600'}`} /> : idx + 1}
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block font-bold text-lg truncate">@{entry.username}</span>
+                    <span className="block text-xs text-paper/40">{new Date(entry.date).toLocaleDateString()}</span>
+                  </span>
+                  <span className="display text-3xl tabular-nums">{entry.score}</span>
+                </li>
               ))}
-            </div>
+            </ol>
           ) : (
-            <div className="py-20 text-center text-white/50">
-              No scores for this game this month yet. Be the first!
+            <div className="py-16 text-center">
+              <Trophy className="w-10 h-10 mx-auto text-paper/30" />
+              <p className="font-display font-bold text-2xl mt-4">No scores yet this month.</p>
+              <p className="text-paper/50 mt-2">Be the first on the chart.</p>
             </div>
           )}
         </div>
-
       </div>
-    </div>
+    </section>
   );
 }

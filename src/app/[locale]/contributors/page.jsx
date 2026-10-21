@@ -1,5 +1,6 @@
 import prisma from '@/lib/db';
 import ContributorsShowcaseClient from '@/components/public/ContributorsShowcaseClient';
+import PageHero from '@/components/music/PageHero';
 
 export async function generateMetadata() {
   return {
@@ -28,7 +29,7 @@ export default async function ContributorsPage() {
     profiles = dbProfiles.map(p => ({
       id: p.id,
       name: p.name,
-      mainRole: p.mainRole || 'Studio Artist',
+      mainRole: p.mainRole || 'Studio artist',
       bio: p.bio,
       imageUrl: p.imageUrl,
       slug: p.slug,
@@ -79,5 +80,19 @@ export default async function ContributorsPage() {
 
   const combinedContributors = [...profiles, ...extraContributors];
 
-  return <ContributorsShowcaseClient contributors={combinedContributors} />;
+  return (
+    <>
+      <PageHero
+        label="The band"
+        title={['The people', 'behind the', 'sound.']}
+        intro="Producers, engineers, vocalists, writers and players who make records at RST Style Studio."
+        seed={41}
+      />
+      <section className="px-5 md:px-10 pt-6">
+        <div className="max-w-7xl mx-auto">
+          <ContributorsShowcaseClient contributors={combinedContributors} />
+        </div>
+      </section>
+    </>
+  );
 }

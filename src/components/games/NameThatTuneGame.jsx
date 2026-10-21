@@ -112,7 +112,7 @@ export default function NameThatTuneGame() {
       <div className="flex flex-col items-center mb-12">
         <div className={`relative mb-6 ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`}>
           <Disc className="w-32 h-32 text-white/10" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#0ea5e9]/20 to-rst-accent/20 rounded-full mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-lime/20 to-rst-accent/20 rounded-full mix-blend-overlay" />
         </div>
 
         <button
@@ -134,11 +134,11 @@ export default function NameThatTuneGame() {
           <button
             key={opt.id}
             onClick={() => answer(opt.id)}
-            className="w-full p-4 md:p-6 text-left bg-white/5 hover:bg-[#0ea5e9]/20 border border-white/10 hover:border-[#0ea5e9]/50 rounded-xl text-white font-medium transition-all hover:scale-[1.02] active:scale-[0.98] group"
+            className="w-full p-4 md:p-6 text-left bg-white/5 hover:bg-lime/20 border border-white/10 hover:border-lime/50 rounded-xl text-white font-medium transition-all hover:scale-[1.02] active:scale-[0.98] group"
           >
             <div className="flex items-center justify-between">
               <span>{localized(opt, 'text', locale)}</span>
-              <div className="w-5 h-5 rounded-full border-2 border-white/20 group-hover:border-[#0ea5e9] transition-colors" />
+              <div className="w-5 h-5 rounded-full border-2 border-white/20 group-hover:border-lime transition-colors" />
             </div>
           </button>
         ))}

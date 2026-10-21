@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { Link } from '@/i18n/routing';
+import { RefreshCw } from 'lucide-react';
+import PillLink from '@/components/music/PillLink';
+import Waveform from '@/components/music/Waveform';
 
 export default function LocaleError({ error, reset }) {
   useEffect(() => {
@@ -10,34 +11,22 @@ export default function LocaleError({ error, reset }) {
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-6 py-20">
-      <div className="max-w-md w-full text-center">
-        <div className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
-          <AlertTriangle className="w-10 h-10 text-red-400" />
-        </div>
-
-        <h1 className="text-3xl font-bold mb-3 text-white">Something went wrong</h1>
-        <p className="text-white/60 mb-8 leading-relaxed">
-          An unexpected error occurred while loading this page. Please try again.
-        </p>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+    <section className="min-h-[80vh] flex items-center px-5 md:px-10 pt-32 pb-20">
+      <div className="max-w-3xl mx-auto w-full">
+        <p className="eyebrow text-smoke">Signal lost</p>
+        <h1 className="display text-[clamp(3.5rem,10vw,8rem)] mt-4">The record<br />skipped.</h1>
+        <p className="mt-6 max-w-md text-lg text-smoke">Something went wrong while loading this page. Give it another spin.</p>
+        <div className="flex flex-wrap gap-3 mt-8">
           <button
             onClick={() => reset()}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-semibold text-white transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-ink text-paper px-6 py-3.5 text-sm font-bold hover:bg-ink-2 transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />
-            Try Again
+            <RefreshCw className="w-4 h-4" /> Try again
           </button>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#0ea5e9] hover:bg-[#0ea5e9]/80 rounded-xl font-semibold text-white transition-colors"
-          >
-            <Home className="w-4 h-4" />
-            Go Home
-          </Link>
+          <PillLink href="/" variant="outline">Go home</PillLink>
         </div>
+        <Waveform seed={3} className="h-12 w-full mt-14 text-ink/15" />
       </div>
-    </div>
+    </section>
   );
 }

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { checkAuth } from '@/lib/auth/server-auth';
 import prisma from '@/lib/db';
 import PortalClient from './PortalClient';
+import SectionLabel from '@/components/music/SectionLabel';
 import { getTranslations } from 'next-intl/server';
 
 export default async function PortalPage({ params }) {
@@ -35,11 +36,12 @@ export default async function PortalPage({ params }) {
   });
 
   return (
-    <div className="min-h-screen bg-transparent pt-24 px-6 md:px-20 pb-20">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-white mb-2">Artist Portal</h1>
-          <p className="text-white/60">Manage your profile and claim your contributions to songs.</p>
+    <div className="px-5 md:px-10 pt-32 md:pt-40">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-12">
+          <SectionLabel>Artist portal</SectionLabel>
+          <h1 className="display text-[clamp(3rem,8vw,6rem)] mt-5 mb-4">Your studio pass.</h1>
+          <p className="text-smoke text-lg">Manage your profile and claim your credits on songs.</p>
         </div>
         <PortalClient 
           initialProfile={profile} 

@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useEffectEvent, useSyncExternalStore } from 'react';
+import { useState, useEffect, useEffectEvent, useSyncExternalStore } from 'react';
+import Image from 'next/image';
 import { createPortal } from 'react-dom';
-import { X, ChevronLeft, ChevronRight, Download, Sparkles, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Download, ExternalLink, Maximize2 } from 'lucide-react';
+import Equalizer from '@/components/music/Equalizer';
 
 const DEFAULT_MEDIA_IMAGES = [
   '/Media/0.png',
@@ -57,6 +59,7 @@ const DEFAULT_MEDIA_IMAGES = [
 
 const subscribeNoop = () => () => {};
 
+/** Studio photo wall: bundled photos plus anything uploaded in Admin → Media Library. */
 export default function MediaGalleryClient() {
   const [images, setImages] = useState(DEFAULT_MEDIA_IMAGES);
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -66,204 +69,94 @@ export default function MediaGalleryClient() {
 
   useEffect(() => {
     let ignore = false;
-    // Fetch newly uploaded images from Admin Dashboard (Supabase 'media' bucket)
+    // Newly uploaded images from the admin media library (Supabase 'media' bucket)
     fetch('/api/public/media')
       .then((res) => (res.ok ? res.json() : []))
       .then((cloudUrls) => {
         if (ignore || !Array.isArray(cloudUrls) || cloudUrls.length === 0) return;
-        // Prepend admin-uploaded cloud images ahead of static studio photos
         setImages(Array.from(new Set([...cloudUrls, ...DEFAULT_MEDIA_IMAGES])));
       })
       .catch((err) => console.error('Failed to load admin uploaded media:', err));
     return () => { ignore = true; };
   }, []);
 
-  // Reliable Universal Download Handler
-  const handleDownload = async (url, index, e) => {
-    if (e) e.stopPropagation();
+  const step = (delta) => setLightboxIndex((prev) => (prev + delta + images.length) % images.length);
+
+  const handleDownload = async (url, index) => {
     setDownloadingIndex(index);
     try {
       const response = await fetch(url);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      const blobUrl = window.URL.createObjectURL(await response.blob());
       const link = document.createElement('a');
       link.href = blobUrl;
-      const rawName = url.split('/').pop() || `RST-Studio-Moment-${index + 1}.jpg`;
-      link.download = decodeURIComponent(rawName);
+      link.download = decodeURIComponent(url.split('/').pop() || `RST-Studio-${index + 1}.jpg`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
-    } catch (err) {
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `RST-Studio-Moment-${index + 1}`;
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    } catch {
+      window.open(url, '_blank', 'noopener');
     } finally {
       setDownloadingIndex(null);
     }
   };
 
-  const handleKeyDown = (e) => {
+  const onKeyDown = useEffectEvent((e) => {
     if (lightboxIndex === null) return;
     if (e.key === 'Escape') setLightboxIndex(null);
-    if (e.key === 'ArrowRight') {
-      setLightboxIndex((prev) => (prev + 1) % images.length);
-    }
-    if (e.key === 'ArrowLeft') {
-      setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);
-    }
-  };
-
-  const onKeyDown = useEffectEvent(handleKeyDown);
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+  });
 
   useEffect(() => {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  // Render Fullscreen Lightbox via React Portal directly to document.body
-  const renderLightboxModal = () => {
-    if (lightboxIndex === null || !mounted || typeof document === 'undefined') return null;
-
-    return createPortal(
-      <div
-        onClick={() => setLightboxIndex(null)}
-        className="fixed inset-0 z-[999999] bg-black/95 backdrop-blur-3xl flex flex-col items-center justify-between p-4 sm:p-8 select-none overflow-hidden cursor-pointer"
-      >
-        {/* Top Header Bar */}
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="w-full max-w-7xl flex items-center justify-between z-30 pt-2 cursor-default"
-        >
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white font-mono text-xs shadow-xl">
-            <ImageIcon className="w-4 h-4 text-[#0ea5e9]" />
-            <span>STUDIO MOMENT {String(lightboxIndex + 1).padStart(2, '0')} {'//'} {images.length}</span>
-          </div>
-
-          <button
-            onClick={() => setLightboxIndex(null)}
-            className="w-12 h-12 rounded-full bg-white/10 hover:bg-rose-600 text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 shadow-xl cursor-pointer"
-            aria-label="Close Lightbox"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        {/* Fixed Symmetrical Navigation Arrows */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setLightboxIndex((prev) => (prev - 1 + images.length) % images.length);
-          }}
-          className="fixed left-6 sm:left-10 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-[#0ea5e9] text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 shadow-2xl z-40 cursor-pointer"
-          aria-label="Previous Image"
-        >
-          <ChevronLeft className="w-7 h-7" />
+  const lightbox = lightboxIndex !== null && mounted && createPortal(
+    <div className="fixed inset-0 z-[100] bg-ink/95 text-paper flex flex-col" role="dialog" aria-modal="true" aria-label="Photo viewer" onClick={() => setLightboxIndex(null)}>
+      <div className="flex items-center justify-between p-5 md:p-8" onClick={(e) => e.stopPropagation()}>
+        <p className="eyebrow text-paper/60 flex items-center gap-2"><Equalizer bars={3} className="h-3 text-lime" /> Frame {String(lightboxIndex + 1).padStart(2, '0')} / {images.length}</p>
+        <button onClick={() => setLightboxIndex(null)} aria-label="Close" className="w-12 h-12 rounded-full bg-paper/10 hover:bg-lime hover:text-ink flex items-center justify-center transition-colors"><X className="w-5 h-5" /></button>
+      </div>
+      <div className="relative flex-1 mx-5 md:mx-24" onClick={(e) => e.stopPropagation()}>
+        <Image src={images[lightboxIndex]} alt={`Studio photo ${lightboxIndex + 1}`} fill sizes="100vw" className="object-contain" />
+      </div>
+      <button onClick={(e) => { e.stopPropagation(); step(-1); }} aria-label="Previous photo" className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-paper/10 hover:bg-lime hover:text-ink flex items-center justify-center transition-colors"><ChevronLeft className="w-6 h-6" /></button>
+      <button onClick={(e) => { e.stopPropagation(); step(1); }} aria-label="Next photo" className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-paper/10 hover:bg-lime hover:text-ink flex items-center justify-center transition-colors"><ChevronRight className="w-6 h-6" /></button>
+      <div className="flex justify-center gap-3 p-5 md:p-8" onClick={(e) => e.stopPropagation()}>
+        <button onClick={() => handleDownload(images[lightboxIndex], lightboxIndex)} className="inline-flex items-center gap-2 rounded-full bg-lime text-ink px-5 py-3 text-sm font-bold">
+          <Download className="w-4 h-4" /> {downloadingIndex === lightboxIndex ? 'Saving…' : 'Download'}
         </button>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setLightboxIndex((prev) => (prev + 1) % images.length);
-          }}
-          className="fixed right-6 sm:right-10 top-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/10 hover:bg-[#0ea5e9] text-white border border-white/20 flex items-center justify-center transition-all hover:scale-110 shadow-2xl z-40 cursor-pointer"
-          aria-label="Next Image"
-        >
-          <ChevronRight className="w-7 h-7" />
-        </button>
-
-        {/* Center Main Viewport: Photo */}
-        <div className="w-full flex-1 flex items-center justify-center overflow-hidden py-4">
-          <img
-            onClick={(e) => e.stopPropagation()}
-            src={images[lightboxIndex]}
-            alt={`Studio Moment ${lightboxIndex + 1}`}
-            className="max-w-[85vw] max-h-[75vh] object-contain rounded-2xl shadow-[0_0_90px_rgba(0,0,0,0.95)] border border-white/20 bg-black/40 cursor-default"
-          />
-        </div>
-
-        {/* Bottom Actions Toolbar */}
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="z-30 pb-2 flex items-center gap-4 cursor-default"
-        >
-          <button
-            onClick={(e) => handleDownload(images[lightboxIndex], lightboxIndex, e)}
-            className="px-6 py-3 rounded-full bg-gradient-to-r from-[#0ea5e9] to-cyan-500 hover:from-cyan-400 hover:to-[#0ea5e9] text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-[0_0_25px_rgba(14,165,233,0.6)] hover:scale-105 transition-all cursor-pointer"
-          >
-            <Download className="w-4 h-4" />
-            <span>{downloadingIndex === lightboxIndex ? 'DOWNLOADING HD...' : 'DOWNLOAD HIGH-RES'}</span>
-          </button>
-
-          <a
-            href={images[lightboxIndex]}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 border border-white/15 transition-all hover:scale-105 cursor-pointer"
-          >
-            <ExternalLink className="w-4 h-4 text-cyan-300" />
-            <span>OPEN FULL SIZE</span>
-          </a>
-        </div>
-      </div>,
-      document.body
-    );
-  };
+        <a href={images[lightboxIndex]} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full border border-paper/25 px-5 py-3 text-sm font-bold hover:bg-paper hover:text-ink transition-colors">
+          <ExternalLink className="w-4 h-4" /> Original
+        </a>
+      </div>
+    </div>,
+    document.body
+  );
 
   return (
-    <div className="w-full">
-      {/* Top Gallery Header */}
-      <div className="flex items-center justify-between mb-8 px-2 font-mono text-xs text-slate-400 border-b border-white/10 pb-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#0ea5e9]" />
-          <span>STUDIO MOMENTS ARCHIVE // <strong className="text-white">{images.length} CAPTURES</strong></span>
-        </div>
-        <span className="text-cyan-300 font-bold flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#0ea5e9] animate-pulse" />
-          HD DOWNLOAD ENABLED
-        </span>
+    <div>
+      <p className="eyebrow text-smoke mb-8">{images.length} frames</p>
+      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [&>*]:mb-4">
+        {images.map((src, index) => (
+          <button
+            key={src}
+            type="button"
+            onClick={() => setLightboxIndex(index)}
+            className="group relative block w-full overflow-hidden rounded-[1.25rem] bg-paper-2 break-inside-avoid"
+          >
+            <Image src={src} alt={`Studio photo ${index + 1}`} width={600} height={600} sizes="(max-width: 768px) 50vw, 25vw" className="w-full h-auto object-cover transition duration-700 group-hover:scale-105" />
+            <span className="absolute inset-0 bg-ink/0 group-hover:bg-ink/30 transition-colors" />
+            <span className="absolute top-3 left-3 rounded-full bg-paper/90 px-2.5 py-1 text-[0.65rem] font-bold tabular-nums">{String(index + 1).padStart(2, '0')}</span>
+            <span className="absolute bottom-3 right-3 w-10 h-10 rounded-full bg-lime text-ink flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Maximize2 className="w-4 h-4" />
+            </span>
+          </button>
+        ))}
       </div>
-
-      {/* Pure Visual Moments Wall */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {images.map((src, index) => {
-          const isFeatured = index === 0 || index === 7 || index === 14;
-          return (
-            <div
-              key={index}
-              onClick={() => setLightboxIndex(index)}
-              className={`group relative rounded-3xl overflow-hidden border border-white/15 hover:border-[#0ea5e9] transition-all duration-500 cursor-pointer shadow-xl bg-black/60 ${
-                isFeatured ? 'sm:col-span-2 sm:row-span-2 h-[360px] sm:h-[500px]' : 'h-[260px]'
-              }`}
-            >
-              {/* Studio Photo */}
-              <img
-                src={src}
-                alt={`Studio Moment ${index + 1}`}
-                loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out"
-              />
-
-              {/* Quick Download Button on Hover */}
-              <button
-                onClick={(e) => handleDownload(src, index, e)}
-                title="Download High-Res Image"
-                className="absolute bottom-4 left-4 z-20 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-[#0ea5e9] text-white border border-white/20 flex items-center gap-1.5 font-mono text-[11px] font-bold shadow-lg"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>{downloadingIndex === index ? 'SAVING...' : 'DOWNLOAD'}</span>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Render Portal Modal */}
-      {renderLightboxModal()}
+      {lightbox}
     </div>
   );
 }

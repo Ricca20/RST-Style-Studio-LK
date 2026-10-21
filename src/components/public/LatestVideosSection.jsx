@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Play } from 'lucide-react';
 import prisma from '@/lib/db';
+import SectionLabel from '@/components/music/SectionLabel';
 
 /**
  * Latest channel uploads from the YouTube sync (SocialCache). Renders nothing
@@ -20,41 +21,40 @@ export default async function LatestVideosSection({ limit = 6 }) {
   if (videos.length === 0) return null;
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-10 pt-16">
-      <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight uppercase mb-6">
-        Latest on <span className="text-red-500">YouTube</span>
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {videos.map(({ id, snippet }) => {
-          const thumb = snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url;
-          return (
-            <a
-              key={id.videoId}
-              href={`https://www.youtube.com/watch?v=${id.videoId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block bg-black/60 border border-white/10 rounded-2xl overflow-hidden hover:border-red-500/60 transition-colors"
-            >
-              <div className="relative aspect-video bg-black">
-                {thumb && (
-                  <Image src={thumb} alt={snippet.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
-                )}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="w-14 h-14 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                    <Play className="w-6 h-6 text-white fill-white ml-1" />
+    <section className="px-5 md:px-10 pt-32">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <SectionLabel>On YouTube</SectionLabel>
+            <h2 className="display text-[clamp(3rem,7vw,6rem)] mt-5">Latest videos.</h2>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {videos.map(({ id, snippet }) => {
+            const thumb = snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || snippet.thumbnails?.default?.url;
+            return (
+              <a
+                key={id.videoId}
+                href={`https://www.youtube.com/watch?v=${id.videoId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block"
+              >
+                <div className="relative aspect-video rounded-[1.4rem] overflow-hidden bg-ink">
+                  {thumb && (
+                    <Image src={thumb} alt={snippet.title} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover transition duration-700 group-hover:scale-105" />
+                  )}
+                  <span className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-lime text-ink flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Play className="w-5 h-5 fill-current ml-0.5" />
                   </span>
                 </div>
-              </div>
-              <div className="p-4">
                 {/* YouTube returns titles HTML-escaped; React escapes again, so decode the common entities */}
-                <h3 className="text-sm font-bold text-white line-clamp-2">{decodeEntities(snippet.title)}</h3>
-                {snippet.publishedAt && (
-                  <p className="text-xs text-white/40 mt-1">{new Date(snippet.publishedAt).toLocaleDateString()}</p>
-                )}
-              </div>
-            </a>
-          );
-        })}
+                <h3 className="font-display font-bold text-lg leading-snug mt-4 line-clamp-2 group-hover:underline decoration-lime decoration-4 underline-offset-4">{decodeEntities(snippet.title)}</h3>
+                {snippet.publishedAt && <p className="text-sm text-smoke mt-1">{new Date(snippet.publishedAt).toLocaleDateString()}</p>}
+              </a>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

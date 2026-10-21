@@ -1,18 +1,18 @@
-import { Outfit, Plus_Jakarta_Sans, Noto_Sans_Sinhala, Caveat } from 'next/font/google';
+import { Bricolage_Grotesque, Plus_Jakarta_Sans, Noto_Sans_Sinhala, Caveat } from 'next/font/google';
 import './globals.css';
 
-const outfit = Outfit({
+// Display face for headlines: a characterful grotesque with optical sizes
+const bricolage = Bricolage_Grotesque({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
 });
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800'],
 });
 
 const notoSinhala = Noto_Sans_Sinhala({
@@ -21,11 +21,12 @@ const notoSinhala = Noto_Sans_Sinhala({
   display: 'swap',
 });
 
+// Handwritten signature accents
 const caveat = Caveat({
   subsets: ['latin'],
   variable: '--font-handwritten',
   display: 'swap',
-  weight: ['400', '500', '600', '700'],
+  weight: ['500', '700'],
 });
 
 export const metadata = {
@@ -38,7 +39,7 @@ export default function RootLayout({ children }) {
   return (
     <html className="dark" suppressHydrationWarning>
       <body
-        className={`${outfit.variable} ${plusJakarta.variable} ${notoSinhala.variable} ${caveat.variable} font-[family-name:var(--font-sans)] antialiased bg-[#0f172a] text-white overflow-x-hidden`}
+        className={`${bricolage.variable} ${plusJakarta.variable} ${notoSinhala.variable} ${caveat.variable} font-sans antialiased bg-paper text-ink overflow-x-hidden`}
       >
         {children}
       </body>

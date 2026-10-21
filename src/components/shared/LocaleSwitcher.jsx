@@ -4,36 +4,44 @@ import { useLocale } from 'next-intl';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { useTransition } from 'react';
 
-export default function LocaleSwitcher() {
+const LOCALES = [
+  { code: 'si', label: 'සිං', name: 'සිංහල' },
+  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'it', label: 'IT', name: 'Italiano' },
+];
+
+/** Segmented language switch. `tone="paper"` for use on dark backgrounds. */
+export default function LocaleSwitcher({ tone = 'ink' }) {
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const onSelectChange = (e) => {
-    const nextLocale = e.target.value;
-    startTransition(() => {
-      router.replace(pathname, { locale: nextLocale });
-    });
+  const switchTo = (code) => {
+    if (code === locale) return;
+    startTransition(() => router.replace(pathname, { locale: code }));
   };
 
+  const base = tone === 'paper' ? 'border-paper/20' : 'border-ink/15';
   return (
-    <label className="relative">
-      <span className="sr-only">Change language</span>
-      <select
-        defaultValue={locale}
-        onChange={onSelectChange}
-        disabled={isPending}
-        className={`appearance-none bg-transparent py-1 pl-2 pr-6 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${isPending ? 'opacity-50 cursor-wait' : ''}`}
-      >
-        <option value="si">සිංහල</option>
-        <option value="en">English</option>
-        <option value="it">Italiano</option>
-      </select>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-      </div>
-    </label>
+    <div role="group" aria-label="Change language" className={`inline-flex rounded-full border p-1 ${base} ${isPending ? 'opacity-60' : ''}`}>
+      {LOCALES.map(({ code, label, name }) => {
+        const active = code === locale;
+        const activeClass = tone === 'paper' ? 'bg-paper text-ink' : 'bg-ink text-paper';
+        return (
+          <button
+            key={code}
+            type="button"
+            title={name}
+            aria-pressed={active}
+            disabled={isPending}
+            onClick={() => switchTo(code)}
+            className={`min-w-10 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${active ? activeClass : 'opacity-60 hover:opacity-100'}`}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
   );
 }
-  

@@ -174,13 +174,13 @@ export default function RhythmTapGame() {
   if (phase === 'submitting') return <GameLoading label="Saving your score…" />;
   if (phase === 'error') return <GameError error={error} />;
   if (phase === 'finished') {
-    return <GameFinished title="Stage Clear!" score={score} gradient="from-pink-500 to-purple-600" />;
+    return <GameFinished title="Stage Clear!" score={score} />;
   }
 
   if (phase === 'intro') {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white/5 border border-white/10 rounded-2xl w-full max-w-2xl mx-auto text-center">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-pink-500/20">
+        <div className="w-16 h-16 rounded-full bg-lime flex items-center justify-center mb-6 ">
           <div className="w-6 h-6 rounded-full bg-white animate-pulse" />
         </div>
         <h2 className="text-3xl font-bold text-white mb-4">Rhythm Tap</h2>
@@ -189,7 +189,7 @@ export default function RhythmTapGame() {
         </p>
         <button
           onClick={startGame}
-          className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:scale-105 transition-transform rounded-xl font-bold text-white"
+          className="px-8 py-4 bg-lime hover:scale-105 transition-transform rounded-xl font-bold text-ink"
         >
           Start Tapping
         </button>
@@ -208,7 +208,7 @@ export default function RhythmTapGame() {
         </div>
         <div className="text-right">
           <span className="text-xs text-white/50 block">Score</span>
-          <span className="text-xl font-bold text-pink-400">{score}</span>
+          <span className="text-xl font-bold text-lime">{score}</span>
         </div>
       </div>
 
@@ -220,7 +220,7 @@ export default function RhythmTapGame() {
 
         {/* Hit Zone */}
         <div
-          className="absolute w-full border-t border-b border-pink-500/50 bg-pink-500/10 z-0 shadow-[0_0_15px_rgba(236,72,153,0.3)]"
+          className="absolute w-full border-t border-b border-lime/60 bg-lime/10 z-0 "
           style={{ top: `${HIT_ZONE_TOP}%`, bottom: `${100 - HIT_ZONE_BOTTOM}%` }}
         />
 
@@ -246,7 +246,7 @@ export default function RhythmTapGame() {
       {/* Mobile Tap Button */}
       <button
         onClick={handleTap}
-        className="w-full py-8 bg-pink-500 hover:bg-pink-400 active:bg-white text-white active:text-pink-600 font-black text-2xl uppercase tracking-widest rounded-2xl shadow-[0_10px_0_rgba(190,24,93,1)] active:shadow-none active:translate-y-[10px] transition-all select-none touch-manipulation"
+        className="w-full py-8 bg-lime hover:brightness-95 active:bg-paper text-ink font-black text-2xl uppercase tracking-widest rounded-2xl shadow-[0_10px_0_rgba(0,0,0,0.45)] active:shadow-none active:translate-y-[10px] transition-all select-none touch-manipulation"
       >
         TAP / SPACE
       </button>

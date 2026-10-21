@@ -101,7 +101,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
                 </button>
                 <button 
                   onClick={onClose}
-                  className="px-6 py-2 bg-[#0ea5e9]/20 hover:bg-[#0ea5e9]/40 border border-[#0ea5e9]/50 text-[#0ea5e9] font-bold rounded-lg transition-colors"
+                  className="px-6 py-2 bg-lime/15 hover:bg-lime/30 border border-lime/50 text-lime font-bold rounded-lg transition-colors"
                 >
                   Close
                 </button>
@@ -127,7 +127,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
                     title="Letters, numbers, and underscores only"
                     value={formData.username}
                     onChange={(e) => setFormData({...formData, username: e.target.value})}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-lime focus:ring-1 focus:ring-lime transition-all"
                     placeholder="e.g. music_lover99"
                   />
                 </div>
@@ -147,7 +147,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/30 focus:outline-none focus:border-lime focus:ring-1 focus:ring-lime transition-all"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -165,7 +165,7 @@ export default function GameRegistrationModal({ isOpen, onClose }) {
               <button
                 type="submit"
                 disabled={status === 'loading' || status === 'success'}
-                className="w-full py-3 px-4 bg-gradient-to-r from-[#0ea5e9] to-rst-accent hover:from-[#0c8bc4] hover:to-[#8323c9] text-white font-bold rounded-lg shadow-lg shadow-[#0ea5e9]/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
+                className="w-full py-3 px-4 bg-lime text-ink font-bold rounded-lg  transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center"
               >
                 {status === 'loading' || status === 'success' ? (
                   <div className="flex items-center gap-2">

@@ -1,52 +1,25 @@
-import { Link } from '@/i18n/routing';
-import { Gamepad2, Mic, BookOpen, Music, PlaySquare, Trophy, LogOut } from 'lucide-react';
-import ArcadeRegisterButton from '@/components/games/ArcadeRegisterButton';
 import { cookies } from 'next/headers';
+import { Gamepad2, Mic, BookOpen, Disc3, PlaySquare, Trophy, LogOut, ArrowUpRight } from 'lucide-react';
+import { Link } from '@/i18n/routing';
+import ArcadeRegisterButton from '@/components/games/ArcadeRegisterButton';
 import { GAME_SESSION_COOKIE } from '@/lib/games/session';
 import { getCurrentPlayer } from '@/lib/games/guard';
+import PageHero from '@/components/music/PageHero';
+import PillLink from '@/components/music/PillLink';
+import Equalizer from '@/components/music/Equalizer';
+import Reveal from '@/components/music/Reveal';
 
 export const metadata = {
-  title: 'Music Arcade - RST Style Studio',
-  description: 'Play music games, test your knowledge, and climb the leaderboard for monthly prizes!',
+  title: 'Music Arcade | RST Style Studio LK',
+  description: 'Play music games, test your knowledge, and climb the monthly leaderboard for studio prizes.',
 };
 
-const games = [
-  {
-    id: 'trivia',
-    title: 'SL Music IQ',
-    description: 'Fast-paced trivia covering the rich history of the Sri Lankan music industry. Test your knowledge on classic hits, modern artists, and historic studio moments.',
-    tags: ['Knowledge', 'History', 'Medium'],
-    icon: Gamepad2,
-    href: '/games/trivia',
-    color: 'from-blue-500 to-indigo-600'
-  },
-  {
-    id: 'pitch-match',
-    title: 'Pitch Match',
-    description: 'Listen to a synthesized note and sing it back into your microphone. Our audio engine evaluates your pitch accuracy in real-time. Can you hit the perfect note?',
-    tags: ['Vocal', 'Microphone', 'Hard'],
-    icon: Mic,
-    href: '/games/pitch-match',
-    color: 'from-emerald-500 to-teal-600'
-  },
-  {
-    id: 'theory-master',
-    title: 'Theory Master',
-    description: 'Choose between Eastern and Western music theory tracks. Identify scales, chords, and ragas by listening to generated audio clips.',
-    tags: ['Theory', 'Ear Training', 'Hard'],
-    icon: BookOpen,
-    href: '/games/theory-master',
-    color: 'from-purple-500 to-fuchsia-600'
-  },
-  {
-    id: 'rhythm-tap',
-    title: 'Rhythm Tap',
-    description: 'A visual rhythm game to test your timing and reflexes. Watch the blocks fall to the beat and hit the spacebar at the exact perfect moment to rack up points.',
-    tags: ['Reflexes', 'Rhythm', 'Action'],
-    icon: PlaySquare,
-    href: '/games/rhythm-tap',
-    color: 'from-pink-500 to-rose-600'
-  }
+const GAMES = [
+  { title: 'SL Music IQ', description: 'Fast trivia on the history of Sri Lankan music: classic hits, modern artists and studio moments.', tags: ['Knowledge', 'Timed'], Icon: Gamepad2, href: '/games/trivia' },
+  { title: 'Pitch Match', description: 'Hear a note and sing it back. The engine checks your pitch live, or use the slider without a mic.', tags: ['Vocal', 'Microphone'], Icon: Mic, href: '/games/pitch-match' },
+  { title: 'Name That Tune', description: 'A few seconds of a track. Four titles. How fast can you name it?', tags: ['Listening', 'Speed'], Icon: Disc3, href: '/games/name-that-tune' },
+  { title: 'Theory Master', description: 'Eastern or Western theory: scales, chords, ragas and taals, with audio examples.', tags: ['Theory', 'Ear training'], Icon: BookOpen, href: '/games/theory-master' },
+  { title: 'Rhythm Tap', description: 'Notes fall to the beat. Tap the spacebar at the perfect moment across three levels.', tags: ['Rhythm', 'Reflexes'], Icon: PlaySquare, href: '/games/rhythm-tap' },
 ];
 
 export default async function GamesArcadeHub() {
@@ -59,101 +32,63 @@ export default async function GamesArcadeHub() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-20 px-6">
-      
-      {/* Client Component for checking auth/showing modal could be injected here, 
-          but for simplicity, we will let individual game pages handle auth blocking if they want,
-          or we can render a trigger for the modal. 
-          The user wanted a popup. For MVP, we'll assume they just click a game and if not authed, they get prompted. 
-      */}
-      
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="section-label">Interactive Experience</span>
-          <h1 className="text-4xl md:text-6xl font-bold mt-2 mb-6 text-white tracking-tight">
-            Music <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-rst-accent">Arcade</span>
-          </h1>
-          <p className="text-xl text-white/60 max-w-2xl mx-auto">
-            Play games, test your musical skills, and compete on the monthly leaderboards to win exclusive studio discounts and prizes!
-          </p>
-          
-          <div className="mt-8 flex flex-col items-center gap-4">
-            <Link 
-              href="/games/leaderboards"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-white font-medium transition-all hover:scale-105"
-            >
-              <Trophy className="w-5 h-5 text-yellow-400" />
-              View Leaderboards
-            </Link>
-
-            {player ? (
-              <form action={signOutOfArcade} className="flex flex-col items-center gap-2">
-                <p className="text-sm text-white/60">Playing as <strong className="text-white">{player.username}</strong></p>
-                <button type="submit" className="text-sm text-white/50 hover:text-white flex items-center gap-2 transition-colors">
-                  <LogOut className="w-4 h-4" />
-                  Sign out of Arcade
-                </button>
-              </form>
-            ) : (
-              <ArcadeRegisterButton />
-            )}
-          </div>
+    <>
+      <PageHero
+        label="Bonus track"
+        title={['The Music', 'Arcade.']}
+        intro="Five mini-games for music lovers. Each game can be played once a month; top scores win studio prizes."
+        seed={107}
+      >
+        <div className="flex flex-col items-start gap-4">
+          {player ? (
+            <form action={signOutOfArcade} className="flex flex-col items-start gap-2">
+              <p className="text-sm text-smoke">Playing as <strong className="text-ink">{player.username}</strong></p>
+              <button type="submit" className="inline-flex items-center gap-2 text-sm font-semibold text-smoke hover:text-ink transition-colors">
+                <LogOut className="w-4 h-4" /> Sign out of Arcade
+              </button>
+            </form>
+          ) : (
+            <ArcadeRegisterButton />
+          )}
+          <PillLink href="/games/leaderboards" variant="outline" icon={Trophy}>Leaderboards</PillLink>
         </div>
+      </PageHero>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
-          {games.map((game) => {
-            const Icon = game.icon;
-            return (
-              <Link
-                key={game.id}
-                href={game.href}
-                className="group relative flex flex-col p-8 rounded-[2rem] bg-[#0c1222] border border-white/5 transition-all duration-500 hover:-translate-y-2 hover:rotate-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform-gpu"
-                style={{ transformStyle: 'preserve-3d' }}
-              >
-                {/* 3D Inner Glass Layer */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{ transform: 'translateZ(-10px)' }} />
-                
-                {/* Glowing Background Blur */}
-                <div className={`absolute -inset-1 bg-gradient-to-br ${game.color} opacity-0 group-hover:opacity-20 blur-2xl transition-opacity duration-500 rounded-[2rem] -z-10`} />
-                <div className={`absolute top-0 right-0 w-40 h-40 bg-gradient-to-br ${game.color} opacity-10 blur-3xl rounded-full -mr-10 -mt-10`} />
-                
-                <div className="relative z-10 flex flex-col h-full" style={{ transform: 'translateZ(20px)' }}>
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${game.color} p-[1px] mb-8 shadow-[0_0_20px_rgba(0,0,0,0.3)] group-hover:scale-110 transition-transform duration-500`}>
-                    <div className="w-full h-full bg-[#0c1222] rounded-2xl flex items-center justify-center">
-                      <Icon className="w-7 h-7 text-white" />
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70 transition-all">
-                    {game.title}
-                  </h3>
-                  
-                  <p className="text-white/60 text-sm leading-relaxed mb-6 flex-grow line-clamp-3 group-hover:text-white/80 transition-colors">
-                    {game.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {game.tags.map(tag => (
-                      <span key={tag} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-white/50 font-medium">
-                        {tag}
-                      </span>
+      <section className="px-5 md:px-10 pt-6">
+        <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {GAMES.map(({ title, description, tags, Icon, href }, i) => (
+            <Reveal key={href} delay={(i % 3) * 0.08}>
+              <Link href={href} className={`group h-full rounded-[2rem] p-8 flex flex-col min-h-[22rem] transition-transform duration-500 hover:-translate-y-1 ${i === 0 ? 'bg-lime text-ink' : 'bg-ink text-paper'}`}>
+                <div className="flex items-start justify-between">
+                  <span className={`w-14 h-14 rounded-2xl flex items-center justify-center ${i === 0 ? 'bg-ink text-lime' : 'bg-paper/10 text-lime'}`}>
+                    <Icon className="w-6 h-6" />
+                  </span>
+                  <span className="font-display font-bold opacity-50 tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                </div>
+                <h2 className="display text-4xl mt-10">{title}</h2>
+                <p className="mt-4 opacity-70 leading-relaxed flex-1">{description}</p>
+                <div className="flex items-center justify-between mt-8">
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <span key={tag} className="rounded-full border border-current/20 px-3 py-1 text-xs font-semibold">{tag}</span>
                     ))}
                   </div>
-
-                  <div className="flex items-center justify-between mt-auto">
-                    <span className="text-xs font-bold uppercase tracking-wider text-white/40 group-hover:text-white transition-colors">
-                      Enter Game
-                    </span>
-                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${game.color} flex items-center justify-center opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300`}>
-                      <Gamepad2 className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
+                  <span className={`w-11 h-11 rounded-full flex items-center justify-center group-hover:-rotate-45 transition-transform ${i === 0 ? 'bg-ink text-lime' : 'bg-lime text-ink'}`}>
+                    <ArrowUpRight className="w-5 h-5" />
+                  </span>
                 </div>
               </Link>
-            )
-          })}
+            </Reveal>
+          ))}
+          <div className="rounded-[2rem] border border-ink/15 p-8 flex flex-col justify-between min-h-[22rem]">
+            <Equalizer bars={6} className="h-8" />
+            <div>
+              <p className="display text-4xl">Monthly prizes.</p>
+              <p className="mt-4 text-smoke leading-relaxed">Top players each month win studio discounts and free sessions. Winners are confirmed by the studio and contacted by email.</p>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

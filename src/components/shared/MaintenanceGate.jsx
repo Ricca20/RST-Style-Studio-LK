@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from '@/i18n/routing';
-import { Wrench } from 'lucide-react';
+import Vinyl from '@/components/music/Vinyl';
 
 // Pages that must stay reachable during maintenance so staff can sign in.
 const ALWAYS_AVAILABLE = ['/login'];
@@ -18,14 +18,19 @@ export default function MaintenanceGate({ active, studioName, children }) {
   }
 
   return (
-    <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6 pt-32 pb-20">
-      <div className="w-16 h-16 rounded-full bg-rst-accent/20 border border-rst-accent/40 flex items-center justify-center mb-6">
-        <Wrench className="text-white" size={28} />
+    <section className="min-h-[80vh] flex items-center px-5 md:px-10 pt-32 pb-20">
+      <div className="max-w-7xl mx-auto w-full grid md:grid-cols-[1fr_auto] gap-12 items-center">
+        <div>
+          <p className="eyebrow text-smoke">Intermission</p>
+          <h1 className="display text-[clamp(3.5rem,11vw,9rem)] mt-4">Back after<br />the break.</h1>
+          <p className="mt-6 max-w-md text-lg text-smoke">
+            {studioName || 'RST Style Studio LK'} is tuning up with some scheduled maintenance. Please check back soon.
+          </p>
+        </div>
+        <div className="w-56 md:w-72 justify-self-center">
+          <Vinyl spinning label="RST" />
+        </div>
       </div>
-      <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">We&apos;ll be right back</h1>
-      <p className="text-white/60 max-w-md">
-        {studioName || 'RST Style Studio LK'} is undergoing scheduled maintenance. Please check back soon.
-      </p>
-    </div>
+    </section>
   );
 }

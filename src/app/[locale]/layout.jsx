@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import GlobalScene from '@/components/3d/GlobalScene';
 import GoogleAnalytics from '@/components/shared/GoogleAnalytics';
 import FacebookPixel from '@/components/shared/FacebookPixel';
 import HtmlLangSetter from '@/components/shared/HtmlLangSetter';
@@ -140,30 +139,28 @@ export default async function LocaleLayout({ children, params }) {
       <GoogleAnalytics gaId={gaId} />
       <FacebookPixel pixelId={pixelId} />
       <div
-        className={`flex min-h-screen flex-col text-white relative ${locale === 'si' ? 'font-[family-name:var(--font-noto-sinhala)]' : ''}`}
+        className={`flex min-h-screen flex-col bg-paper text-ink relative overflow-x-clip ${locale === 'si' ? 'font-[family-name:var(--font-noto-sinhala)]' : ''}`}
         style={accentColor ? { '--rst-accent': accentColor } : undefined}
+        data-motion={enableAnimations ? 'on' : 'off'}
       >
-        
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Global Sleek Aerospace Background & Ambient Glow */}
-        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#060913]">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#0ea5e9]/10 via-rst-accent/5 to-transparent rounded-full blur-[160px] opacity-70" />
-        </div>
-
-        {enableAnimations && <GlobalScene />}
-        <Navbar showLocaleSwitcher={showLocaleSwitcher} />
-        <main className="flex-1 relative z-20">
+        <Navbar
+          showLocaleSwitcher={showLocaleSwitcher}
+          bookingStatus={settings?.bookingStatus}
+          socials={footerInfo.socials}
+          email={footerInfo.email}
+        />
+        <main className="flex-1 relative">
           <MaintenanceGate active={maintenanceActive} studioName={settings?.name}>
             {children}
           </MaintenanceGate>
         </main>
-        <div className="relative z-20">
-          <Footer info={footerInfo} />
-        </div>
+        <Footer info={footerInfo} />
 
         {settings?.enableLiveChat && !maintenanceActive && (
           <WhatsAppChatButton phone={settings.whatsapp || settings.phone} studioName={settings.name} />

@@ -61,7 +61,7 @@ model StudioSettings {
   facebookPixelId   String?
 
   // Theme & Aesthetics
-  accentColor      String? @default("#9d2bee")
+  accentColor      String? @default("#d4ff3a")
   enableAnimations Boolean @default(true)
 
   // Advanced Integrations

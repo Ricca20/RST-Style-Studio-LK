@@ -50,8 +50,8 @@ export default function HeroVideo({ autoPlayWithSound = false }) {
         loop
         playsInline
         preload="auto"
-        className="w-full h-full object-contain md:object-cover"
-        poster="/logo.png"
+        className="w-full h-full object-cover"
+        poster="/images/hero-poster.jpg"
         src="/herovideo.mp4"
       />
       {autoPlayWithSound && (
@@ -59,7 +59,7 @@ export default function HeroVideo({ autoPlayWithSound = false }) {
           type="button"
           onClick={toggleSound}
           aria-label={isMuted ? 'Turn sound on' : 'Turn sound off'}
-          className="pointer-events-auto absolute bottom-28 right-6 z-30 w-12 h-12 rounded-full bg-black/50 border border-white/20 backdrop-blur flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+          className="pointer-events-auto absolute bottom-4 right-4 z-30 w-12 h-12 rounded-full bg-ink/70 backdrop-blur flex items-center justify-center text-paper hover:bg-lime hover:text-ink transition-colors"
         >
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>

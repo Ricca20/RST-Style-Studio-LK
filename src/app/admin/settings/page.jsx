@@ -62,7 +62,7 @@ export default async function AdminSettings() {
       googleAnalyticsId: formData.get('googleAnalyticsId') || '',
       facebookPixelId: formData.get('facebookPixelId') || '',
 
-      accentColor: formData.get('accentColor') || '#9d2bee',
+      accentColor: formData.get('accentColor') || '#d4ff3a',
       enableAnimations: formData.get('enableAnimations') === 'on',
 
       adminAlertEmail: formData.get('adminAlertEmail') || '',

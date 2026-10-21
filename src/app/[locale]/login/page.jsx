@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
+import Vinyl from '@/components/music/Vinyl';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -36,78 +37,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent flex items-center justify-center p-6">
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#0ea5e9]/10 rounded-full blur-[120px]" />
-      </div>
-
-      <div className="relative z-10 w-full max-w-md">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center gap-3 mb-6">
-            <img src="/logo.png" alt="Logo" className="h-12 w-12 rounded-full object-cover" />
-            <span className="text-white font-black text-2xl tracking-tighter">RST STUDIO</span>
-          </Link>
-          <h1 className="text-3xl font-bold text-white">Admin Portal</h1>
-          <p className="text-white/40 mt-2">Sign in to manage your studio productions.</p>
+    <section className="min-h-[85vh] px-5 md:px-10 pt-32 pb-16 flex items-center">
+      <div className="max-w-6xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+        <div className="hidden md:block">
+          <p className="eyebrow text-smoke">Backstage</p>
+          <h1 className="display text-[clamp(3.5rem,8vw,7rem)] mt-4">Studio<br />access.</h1>
+          <p className="mt-6 text-lg text-smoke max-w-sm">For the RST team and credited artists. Sign in to manage the studio or your artist profile.</p>
+          <div className="w-48 mt-10"><Vinyl spinning label="RST" /></div>
         </div>
 
-        <div className="glass-panel p-8 rounded-3xl border border-white/5 shadow-2xl">
-          <form onSubmit={handleLogin} className="space-y-6">
+        <div className="rounded-[2rem] bg-ink text-paper p-8 md:p-10">
+          <h2 className="display text-4xl md:hidden mb-2">Studio access.</h2>
+          <p className="eyebrow text-paper/50 mb-8">Sign in</p>
+          <form onSubmit={handleLogin} className="space-y-5">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm">
-                {error}
-              </div>
+              <div className="rounded-2xl bg-red-500/15 text-red-200 px-4 py-3 text-sm">{error}</div>
             )}
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-white/40 ml-1">
-                Email Address
-              </label>
+            <label className="block">
+              <span className="eyebrow block text-paper/60 mb-3">Email</span>
               <input
                 type="email"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-12 bg-[#1a151f] border border-[#334155] rounded-xl px-4 text-white placeholder-white/20 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-all"
-                placeholder="admin@rststudio.com"
+                className="w-full rounded-2xl bg-ink-2 border border-paper/10 px-5 py-3.5 text-paper placeholder:text-paper/30 focus:outline-none focus:border-lime transition-colors"
               />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-widest text-white/40 ml-1">
-                Password
-              </label>
+            </label>
+            <label className="block">
+              <span className="eyebrow block text-paper/60 mb-3">Password</span>
               <input
                 type="password"
                 required
+                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-12 bg-[#1a151f] border border-[#334155] rounded-xl px-4 text-white placeholder-white/20 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-all"
-                placeholder="••••••••"
+                className="w-full rounded-2xl bg-ink-2 border border-paper/10 px-5 py-3.5 text-paper placeholder:text-paper/30 focus:outline-none focus:border-lime transition-colors"
               />
-            </div>
-
+            </label>
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-12 bg-[#0ea5e9] hover:bg-[#0ea5e9]/90 text-white font-bold rounded-xl transition-all neon-glow flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-full bg-lime text-ink font-bold py-4 hover:brightness-95 transition disabled:opacity-50"
             >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                'Sign In'
-              )}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-        </div>
-
-        <div className="text-center mt-8">
-          <Link href="/" className="text-white/30 hover:text-white text-sm transition-colors flex items-center justify-center gap-2">
-            <span className="material-symbols-outlined text-base">arrow_back</span>
-            Back to Public Site
-          </Link>
+          <Link href="/" className="inline-block mt-8 text-sm text-paper/50 hover:text-paper transition-colors">← Back to the site</Link>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -12,7 +12,7 @@ export default function ArcadeRegisterButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#0ea5e9] to-rst-accent rounded-full text-white font-bold transition-transform hover:scale-105"
+        className="inline-flex items-center gap-2 px-6 py-3 bg-lime rounded-full text-ink font-bold transition-transform hover:scale-105"
       >
         <LogIn className="w-5 h-5" />
         Register to Play

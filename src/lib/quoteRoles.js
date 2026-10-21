@@ -28,3 +28,13 @@ export const QUOTE_ROLE_KEYS = QUOTE_ROLES.map((r) => r.key);
 export function quoteRole(key) {
   return QUOTE_ROLES.find((r) => r.key === key) || null;
 }
+
+/** Human-readable label for a credit role: known keys get their label, others are tidied (MIX_MASTER → Mix master). */
+export function roleLabel(role) {
+  if (!role) return '';
+  const known = quoteRole(role);
+  if (known) return known.label;
+  return /[A-Z]_|^[A-Z]+$/.test(role)
+    ? role.replace(/_/g, ' ').toLowerCase().replace(/^\w/, (c) => c.toUpperCase())
+    : role;
+}

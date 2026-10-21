@@ -159,7 +159,7 @@ export default function TheoryMasterGame() {
           onClick={() => playNotes(currentQ.audioNotes)}
           className="mb-8 flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-full text-white font-medium transition-colors"
         >
-          <Play className="w-5 h-5 text-[#0ea5e9]" /> Listen to Example
+          <Play className="w-5 h-5 text-lime" /> Listen to Example
         </button>
       )}
 
@@ -174,11 +174,11 @@ export default function TheoryMasterGame() {
           <button
             key={opt.id}
             onClick={() => handleAnswer(opt.id)}
-            className="w-full p-5 text-left bg-white/5 hover:bg-[#0ea5e9]/20 border border-white/10 hover:border-[#0ea5e9]/50 rounded-xl text-white font-medium transition-all group"
+            className="w-full p-5 text-left bg-white/5 hover:bg-lime/20 border border-white/10 hover:border-lime/50 rounded-xl text-white font-medium transition-all group"
           >
             <div className="flex items-center justify-between">
               <span>{opt.textEn}</span>
-              <div className="w-5 h-5 rounded-full border-2 border-white/20 group-hover:border-[#0ea5e9] transition-colors" />
+              <div className="w-5 h-5 rounded-full border-2 border-white/20 group-hover:border-lime transition-colors" />
             </div>
           </button>
         ))}

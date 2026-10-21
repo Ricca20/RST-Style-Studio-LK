@@ -252,7 +252,7 @@ export default function PitchMatchGame() {
   if (phase === 'intro') {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white/5 border border-white/10 rounded-2xl w-full max-w-2xl mx-auto text-center">
-        <Mic className="w-16 h-16 text-[#0ea5e9] mb-4" />
+        <Mic className="w-16 h-16 text-lime mb-4" />
         <h2 className="text-3xl font-bold text-white mb-4">Pitch Match</h2>
         <p className="text-white/70 mb-8 max-w-md">
           Listen to the target pitch and try to match it using your voice. Don&apos;t have a mic? Use the manual slider instead!
@@ -270,7 +270,7 @@ export default function PitchMatchGame() {
 
         <button
           onClick={startGame}
-          className="px-8 py-4 bg-gradient-to-r from-[#0ea5e9] to-rst-accent hover:scale-105 transition-transform rounded-xl font-bold text-white shadow-lg shadow-[#0ea5e9]/20"
+          className="px-8 py-4 bg-lime hover:scale-105 transition-transform rounded-xl font-bold text-ink "
         >
           Start Playing
         </button>
@@ -291,7 +291,7 @@ export default function PitchMatchGame() {
         </div>
         <div className="text-right">
           <span className="text-xs text-white/50 uppercase block mb-1">Score</span>
-          <span className="text-xl font-bold text-[#0ea5e9]">{totalScore}</span>
+          <span className="text-xl font-bold text-lime">{totalScore}</span>
         </div>
       </div>
 
@@ -300,10 +300,10 @@ export default function PitchMatchGame() {
           onClick={playTargetPitch}
           disabled={isPlayingTarget}
           className={`w-32 h-32 rounded-full flex items-center justify-center border-4 mb-4 transition-all ${
-            isPlayingTarget ? 'bg-[#0ea5e9]/20 border-[#0ea5e9] scale-110 shadow-[0_0_30px_rgba(14,165,233,0.5)]' : 'bg-white/5 border-white/20 hover:border-[#0ea5e9]/50 hover:bg-white/10'
+            isPlayingTarget ? 'bg-lime/20 border-lime scale-110 ' : 'bg-white/5 border-white/20 hover:border-lime/50 hover:bg-white/10'
           }`}
         >
-          <Play className={`w-12 h-12 ${isPlayingTarget ? 'text-[#0ea5e9]' : 'text-white/80'}`} />
+          <Play className={`w-12 h-12 ${isPlayingTarget ? 'text-lime' : 'text-white/80'}`} />
         </button>
         <span className="text-white/50">Play Target Pitch</span>
       </div>
@@ -324,7 +324,7 @@ export default function PitchMatchGame() {
         {currentFreq > 0 && (
           <div className="w-full mt-8 h-4 bg-white/10 rounded-full relative overflow-hidden">
             <div
-              className="absolute h-full w-2 bg-[#0ea5e9] rounded-full transition-all duration-100 ease-out"
+              className="absolute h-full w-2 bg-lime rounded-full transition-all duration-100 ease-out"
               style={{ left: `${Math.max(0, Math.min(100, 50 + ((currentFreq - targetFreq) / targetFreq) * 100))}%` }}
             />
             <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/50 -translate-x-1/2" />
@@ -344,7 +344,7 @@ export default function PitchMatchGame() {
               currentFreqRef.current = parseInt(e.target.value, 10);
               setCurrentFreq(currentFreqRef.current);
             }}
-            className="w-full accent-[#0ea5e9]"
+            className="w-full accent-lime"
           />
         </div>
       )}

@@ -1,16 +1,71 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { CheckCircle2, ChevronRight, MessageCircle, Music, X, Paperclip, DollarSign, Guitar } from 'lucide-react';
+import { Check, MessageCircle, X, Paperclip, ArrowLeft, ArrowRight } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/services/whatsapp';
 import { calculateBudgetEstimate } from '@/lib/utils/budget';
+import { CORE_ROLES, INSTRUMENT_ROLES } from '@/lib/quoteRoles';
 import BookingStatusNotice from '@/components/public/BookingStatusNotice';
-import TiltCard from '@/components/ui/TiltCard';
-import Scroll3DWrapper from '@/components/ui/Scroll3DWrapper';
-import { CORE_ROLES as ROLE_ORDER, INSTRUMENT_ROLES } from '@/lib/quoteRoles';
-
+import PageHero from '@/components/music/PageHero';
+import Equalizer from '@/components/music/Equalizer';
+import Waveform from '@/components/music/Waveform';
+import Vinyl from '@/components/music/Vinyl';
+import PillLink from '@/components/music/PillLink';
 
 const GENRES = ['Pop', 'Classical', 'Hip-Hop', 'R&B', 'Rock', 'Jazz', 'EDM', 'Baila', 'Sinhala Folk', 'Bollywood', 'Lo-Fi', 'Acoustic', 'Other'];
+const STEPS = ['Core team', 'Instruments', 'Your song', 'Contact'];
+const inputClass = 'w-full rounded-2xl border border-ink/15 bg-paper px-5 py-3.5 placeholder:text-smoke focus:outline-none focus:border-ink transition-colors';
+const formatRs = (n) => `Rs ${Math.round(n).toLocaleString()}`;
+
+function PersonCard({ person, selected, onSelect }) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`relative text-left rounded-2xl p-4 border transition-colors flex items-center gap-4 w-full ${selected ? 'bg-ink text-paper border-ink' : 'bg-paper border-ink/10 hover:border-ink/40'}`}
+    >
+      <span className="relative w-12 h-12 rounded-full overflow-hidden bg-ink shrink-0">
+        {person.imageUrl ? (
+          <Image src={person.imageUrl} alt="" fill sizes="48px" className="object-cover" />
+        ) : (
+          <span className="absolute inset-0.5"><Vinyl label={person.name.charAt(0)} /></span>
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-bold truncate">{person.name}</span>
+        <span className={`block text-sm font-semibold tabular-nums ${selected ? 'text-lime' : 'text-smoke'}`}>{formatRs(person.price)}</span>
+      </span>
+      <span className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border ${selected ? 'bg-lime text-ink border-lime' : 'border-ink/20'}`}>
+        {selected && <Check className="w-4 h-4" />}
+      </span>
+    </button>
+  );
+}
+
+function RoleGroup({ role, people, selected, onSelect, emptyText }) {
+  return (
+    <div className="py-8 border-b border-ink/10 first:pt-0">
+      <div className="flex items-center gap-4 mb-5">
+        <span className="text-2xl" aria-hidden="true">{role.emoji}</span>
+        <div>
+          <h3 className="font-display font-bold text-2xl">{role.label}</h3>
+          {role.description && <p className="text-sm text-smoke">{role.description}</p>}
+        </div>
+      </div>
+      {people.length > 0 ? (
+        <div className="grid sm:grid-cols-2 gap-3">
+          {people.map((person) => (
+            <PersonCard key={person.id} person={person} selected={selected?.id === person.id} onSelect={() => onSelect(role.key, person, role.label)} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-smoke italic">{emptyText}</p>
+      )}
+    </div>
+  );
+}
 
 export default function QuoteClient() {
   const tQuote = useTranslations('Quote');
@@ -20,6 +75,7 @@ export default function QuoteClient() {
   const [settings, setSettings] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Selections: { [role]: { id, name, role, roleLabel, price } }
   const [selections, setSelections] = useState({});
@@ -47,13 +103,12 @@ export default function QuoteClient() {
     minimumBudget,
   });
   const contactPhone = settings?.whatsapp || settings?.phone || null;
-  const [submitError, setSubmitError] = useState('');
+  const team = Object.values(selections);
 
   const handleSelectPerson = (role, person, roleLabel) => {
     setSelections(prev => {
-      const current = prev[role];
-      // Toggle off if same person clicked
-      if (current && current.id === person.id) {
+      // Toggle off if the same person is clicked again
+      if (prev[role]?.id === person.id) {
         const next = { ...prev };
         delete next[role];
         return next;
@@ -73,15 +128,16 @@ export default function QuoteClient() {
     setAttachmentUrls(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleNext = () => setStep(s => Math.min(s + 1, 4));
-  const handlePrev = () => setStep(s => Math.max(s - 1, 1));
+  const goTo = (n) => {
+    setStep(Math.min(Math.max(n, 1), STEPS.length));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const submitQuote = async () => {
     if (!name.trim() || !phone.trim() || belowMinimum) return;
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const selectionsArr = Object.values(selections);
       const res = await fetch('/api/quotations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -89,7 +145,7 @@ export default function QuoteClient() {
           name, phone, email,
           description,
           genre,
-          selections: selectionsArr,
+          selections: team,
           attachments: attachmentUrls,
           estimatedBudget: totalBudget
         })
@@ -108,375 +164,219 @@ export default function QuoteClient() {
   };
 
   const openWhatsApp = () => {
-    const selectionsArr = Object.values(selections);
-    const teamList = selectionsArr.map(s => `• ${s.roleLabel}: ${s.name} (Rs ${s.price?.toLocaleString()})`).join('\n');
-    const message = `Hello RST Style Studio!\n\nI am *${name}*.\n\n*Genre:* ${genre || 'Not specified'}\n\n*My Team:*\n${teamList}\n\n*Estimated Budget:* Rs ${minBudget.toLocaleString()} - Rs ${maxBudget.toLocaleString()}\n\n*Description:*\n${description || 'N/A'}\n\nPlease get back to me at ${phone}.`;
     if (!contactPhone) return;
-    const waUrl = buildWhatsAppUrl(contactPhone, message);
-    window.open(waUrl, '_blank');
+    const teamList = team.map(s => `• ${s.roleLabel}: ${s.name} (Rs ${s.price?.toLocaleString()})`).join('\n');
+    const message = `Hello RST Style Studio!\n\nI am *${name}*.\n\n*Genre:* ${genre || 'Not specified'}\n\n*My Team:*\n${teamList}\n\n*Estimated Budget:* Rs ${minBudget.toLocaleString()} - Rs ${maxBudget.toLocaleString()}\n\n*Description:*\n${description || 'N/A'}\n\nPlease get back to me at ${phone}.`;
+    window.open(buildWhatsAppUrl(contactPhone, message), '_blank');
   };
 
-  // Success screen
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-transparent py-32 px-4 flex items-center justify-center relative overflow-hidden">
-        {/* Glow effect */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#0ea5e9]/20 rounded-full blur-[120px] pointer-events-none" />
-        
-        <div className="max-w-lg w-full bg-black/40 backdrop-blur-xl border border-white/5 rounded-3xl p-10 text-center relative z-10 shadow-2xl">
-          <div className="w-24 h-24 bg-[#0ea5e9]/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(14, 165, 233,0.3)]">
-            <CheckCircle2 className="w-12 h-12 text-[#0ea5e9]" />
+      <section className="min-h-[80vh] flex items-center px-5 md:px-10 pt-32 pb-20">
+        <div className="max-w-7xl mx-auto w-full grid md:grid-cols-[1fr_auto] gap-12 items-center">
+          <div>
+            <p className="eyebrow text-smoke">Request received</p>
+            <h1 className="display text-[clamp(3.5rem,10vw,8rem)] mt-4">That&apos;s<br />a wrap, {name.split(' ')[0]}.</h1>
+            <p className="mt-6 max-w-lg text-lg text-smoke">
+              Your estimate is <strong className="text-ink">{formatRs(minBudget)} – {formatRs(maxBudget)}</strong>. We&apos;ll review your request and get back to you soon.
+            </p>
+            <div className="flex flex-wrap gap-3 mt-8">
+              {contactPhone && (
+                <button onClick={openWhatsApp} className="inline-flex items-center gap-2 rounded-full bg-[#25D366] text-white px-6 py-3.5 text-sm font-bold hover:brightness-95 transition">
+                  <MessageCircle className="w-5 h-5" /> Also send via WhatsApp
+                </button>
+              )}
+              <PillLink href="/songs" variant="outline">Listen while you wait</PillLink>
+            </div>
           </div>
-          <h1 className="text-4xl font-black text-white mb-4">Request Submitted!</h1>
-          <p className="text-white/60 text-lg mb-8 leading-relaxed">
-            Thank you, <strong className="text-white">{name}</strong>! We have received your quotation request with an estimated budget range of <strong className="text-[#0ea5e9]">Rs {minBudget.toLocaleString()} – Rs {maxBudget.toLocaleString()}</strong>.
-            Our team will review and get back to you soon.
-          </p>
-          {contactPhone && <button
-            onClick={openWhatsApp}
-            className="w-full bg-[#25D366] hover:bg-[#20b858] text-white px-8 py-4 rounded-xl font-bold transition flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(37,211,102,0.3)]"
-          >
-            <MessageCircle className="w-6 h-6" /> Also Send via WhatsApp
-          </button>}
+          <div className="w-56 md:w-80 justify-self-center"><Vinyl spinning label="RST" /></div>
         </div>
-      </div>
+      </section>
     );
   }
 
+  const hasInstruments = INSTRUMENT_ROLES.some(r => collaboratorsByRole[r.key]?.length);
+
   return (
-    <div className="min-h-screen bg-transparent pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-[400px] bg-[#0ea5e9]/10 rounded-full blur-[150px] pointer-events-none" />
-      <Scroll3DWrapper intensity={0.2} className="relative z-10 w-full">
-        <main className="max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">{tQuote('title') || 'Build Your Song'}</h1>
-          <p className="text-white/50 text-lg max-w-2xl mx-auto font-light">Choose your team, pick your genre, describe your vision — and get an instant price estimate.</p>
-        </div>
+    <>
+      <PageHero
+        label={tQuote('title')}
+        title={['Build your', 'track.']}
+        intro="Choose your team, tell us about the song and get an instant estimate. Nothing is booked until we've talked it through with you."
+        seed={61}
+      />
 
-        {/* Steps Indicator */}
-        <div className="flex justify-between items-center mb-12 relative max-w-xl mx-auto">
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[2px] bg-white/10 z-0"></div>
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-[#0ea5e9] z-0 transition-all duration-500 shadow-[0_0_10px_rgba(14, 165, 233,0.8)]" style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
-          {['Core Team', 'Instruments', 'Details', 'Submit'].map((label, i) => (
-            <div key={i} className="relative z-10 flex flex-col items-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${step > i + 1 ? 'bg-[#0ea5e9] text-white shadow-[0_0_15px_rgba(14, 165, 233,0.5)]' : step === i + 1 ? 'bg-[#1e293b] border-2 border-[#0ea5e9] text-[#0ea5e9]' : 'bg-[#1a151f] text-white/30 border border-white/10'}`}>
-                {step > i + 1 ? <CheckCircle2 className="w-5 h-5" /> : i + 1}
-              </div>
-              <span className={`text-xs mt-3 hidden sm:block font-medium tracking-wide uppercase ${step >= i + 1 ? 'text-[#0ea5e9]' : 'text-white/30'}`}>{label}</span>
-            </div>
-          ))}
-        </div>
+      <section className="px-5 md:px-10 pt-4">
+        <div className="max-w-7xl mx-auto">
+          <BookingStatusNotice status={settings?.bookingStatus} className="mb-8" />
 
-        {/* Floating Budget Bar */}
-        <div className="sticky top-20 z-30 mb-8">
-          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl px-6 py-4 flex items-center justify-between max-w-xl mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-[#0ea5e9]/20 flex items-center justify-center border border-[#0ea5e9]/30">
-                <DollarSign className="w-6 h-6 text-[#0ea5e9]" />
-              </div>
-              <div>
-                <p className="text-xs text-white/50 font-bold uppercase tracking-widest mb-1">Estimated Budget</p>
-                <p className="text-2xl font-black text-white">Rs {totalBudget > 0 ? `${minBudget.toLocaleString()} – ${maxBudget.toLocaleString()}` : '0'}</p>
-              </div>
-            </div>
-            <span className="text-xs font-bold text-white/40 bg-white/5 px-3 py-1.5 rounded-full">{Object.keys(selections).length} selected</span>
-          </div>
-        </div>
+          {/* Step tabs */}
+          <ol className="flex flex-wrap gap-2 mb-10">
+            {STEPS.map((label, i) => {
+              const n = i + 1;
+              return (
+                <li key={label}>
+                  <button
+                    type="button"
+                    onClick={() => goTo(n)}
+                    aria-current={step === n ? 'step' : undefined}
+                    className={`inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold border transition-colors ${step === n ? 'bg-ink text-paper border-ink' : step > n ? 'border-ink/30' : 'border-ink/10 text-smoke hover:border-ink/40'}`}
+                  >
+                    <span className="font-display font-bold tabular-nums">{String(n).padStart(2, '0')}</span>
+                    {label}
+                    {step > n && <Check className="w-3.5 h-3.5" />}
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
 
-        <BookingStatusNotice status={settings?.bookingStatus} className="max-w-xl mx-auto mb-8" />
-
-        {/* Form Container */}
-        <div className="bg-black/40 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/5 p-8 md:p-12 min-h-[450px] flex flex-col relative">
-
-          {/* Step 1: Core Roles */}
-          {step === 1 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-3xl font-black text-white mb-2 tracking-tight">1. Choose Your Core Team</h2>
-              <p className="text-white/50 mb-10 text-lg font-light">Select one person for each vital production role.</p>
-
-              <div className="space-y-10">
-                {ROLE_ORDER.map(role => {
-                  const people = collaboratorsByRole[role.key] || [];
-                  const selected = selections[role.key];
-                  return (
-                    <div key={role.key} className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl border border-white/10 shadow-inner">
-                          {role.emoji}
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold text-white tracking-tight">{role.label}</h3>
-                          <p className="text-sm text-white/50">{role.description}</p>
-                        </div>
-                      </div>
-                      {people.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {people.map(person => {
-                            const isSelected = selected?.id === person.id;
-                            return (
-                              <TiltCard key={person.id}>
-                                <button
-                                  type="button"
-                                  onClick={() => handleSelectPerson(role.key, person, role.label)}
-                                  className={`relative text-left p-4 rounded-xl border transition-all duration-300 h-full w-full block ${isSelected ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 shadow-[0_0_20px_rgba(14, 165, 233,0.15)]' : 'border-white/10 bg-black/40 backdrop-blur-sm hover:border-white/30 hover:bg-white/5'}`}
-                                >
-                                  <div className="flex items-center gap-4">
-                                    {person.imageUrl ? (
-                                      <img src={person.imageUrl} alt="" className="w-12 h-12 rounded-full object-cover ring-2 ring-white/10" />
-                                    ) : (
-                                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0ea5e9] to-purple-800 flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/10">
-                                        {person.name.charAt(0).toUpperCase()}
-                                      </div>
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                      <p className="font-bold text-white truncate text-base">{person.name}</p>
-                                      <p className="text-sm font-bold text-[#0ea5e9] mt-0.5">Rs {person.price.toLocaleString()}</p>
-                                    </div>
-                                  </div>
-                                  {isSelected && (
-                                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#0ea5e9] rounded-full flex items-center justify-center shadow-lg"><CheckCircle2 className="w-4 h-4 text-white" /></div>
-                                  )}
-                                </button>
-                              </TiltCard>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-white/30 italic pl-16">No {role.label.toLowerCase()} available at the moment.</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Live Instruments */}
-          {step === 2 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-3xl font-black text-white mb-2 tracking-tight">2. Add Live Instruments <span className="text-white/30 font-normal">(Optional)</span></h2>
-              <p className="text-white/50 mb-10 text-lg font-light">Choose session musicians for the instruments you need. Skip if not needed.</p>
-
-              <div className="space-y-10">
-                {INSTRUMENT_ROLES.map(role => {
-                  const people = collaboratorsByRole[role.key] || [];
-                  if (people.length === 0) return null;
-                  const selected = selections[role.key];
-                  return (
-                    <div key={role.key} className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-2xl border border-white/10 shadow-inner">
-                          {role.emoji}
-                        </div>
-                        <h3 className="text-xl font-bold text-white tracking-tight">{role.label}</h3>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {people.map(person => {
-                          const isSelected = selected?.id === person.id;
-                          return (
-                            <TiltCard key={person.id}>
-                              <button
-                                type="button"
-                                onClick={() => handleSelectPerson(role.key, person, role.label)}
-                                className={`relative text-left p-4 rounded-xl border transition-all duration-300 block w-full h-full ${isSelected ? 'border-[#0ea5e9] bg-[#0ea5e9]/10 shadow-[0_0_20px_rgba(14, 165, 233,0.15)]' : 'border-white/10 bg-black/40 backdrop-blur-sm hover:border-white/30 hover:bg-white/5'}`}
-                              >
-                                <div className="flex items-center gap-4">
-                                  {person.imageUrl ? (
-                                    <img src={person.imageUrl} alt="" className="w-12 h-12 rounded-full object-cover ring-2 ring-white/10" />
-                                  ) : (
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-[#0ea5e9] flex items-center justify-center text-white font-bold text-lg ring-2 ring-white/10">
-                                      <Guitar className="w-6 h-6" />
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <p className="font-bold text-white truncate text-base">{person.name}</p>
-                                    <p className="text-sm font-bold text-[#0ea5e9] mt-0.5">Rs {person.price.toLocaleString()}</p>
-                                  </div>
-                                </div>
-                                {isSelected && (
-                                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#0ea5e9] rounded-full flex items-center justify-center shadow-lg"><CheckCircle2 className="w-4 h-4 text-white" /></div>
-                                )}
-                              </button>
-                            </TiltCard>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-                {INSTRUMENT_ROLES.every(r => !(collaboratorsByRole[r.key]?.length)) && (
-                  <div className="text-center py-20 bg-white/5 rounded-2xl border border-white/5">
-                    <Music className="w-16 h-16 mx-auto mb-4 text-white/20" />
-                    <p className="text-lg font-medium text-white/60 mb-2">No live instrument players available.</p>
-                    <p className="text-sm text-white/40">You can proceed to the next step.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Description, Genre, Attachments */}
-          {step === 3 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-3xl font-black text-white mb-2 tracking-tight">3. Tell Us About Your Song</h2>
-              <p className="text-white/50 mb-10 text-lg font-light">Describe your vision, pick a genre, and attach any reference materials.</p>
-
-              <div className="space-y-8">
-                <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                  <label className="block text-sm font-bold text-white uppercase tracking-widest mb-4">Preferred Genre</label>
-                  <div className="flex flex-wrap gap-3">
-                    {GENRES.map(g => (
-                      <button
-                        key={g}
-                        type="button"
-                        onClick={() => setGenre(genre === g ? '' : g)}
-                        className={`px-5 py-2.5 rounded-full text-sm font-bold border transition-all duration-300 ${genre === g ? 'bg-[#0ea5e9] border-[#0ea5e9] text-white shadow-[0_0_15px_rgba(14, 165, 233,0.4)]' : 'bg-black/40 backdrop-blur-sm border-white/10 text-white/70 hover:border-white/30 hover:text-white'}`}
-                      >
-                        {g}
-                      </button>
-                    ))}
-                  </div>
+          <div className="grid lg:grid-cols-[1fr_24rem] gap-10 items-start">
+            {/* Steps */}
+            <div className="min-w-0">
+              {step === 1 && (
+                <div>
+                  <h2 className="display text-4xl md:text-5xl mb-2">Pick your core team.</h2>
+                  <p className="text-smoke mb-10">One person for each role. Tap again to deselect.</p>
+                  {CORE_ROLES.map(role => (
+                    <RoleGroup key={role.key} role={role} people={collaboratorsByRole[role.key] || []} selected={selections[role.key]} onSelect={handleSelectPerson} emptyText={`No ${role.label.toLowerCase()} available at the moment.`} />
+                  ))}
                 </div>
+              )}
 
-                <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                  <label className="block text-sm font-bold text-white uppercase tracking-widest mb-4">Song Description</label>
-                  <textarea
-                    rows="5"
-                    value={description}
-                    onChange={e => setDescription(e.target.value)}
-                    placeholder="Describe the mood, theme, lyrics idea, reference songs, or anything else about your vision..."
-                    className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] resize-y transition-colors"
-                  />
+              {step === 2 && (
+                <div>
+                  <h2 className="display text-4xl md:text-5xl mb-2">Add live instruments.</h2>
+                  <p className="text-smoke mb-10">Optional session players. Skip ahead if you don&apos;t need any.</p>
+                  {hasInstruments ? (
+                    INSTRUMENT_ROLES.filter(r => collaboratorsByRole[r.key]?.length).map(role => (
+                      <RoleGroup key={role.key} role={role} people={collaboratorsByRole[role.key]} selected={selections[role.key]} onSelect={handleSelectPerson} />
+                    ))
+                  ) : (
+                    <div className="rounded-[2rem] bg-paper-2 p-10 text-center">
+                      <Equalizer bars={5} className="h-8 mx-auto" playing={false} />
+                      <p className="font-display font-bold text-2xl mt-5">No session players listed yet.</p>
+                      <p className="text-smoke mt-2">You can continue to the next step.</p>
+                    </div>
+                  )}
                 </div>
+              )}
 
-                <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
-                  <label className="block text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2">
-                    <Paperclip className="w-4 h-4 text-[#0ea5e9]" /> Attachments <span className="text-white/30 font-normal lowercase tracking-normal">(links to files, voice notes)</span>
+              {step === 3 && (
+                <div className="space-y-10">
+                  <div>
+                    <h2 className="display text-4xl md:text-5xl mb-2">Tell us about your song.</h2>
+                    <p className="text-smoke">The mood, the story, the songs you love. Anything helps.</p>
+                  </div>
+                  <div>
+                    <p className="eyebrow mb-4">Genre</p>
+                    <div className="flex flex-wrap gap-2">
+                      {GENRES.map(g => (
+                        <button key={g} type="button" onClick={() => setGenre(genre === g ? '' : g)} aria-pressed={genre === g}
+                          className={`rounded-full px-4 py-2 text-sm font-semibold border transition-colors ${genre === g ? 'bg-ink text-paper border-ink' : 'border-ink/15 hover:border-ink/50'}`}>
+                          {g}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <label className="block">
+                    <span className="eyebrow block mb-4">Description</span>
+                    <textarea rows="6" value={description} onChange={e => setDescription(e.target.value)} className={`${inputClass} resize-y`}
+                      placeholder="Describe the mood, theme, lyric ideas, reference songs…" />
                   </label>
-                  <div className="flex gap-3 mb-4">
-                    <input
-                      type="text"
-                      value={attachmentInput}
-                      onChange={e => setAttachmentInput(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addAttachment())}
-                      placeholder="Paste a link (Google Drive, Dropbox, etc.)"
-                      className="flex-1 bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors"
-                    />
-                    <button type="button" onClick={addAttachment} className="bg-[#0ea5e9] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0ea5e9]/90 transition-colors">Add</button>
+                  <div>
+                    <span className="eyebrow mb-4 flex items-center gap-2"><Paperclip className="w-3.5 h-3.5" /> Attachments <span className="normal-case tracking-normal font-normal text-smoke">(links to demos, voice notes, references)</span></span>
+                    <div className="flex gap-3">
+                      <input type="url" value={attachmentInput} onChange={e => setAttachmentInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addAttachment(); } }}
+                        placeholder="Paste a Google Drive, Dropbox or YouTube link" className={inputClass} />
+                      <button type="button" onClick={addAttachment} className="rounded-full bg-ink text-paper px-6 font-bold hover:bg-ink-2 transition-colors">Add</button>
+                    </div>
+                    {attachmentUrls.length > 0 && (
+                      <ul className="mt-3 space-y-2">
+                        {attachmentUrls.map((att, i) => (
+                          <li key={i} className="flex items-center justify-between gap-4 rounded-2xl bg-paper-2 px-5 py-3 text-sm">
+                            <span className="truncate">{att.url}</span>
+                            <button type="button" onClick={() => removeAttachment(i)} aria-label="Remove link" className="w-8 h-8 rounded-full hover:bg-ink hover:text-paper flex items-center justify-center shrink-0 transition-colors"><X className="w-4 h-4" /></button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-2 mt-2">
-                    {attachmentUrls.map((att, i) => (
-                      <div key={i} className="flex items-center justify-between bg-black/40 backdrop-blur-sm px-5 py-3 rounded-xl border border-white/10 text-sm">
-                        <span className="text-[#0ea5e9] truncate flex-1 mr-4">{att.url}</span>
-                        <button onClick={() => removeAttachment(i)} className="text-red-400 hover:text-red-500 shrink-0 p-1 bg-white/5 rounded-md hover:bg-white/10 transition-colors"><X className="w-4 h-4" /></button>
-                      </div>
-                    ))}
+                </div>
+              )}
+
+              {step === 4 && (
+                <div>
+                  <h2 className="display text-4xl md:text-5xl mb-2">Where can we reach you?</h2>
+                  <p className="text-smoke mb-10">We&apos;ll reply with a confirmed price and schedule.</p>
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <label className="block">
+                      <span className="eyebrow block mb-3">Your name *</span>
+                      <input type="text" value={name} onChange={e => setName(e.target.value)} className={inputClass} autoComplete="name" />
+                    </label>
+                    <label className="block">
+                      <span className="eyebrow block mb-3">Phone (WhatsApp) *</span>
+                      <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+94 7X XXX XXXX" className={inputClass} autoComplete="tel" />
+                    </label>
+                    <label className="block md:col-span-2">
+                      <span className="eyebrow block mb-3">Email <span className="normal-case tracking-normal font-normal text-smoke">(optional)</span></span>
+                      <input type="email" value={email} onChange={e => setEmail(e.target.value)} className={inputClass} autoComplete="email" />
+                    </label>
                   </div>
+                  {belowMinimum && (
+                    <p className="mt-6 rounded-2xl bg-amber-100 text-amber-900 px-5 py-4 text-sm">
+                      Our minimum project budget is {formatRs(minimumBudget)}. Please add more to your team to submit this request.
+                    </p>
+                  )}
+                  {submitError && <p className="mt-6 rounded-2xl bg-red-100 text-red-900 px-5 py-4 text-sm">{submitError}</p>}
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Step 4: Contact & Submit */}
-          {step === 4 && (
-            <div className="flex-1 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <h2 className="text-3xl font-black text-white mb-2 tracking-tight">4. Almost Done!</h2>
-              <p className="text-white/50 mb-10 text-lg font-light">Enter your contact details so we can reach you.</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-white uppercase tracking-widest pl-1">Your Name *</label>
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Kasun" className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-bold text-white uppercase tracking-widest pl-1">Phone (WhatsApp) *</label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+94 77..." className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
-                </div>
-                <div className="md:col-span-2 space-y-2">
-                  <label className="block text-sm font-bold text-white uppercase tracking-widest pl-1">Email <span className="text-white/30 normal-case tracking-normal font-normal">(Optional)</span></label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" className="w-full bg-black/40 backdrop-blur-sm border-white/10 border rounded-xl px-5 py-4 text-white placeholder-white/30 focus:outline-none focus:border-[#0ea5e9] focus:ring-1 focus:ring-[#0ea5e9] transition-colors" />
-                </div>
-              </div>
-
-              {/* Summary */}
-              <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-8 border border-[#0ea5e9]/30 shadow-[0_0_30px_rgba(14, 165, 233,0.1)] relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#0ea5e9]/10 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none" />
-                
-                <h3 className="font-black text-xl text-white mb-6 flex items-center gap-2 tracking-tight">
-                  <span className="material-symbols-outlined text-[#0ea5e9]">receipt_long</span> 
-                  Your Quotation Summary
-                </h3>
-                
-                {Object.values(selections).length > 0 ? (
-                  <div className="space-y-3 mb-6">
-                    {Object.values(selections).map((sel, i) => (
-                      <div key={i} className="flex justify-between items-center text-sm bg-black/40 border border-white/5 px-4 py-3 rounded-xl">
-                        <span className="text-white/80 font-medium"><strong className="text-white">{sel.roleLabel}</strong> — {sel.name}</span>
-                        <span className="font-bold text-[#0ea5e9] bg-[#0ea5e9]/10 px-3 py-1 rounded-full">Rs {sel.price?.toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
+              {/* Navigation */}
+              <div className="flex items-center justify-between gap-4 mt-12 pt-8 border-t border-ink/10">
+                <button type="button" onClick={() => goTo(step - 1)} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-bold hover:bg-ink/5 transition-colors ${step === 1 ? 'invisible' : ''}`}>
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </button>
+                {step < STEPS.length ? (
+                  <button type="button" onClick={() => goTo(step + 1)} className="group inline-flex items-center gap-3 rounded-full bg-ink text-paper pl-6 pr-1.5 py-1.5 text-sm font-bold hover:bg-ink-2 transition-colors">
+                    Next: {STEPS[step]}
+                    <span className="w-9 h-9 rounded-full bg-lime text-ink flex items-center justify-center group-hover:-rotate-45 transition-transform"><ArrowRight className="w-4 h-4" /></span>
+                  </button>
                 ) : (
-                  <div className="text-center py-6 bg-white/5 rounded-xl border border-white/5 mb-6">
-                    <p className="text-white/40 font-medium">No team members selected.</p>
-                  </div>
+                  <button type="button" onClick={submitQuote} disabled={!name.trim() || !phone.trim() || isSubmitting || belowMinimum}
+                    className="group inline-flex items-center gap-3 rounded-full bg-lime text-ink pl-6 pr-1.5 py-1.5 text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed">
+                    {isSubmitting ? 'Sending…' : 'Send my request'}
+                    <span className="w-9 h-9 rounded-full bg-ink text-lime flex items-center justify-center"><ArrowRight className="w-4 h-4" /></span>
+                  </button>
                 )}
-                
-                
-                {genre && <div className="inline-block bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm mb-6"><strong className="text-white mr-2">Genre:</strong>{genre}</div>}
-                {tax > 0 && (
-                  <p className="text-sm text-white/50 mt-4">Includes Rs {tax.toLocaleString()} tax ({settings.taxRate}%).</p>
-                )}
-                <div className="flex items-center justify-between bg-black/40 backdrop-blur-md rounded-xl p-6 border-l-4 border-l-[#0ea5e9] mt-4 shadow-inner">
-                  <span className="text-white/60 text-sm font-bold uppercase tracking-widest">Estimated Range</span>
-                  <span className="text-4xl font-black text-white">Rs {totalBudget > 0 ? `${minBudget.toLocaleString()} – ${maxBudget.toLocaleString()}` : '0'}</span>
-                </div>
-                {belowMinimum && (
-                  <p className="text-sm text-amber-300 mt-4">
-                    Our minimum project budget is Rs {minimumBudget.toLocaleString()}. Please add more to your team to submit this request.
-                  </p>
-                )}
-                {submitError && <p className="text-sm text-red-400 mt-4">{submitError}</p>}
               </div>
             </div>
-          )}
 
-          {/* Navigation Controls */}
-          <div className="pt-8 mt-12 border-t border-white/10 flex items-center justify-between">
-            <button
-              onClick={handlePrev}
-              className={`px-6 py-3 font-bold uppercase tracking-wider rounded-xl text-white/50 hover:text-white hover:bg-white/5 transition-colors ${step === 1 ? 'invisible' : 'visible'}`}
-            >
-              Back
-            </button>
+            {/* Master bus: running summary */}
+            <aside className="lg:sticky lg:top-28 rounded-[2rem] bg-ink text-paper p-7">
+              <p className="eyebrow text-paper/50 flex items-center gap-2"><Equalizer bars={4} className="h-3 text-lime" playing={team.length > 0} /> Master bus</p>
+              <p className="display text-4xl mt-5 tabular-nums">
+                {totalBudget > 0 ? <>{formatRs(minBudget)}<span className="block text-paper/40 text-2xl">to {formatRs(maxBudget)}</span></> : 'Rs 0'}
+              </p>
+              <p className="text-xs text-paper/50 mt-2">{tQuote('budgetEstimate')} (±15%){tax > 0 ? `, incl. ${settings.taxRate}% tax` : ''}</p>
+              <Waveform seed={team.length * 7 + 3} bars={48} progress={Math.min(team.length / 6, 1)} className="h-10 w-full mt-6 text-paper/15" />
 
-            {step < 4 ? (
-              <button
-                onClick={handleNext}
-                className="bg-[#0ea5e9] hover:bg-[#0ea5e9]/90 text-white px-8 py-4 rounded-xl font-black uppercase tracking-wider transition-all flex items-center shadow-[0_0_20px_rgba(14, 165, 233,0.3)] hover:shadow-[0_0_30px_rgba(14, 165, 233,0.5)] transform hover:-translate-y-0.5"
-              >
-                Next Step <ChevronRight className="w-6 h-6 ml-2" />
-              </button>
-            ) : (
-              <button
-                onClick={submitQuote}
-                disabled={!name.trim() || !phone.trim() || isSubmitting || belowMinimum}
-                className="bg-white hover:bg-gray-100 text-[#020617] px-10 py-4 rounded-xl font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none transform hover:-translate-y-0.5"
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-[#020617]/30 border-t-[#020617] rounded-full animate-spin" />
-                    Submitting...
-                  </span>
-                ) : 'Submit Quotation'}
-              </button>
-            )}
+              <ul className="mt-6 space-y-2.5">
+                {team.length === 0 ? (
+                  <li className="text-sm text-paper/50">Your team will appear here.</li>
+                ) : team.map(sel => (
+                  <li key={sel.role} className="flex items-center justify-between gap-3 text-sm">
+                    <span className="min-w-0"><span className="text-paper/50">{sel.roleLabel}</span> <span className="font-semibold">{sel.name}</span></span>
+                    <span className="tabular-nums shrink-0">{formatRs(sel.price)}</span>
+                  </li>
+                ))}
+              </ul>
+              {genre && <p className="mt-6 pt-5 border-t border-paper/10 text-sm"><span className="text-paper/50">Genre</span> {genre}</p>}
+            </aside>
           </div>
-
         </div>
-      </main>
-      </Scroll3DWrapper>
-    </div>
+      </section>
+    </>
   );
 }

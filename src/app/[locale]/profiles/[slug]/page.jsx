@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import prisma from '@/lib/db';
 import { guestNameFromSlug, isGuestSlug, legacyGuestKey } from '@/lib/utils/guestSlug';
-import ExtendedContributorProfileClient from '@/components/public/ExtendedContributorProfileClient';
+import ContributorProfile from '@/components/public/ContributorProfile';
 
 const PUBLIC_PROFILE = { isActive: true, isApproved: true, deletedAt: null };
 
@@ -45,7 +45,7 @@ export async function generateStaticParams() {
 }
 
 export default async function ProfileDetailPage({ params }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
 
   let profile = null;
   let credits = [];
@@ -139,9 +139,10 @@ export default async function ProfileDetailPage({ params }) {
   }
 
   return (
-    <ExtendedContributorProfileClient
+    <ContributorProfile
       profile={profile}
       projects={allSongCredits}
+      locale={locale}
     />
   );
 }

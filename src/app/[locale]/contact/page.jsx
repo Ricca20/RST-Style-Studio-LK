@@ -1,51 +1,40 @@
-import { getTranslations } from 'next-intl/server';
-import { getPublicSettings } from '@/lib/settings';
+import { getPublicSettings, safeExternalUrl } from '@/lib/settings';
 import ContactClient from '@/components/public/ContactClient';
+import PageHero from '@/components/music/PageHero';
 
-export async function generateMetadata({ params }) {
-  const { locale } = await params;
+export async function generateMetadata() {
   return {
-    title: 'Contact Us | RST Style Studio LK',
-    description: 'Get in touch with RST Style Studio for bookings and inquiries.',
+    title: 'Contact | RST Style Studio LK',
+    description: 'Book a session or get in touch with RST Style Studio LK.',
   };
 }
 
-export default async function ContactPage({ params }) {
-  const { locale } = await params;
+export default async function ContactPage() {
+  const settings = await getPublicSettings();
 
-  let settings = null;
-  try {
-    settings = await getPublicSettings();
-  } catch (e) {
-    console.error('Failed to fetch studio settings on contact page:', e);
-  }
+  // Only http(s) links are passed to the client
+  const socials = [
+    ['Instagram', settings?.instagramUrl],
+    ['YouTube', settings?.youtubeUrl],
+    ['Facebook', settings?.facebookUrl],
+    ['Spotify', settings?.spotifyUrl],
+    ['TikTok', settings?.tiktokUrl],
+    ['X', settings?.xUrl],
+  ].map(([label, url]) => ({ label, url: safeExternalUrl(url) })).filter((s) => s.url);
 
   return (
-    <div className="min-h-screen bg-transparent text-white pt-36 lg:pt-44 pb-32 relative overflow-hidden">
-      {/* Ambient lighting */}
-      <div className="absolute top-20 right-10 w-[600px] h-[600px] bg-[#0ea5e9]/10 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[600px] h-[600px] bg-rst-accent/10 rounded-full blur-[160px] pointer-events-none" />
-
-      <main className="w-full max-w-7xl mx-auto px-4 md:px-10 py-4 relative z-10">
-        {/* Header Title */}
-        <div className="border-b border-white/10 pb-8 mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-[#0ea5e9] text-xs font-mono font-bold uppercase tracking-widest mb-3 shadow-inner">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-ping" />
-              Master Control Desk • All Social Channels Online
-            </div>
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase leading-tight">
-              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-rst-accent">BOOKINGS & CONTACT</span>
-            </h1>
-          </div>
-          <p className="text-gray-400 max-w-md text-sm md:text-base leading-relaxed font-light">
-            Connect across all our official social media channels, reach our engineering desk, or transmit an instant email reservation request.
-          </p>
+    <>
+      <PageHero
+        label="Get in touch"
+        title={["Let's make", 'some noise.']}
+        intro="Booking a session, planning a release or just have a question? Send a request and we'll get back to you, or reach us directly."
+        seed={71}
+      />
+      <section className="px-5 md:px-10 pt-6">
+        <div className="max-w-7xl mx-auto">
+          <ContactClient settings={settings} socials={socials} />
         </div>
-
-        {/* Client Interactive Contact Experience */}
-        <ContactClient settings={settings} locale={locale} />
-      </main>
-    </div>
+      </section>
+    </>
   );
 }

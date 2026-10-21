@@ -30,7 +30,6 @@ export default function Icon() {
           background: 'transparent',
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- rendered by ImageResponse, not the browser */}
         <img
           alt=""
           src={logoBase64}
