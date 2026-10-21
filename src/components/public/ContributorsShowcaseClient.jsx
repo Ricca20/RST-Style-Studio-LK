@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Link } from '@/i18n/routing';
 import TiltCard from '@/components/ui/TiltCard';
 import { Search, Sparkles, Music, Award, Users, ArrowUpRight, Globe, Camera, PlaySquare, Disc } from 'lucide-react';
+import { guestSlug } from '@/lib/utils/guestSlug';
 
 export default function ContributorsShowcaseClient({ contributors = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -65,7 +66,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
               <span>THE SOUND ARCHITECTS & ARTISTS</span>
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase">
-              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">CONTRIBUTORS</span>
+              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-rst-accent">CONTRIBUTORS</span>
             </h1>
           </div>
           <p className="text-gray-400 max-w-md text-sm md:text-base leading-relaxed font-light">
@@ -178,7 +179,7 @@ export default function ContributorsShowcaseClient({ contributors = [] }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredContributors.map((profile, idx) => {
               const hasSlug = Boolean(profile.slug);
-              const effectiveSlug = profile.slug || `guest-${profile.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+              const effectiveSlug = profile.slug || guestSlug(profile.name);
               const cardHref = `/contributors/${effectiveSlug}`;
 
               return (

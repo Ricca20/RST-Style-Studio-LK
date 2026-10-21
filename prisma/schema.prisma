@@ -66,8 +66,6 @@ model StudioSettings {
 
   // Advanced Integrations
   adminAlertEmail  String?
-  whatsappApiToken String?
-  aiPromptContext  String?
 
   // Additional Business & Booking Settings
   bookingStatus         String  @default("AVAILABLE") // e.g. AVAILABLE, BUSY, AWAY
@@ -231,6 +229,13 @@ model SocialCache {
   updatedAt DateTime @updatedAt
 }
 
+// Shared fixed-window counters for public endpoints (src/lib/rate-limit.js)
+model RateLimit {
+  key         String   @id
+  count       Int
+  windowStart DateTime
+}
+
 model AuditLog {
   id          String   @id @default(uuid())
   userId      String?
@@ -292,6 +297,7 @@ model GamePlayer {
   language        String               @default("en") // si, en, it
   verifiedAt      DateTime?            // Email verification timestamp
   verificationToken String?
+  verificationExpiresAt DateTime?      // Sign-in links expire after 24h
   createdAt       DateTime             @default(now())
   
   scores          GameScore[]
@@ -320,6 +326,7 @@ enum GameType {
   TRIVIA
   PITCH_MATCH
   THEORY
+  NAME_THAT_TUNE
   RHYTHM_TAP
 }
 
@@ -357,6 +364,33 @@ model TriviaQuestion {
   createdAt     DateTime    @default(now())
 }
 
+
+// ── Name That Tune Clips ──
+model TuneClip {
+  id            String      @id @default(uuid())
+  titleEn       String      // Prompt shown to the player, e.g. "Guess the classic track"
+  titleSi       String?
+  titleIt       String?
+  audioUrl      String      // Short preview clip (Supabase Storage)
+  options       Json        // Array of { id, textEn, textSi, textIt }
+  correctOption String
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+}
+
+// Client reviews shown on the home page when StudioSettings.displayClientReviews is on
+model Testimonial {
+  id          String   @id @default(uuid())
+  name        String
+  role        String?  // e.g. "Vocalist — 'Sanda Eliya'"
+  quote       String
+  rating      Int?     // 1–5
+  imageUrl    String?
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
 
 model HonoraryMention {
   id          String    @id @default(uuid())

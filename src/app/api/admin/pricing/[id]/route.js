@@ -11,11 +11,16 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { itemKey, type, price, currency } = body;
+    const { itemKey, type, currency } = body;
+    const price = Number(body.price);
+
+    if (typeof itemKey !== 'string' || !itemKey.trim() || !['SERVICE', 'OPTION'].includes(type) || !Number.isFinite(price) || price < 0) {
+      return NextResponse.json({ error: 'A key, a type (SERVICE or OPTION) and a non-negative price are required' }, { status: 400 });
+    }
 
     const updated = await prisma.pricingConfig.update({
       where: { id },
-      data: { itemKey, type, price, currency }
+      data: { itemKey: itemKey.trim(), type, price, currency: currency || 'LKR' }
     });
 
     await logAuditAction(context.dbUser.id, 'UPDATE_PRICING', 'PricingConfig', updated.id, { price });

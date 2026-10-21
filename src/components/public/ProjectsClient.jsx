@@ -55,7 +55,7 @@ export default function ProjectsClient({ initialProjects, projectTypes, locale }
           </div>
           <h3 className="text-xl font-bold text-white mb-2">No Projects Found</h3>
           <p className="text-white/60 text-sm max-w-sm mx-auto">
-            We couldn't find any projects matching this filter. Try selecting a different category.
+            We couldn&apos;t find any projects matching this filter. Try selecting a different category.
           </p>
         </div>
       ) : (

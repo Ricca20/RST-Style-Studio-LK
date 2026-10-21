@@ -27,7 +27,6 @@ export default function AdminTrashPage() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setTimeout(() => fetchTrash(), 0); }, []);
 
   const handleAction = async () => {

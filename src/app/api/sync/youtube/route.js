@@ -1,31 +1,11 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/db';
-import { fetchChannelVideos } from '@/lib/services/youtube';
+import { isAuthorizedCronRequest, syncPlatform } from '@/lib/services/socialSync';
 
 export async function GET(request) {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  try {
-    const videos = await fetchChannelVideos();
-    
-    const cache = await prisma.socialCache.upsert({
-      where: { platform: 'YOUTUBE' },
-      update: {
-        data: videos,
-        lastSync: new Date()
-      },
-      create: {
-        platform: 'YOUTUBE',
-        data: videos
-      }
-    });
-
-    return NextResponse.json({ success: true, cache });
-  } catch (error) {
-    console.error('YouTube sync failed:', error);
-    return NextResponse.json({ error: 'Sync failed' }, { status: 500 });
-  }
+  const result = await syncPlatform('YOUTUBE');
+  return NextResponse.json(result, { status: result.status === 'failed' ? 502 : 200 });
 }

@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/routing';
 import TiltCard from '@/components/ui/TiltCard';
+import HonoraryMentionsSection from '@/components/public/HonoraryMentionsSection';
 
 export async function generateMetadata() {
   return {
@@ -19,7 +20,7 @@ export default async function AboutPage() {
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-24 px-4 md:px-10 max-w-7xl mx-auto relative z-10">
         {/* Ambient background glow */}
-        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-[#0ea5e9]/20 via-[#9d2bee]/15 to-transparent rounded-full blur-[130px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-[#0ea5e9]/20 via-rst-accent/15 to-transparent rounded-full blur-[130px] pointer-events-none" />
 
         <div className="flex flex-col gap-3 mb-16 text-center">
           <div className="inline-flex items-center gap-2.5 self-center px-4 py-1.5 rounded-full bg-black/60 border border-[#0ea5e9]/40 text-[#0ea5e9] text-xs font-mono font-bold uppercase tracking-[0.25em] shadow-[0_0_25px_rgba(14,165,233,0.25)] backdrop-blur-xl">
@@ -27,7 +28,7 @@ export default async function AboutPage() {
             Foundational Heritage // Maestro Archive
           </div>
           <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
-            THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-cyan-200 to-[#9d2bee]">COMPOSER&apos;S</span> SOUL
+            THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-cyan-200 to-rst-accent">COMPOSER&apos;S</span> SOUL
           </h2>
           <p className="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto font-light leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             Before digital processing and analog summing desks, RST Style Studio was founded on a lifetime of orchestral storytelling and melody.
@@ -44,7 +45,7 @@ export default async function AboutPage() {
                 
                 {/* Subtle corner light accents */}
                 <div className="absolute top-4 left-4 w-12 h-12 bg-[#0ea5e9]/20 rounded-full blur-xl group-hover:bg-[#0ea5e9]/40 transition-all" />
-                <div className="absolute bottom-4 right-4 w-12 h-12 bg-[#9d2bee]/20 rounded-full blur-xl group-hover:bg-[#9d2bee]/40 transition-all" />
+                <div className="absolute bottom-4 right-4 w-12 h-12 bg-rst-accent/20 rounded-full blur-xl group-hover:bg-rst-accent/40 transition-all" />
 
                 {/* Main Portrait Display */}
                 <div className="aspect-[4/5] rounded-[2rem] overflow-hidden relative shadow-2xl border border-white/10">
@@ -73,7 +74,7 @@ export default async function AboutPage() {
                       <span className="w-1 bg-[#0ea5e9] rounded-full h-3 animate-pulse" />
                       <span className="w-1 bg-[#0ea5e9] rounded-full h-5 animate-pulse delay-75" />
                       <span className="w-1 bg-cyan-300 rounded-full h-2 animate-pulse delay-150" />
-                      <span className="w-1 bg-[#9d2bee] rounded-full h-4 animate-pulse delay-100" />
+                      <span className="w-1 bg-rst-accent rounded-full h-4 animate-pulse delay-100" />
                       <span className="w-1 bg-white rounded-full h-3 animate-pulse" />
                       <span className="text-[10px] font-mono text-slate-300 ml-2 tracking-widest uppercase">
                         HARMONIC FREQUENCY ARCHIVE
@@ -167,8 +168,8 @@ export default async function AboutPage() {
                   id: '03',
                   title: 'Acoustic Soul',
                   desc: 'The guiding philosophy behind RST Studio.',
-                  accent: 'from-[#9d2bee]/20 to-transparent',
-                  border: 'hover:border-[#9d2bee]'
+                  accent: 'from-rst-accent/20 to-transparent',
+                  border: 'hover:border-rst-accent'
                 }
               ].map((pillar, idx) => (
                 <TiltCard key={idx}>
@@ -200,12 +201,12 @@ export default async function AboutPage() {
           ═══════════════════════════════════════════════════════════ */}
       <section className="py-24 px-4 md:px-10 max-w-7xl mx-auto relative z-10">
         <div className="flex flex-col gap-4 mb-20 text-center">
-          <div className="inline-flex items-center gap-2.5 self-center px-4 py-1.5 rounded-full bg-black/60 border border-[#9d2bee]/40 text-[#9d2bee] text-xs font-mono font-bold uppercase tracking-[0.25em] shadow-[0_0_25px_rgba(157,43,238,0.25)] backdrop-blur-xl">
-            <span className="w-2 h-2 rounded-full bg-[#9d2bee] animate-pulse shadow-[0_0_8px_#9d2bee]" />
+          <div className="inline-flex items-center gap-2.5 self-center px-4 py-1.5 rounded-full bg-black/60 border border-rst-accent/40 text-rst-accent text-xs font-mono font-bold uppercase tracking-[0.25em] shadow-[0_0_25px_rgba(157,43,238,0.25)] backdrop-blur-xl">
+            <span className="w-2 h-2 rounded-full bg-rst-accent animate-pulse shadow-[0_0_8px_var(--rst-accent)]" />
             Evolutionary Timeline // From Genesis to 64-Bit
           </div>
           <h2 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]">
-            THE STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">EVOLUTION</span>
+            THE STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-rst-accent">EVOLUTION</span>
           </h2>
           <p className="text-slate-300 text-base sm:text-lg max-w-3xl mx-auto font-light leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
             Experience the architectural and sonic transformation of RST Style Studio—from our first intimate acoustic setup to our current high-headroom hybrid mastering sanctuary.
@@ -216,7 +217,7 @@ export default async function AboutPage() {
         <div className="flex flex-col gap-24 relative">
           
           {/* Central Holographic Laser Spine Line on Desktop */}
-          <div className="hidden lg:block absolute top-12 bottom-12 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-[#0ea5e9] via-[#9d2bee] to-[#0ea5e9] opacity-40 shadow-[0_0_25px_#0ea5e9] rounded-full" />
+          <div className="hidden lg:block absolute top-12 bottom-12 left-1/2 -translate-x-1/2 w-1 bg-gradient-to-b from-[#0ea5e9] via-rst-accent to-[#0ea5e9] opacity-40 shadow-[0_0_25px_#0ea5e9] rounded-full" />
 
           {/* ───────────────────────────────────────────────────────────
               STAGE 01: THE BEGINNING (/Studio1.jpg)
@@ -311,18 +312,18 @@ export default async function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center relative">
             
             {/* Center Node Indicator on Desktop */}
-            <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-black border-2 border-[#9d2bee] items-center justify-center z-30 shadow-[0_0_20px_#9d2bee]">
-              <span className="w-3 h-3 rounded-full bg-[#9d2bee]" />
+            <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-black border-2 border-rst-accent items-center justify-center z-30 shadow-[0_0_20px_var(--rst-accent)]">
+              <span className="w-3 h-3 rounded-full bg-rst-accent" />
             </div>
 
             {/* Left on Desktop: 3D Holographic Specification & Description Card */}
             <div className="lg:col-span-6 lg:pr-8 order-2 lg:order-1">
               <div className="aerospace-card rounded-3xl p-8 sm:p-10 border border-white/20 bg-gradient-to-br from-white/[0.07] via-black/70 to-black/95 shadow-2xl relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono font-bold text-[#9d2bee] uppercase tracking-[0.2em]">
+                  <span className="text-xs font-mono font-bold text-rst-accent uppercase tracking-[0.2em]">
                     CHAPTER 02 // CONSOLE ERA
                   </span>
-                  <span className="w-3 h-3 rounded-full bg-[#9d2bee] shadow-[0_0_10px_#9d2bee]" />
+                  <span className="w-3 h-3 rounded-full bg-rst-accent shadow-[0_0_10px_var(--rst-accent)]" />
                 </div>
 
                 <h3 className="text-3xl font-black text-white mb-5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
@@ -335,7 +336,7 @@ export default async function AboutPage() {
                     As production demands scaled, we integrated professional analog summing consoles, outboard compression racks, and high-voltage preamps to impart undeniable analog weight and harmonic warmth.
                   </p>
                   <div className="p-4 rounded-2xl bg-white/[0.02] border border-dashed border-white/20 text-slate-300 text-sm">
-                    <span className="text-[#9d2bee] font-mono font-bold uppercase block mb-1">
+                    <span className="text-rst-accent font-mono font-bold uppercase block mb-1">
                       [ RESERVED FOR YOUR CONSOLE EXPANSION STORY ]
                     </span>
                     Add your story detailing how the studio acquired its consoles, upgraded hardware racks, and transformed its mixing workflow here.
@@ -343,7 +344,7 @@ export default async function AboutPage() {
                 </div>
 
                 <div className="pt-5 border-t border-white/10 flex flex-wrap gap-2.5 font-mono text-xs">
-                  <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/15 text-[#9d2bee] font-bold">
+                  <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/15 text-rst-accent font-bold">
                     SUMMING MIXERS
                   </span>
                   <span className="px-3.5 py-1.5 rounded-xl bg-white/5 border border-white/15 text-slate-200">
@@ -356,12 +357,12 @@ export default async function AboutPage() {
             {/* Right on Desktop: 3D Holographic Stage Image Frame */}
             <div className="lg:col-span-6 lg:pl-8 order-1 lg:order-2">
               <TiltCard>
-                <div className="group relative aerospace-card rounded-3xl p-4 border border-white/20 hover:border-[#9d2bee] transition-all duration-700 shadow-[0_20px_50px_rgba(0,0,0,0.9)] bg-gradient-to-b from-white/[0.08] to-black/90">
+                <div className="group relative aerospace-card rounded-3xl p-4 border border-white/20 hover:border-rst-accent transition-all duration-700 shadow-[0_20px_50px_rgba(0,0,0,0.9)] bg-gradient-to-b from-white/[0.08] to-black/90">
                   {/* Holographic Corner Crosshairs */}
-                  <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[#9d2bee] z-20" />
-                  <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-[#9d2bee] z-20" />
-                  <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[#9d2bee] z-20" />
-                  <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[#9d2bee] z-20" />
+                  <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-rst-accent z-20" />
+                  <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-rst-accent z-20" />
+                  <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-rst-accent z-20" />
+                  <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-rst-accent z-20" />
 
                   <div className="aspect-video rounded-2xl bg-black/60 relative overflow-hidden">
                     <img
@@ -372,7 +373,7 @@ export default async function AboutPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/30" />
                     
                     <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
-                      <span className="px-3 py-1 rounded-full bg-[#9d2bee]/90 text-white font-mono text-xs font-bold tracking-widest shadow-[0_0_15px_#9d2bee]">
+                      <span className="px-3 py-1 rounded-full bg-rst-accent/90 text-white font-mono text-xs font-bold tracking-widest shadow-[0_0_15px_var(--rst-accent)]">
                         STAGE 02 // HARDWARE ERA
                       </span>
                       <span className="font-mono text-xs text-slate-300 font-bold uppercase tracking-wider bg-black/60 px-3 py-1 rounded-full border border-white/10">
@@ -492,7 +493,7 @@ export default async function AboutPage() {
             Lead Acoustic Specialist
           </span>
           <h2 className="text-4xl md:text-6xl font-black text-white tracking-tight">
-            THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#0ea5e9] to-[#9d2bee]">ARCHITECT</span>
+            THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-[#0ea5e9] to-rst-accent">ARCHITECT</span>
           </h2>
         </div>
 
@@ -624,6 +625,8 @@ export default async function AboutPage() {
           ))}
         </div>
       </section>
+
+      <HonoraryMentionsSection />
 
       {/* ═══════════════════════════════════════════════════════════
           SECTION 7: FOOTER BOOKING CTA DESK (3D HOLOGRAPHIC CONSOLE)

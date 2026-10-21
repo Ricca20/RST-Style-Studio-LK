@@ -1,289 +1,219 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import { useEffect, useState } from 'react';
+import { Plus, Edit2, Trash2, Users, DollarSign, X, Save, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
-import { Plus, Edit2, Trash2, Users, Loader2 } from 'lucide-react';
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
+import { QUOTE_ROLES, quoteRole } from '@/lib/quoteRoles';
 
-const ROLES = [
-  'VOCALIST', 'MUSIC_PRODUCER', 'MELODY_COMPOSER', 'LYRICIST', 
-  'MIXING_ENGINEER', 'MASTERING_ENGINEER', 'DIRECTOR', 'INSTRUMENTALIST'
-];
+const EMPTY_FORM = { profileId: '', role: '', price: '', isActive: true };
 
-export default function CollaboratorManagementPage() {
-  const [collaborators, setCollaborators] = useState([]);
-  const [profiles, setProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  const [modalOpen, setModalOpen] = useState(false);
+// Collaborators are the people (and prices) offered in the quotation wizard.
+export default function CollaboratorsPage() {
+  const collabQuery = useFetchJson('/api/admin/collaborators');
+  const profilesQuery = useFetchJson('/api/admin/profiles'); // plain array
+  const collaborators = collabQuery.data || [];
+  const profiles = Array.isArray(profilesQuery.data) ? profilesQuery.data : [];
+  const loading = collabQuery.isLoading || profilesQuery.isLoading;
+  const loadError = collabQuery.error || profilesQuery.error;
+
+  const [form, setForm] = useState(null); // null when the form is closed
   const [editingId, setEditingId] = useState(null);
-  const [formData, setFormData] = useState({ profileId: '', role: 'VOCALIST', price: '', isActive: true });
-  
-  const [deleteId, setDeleteId] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const fetchData = async () => {
-    try {
-      const [collabRes, profRes] = await Promise.all([
-        fetch('/api/admin/collaborators'),
-        fetch('/api/admin/profiles')
-      ]);
-      
-      if (collabRes.ok) setCollaborators(await collabRes.json());
-      if (profRes.ok) {
-        const profData = await profRes.json();
-        setProfiles(profData.data || []);
-      }
-    } catch (e) {
-      toast.error('Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (loadError) toast.error('Failed to load collaborators');
+  }, [loadError]);
 
-  const openModal = (collab = null) => {
-    if (collab) {
-      setEditingId(collab.id);
-      setFormData({
-        profileId: collab.profileId,
-        role: collab.role,
-        price: collab.price,
-        isActive: collab.isActive
-      });
-    } else {
-      setEditingId(null);
-      setFormData({ profileId: '', role: 'VOCALIST', price: '', isActive: true });
-    }
-    setModalOpen(true);
+  const openForm = (collab = null) => {
+    setEditingId(collab?.id || null);
+    setForm(collab
+      ? { profileId: collab.profileId, role: quoteRole(collab.role) ? collab.role : '', price: String(collab.price), isActive: collab.isActive }
+      : { ...EMPTY_FORM });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.profileId) {
-      toast.error('Please select a profile');
+  const handleSave = async () => {
+    if (!form.profileId || !form.role || form.price === '') {
+      toast.error('Profile, role, and price are required');
       return;
     }
-
+    setIsSaving(true);
     try {
-      const url = editingId ? `/api/admin/collaborators/${editingId}` : '/api/admin/collaborators';
-      const method = editingId ? 'PUT' : 'POST';
-      
-      const res = await fetch(url, {
-        method,
+      const payload = { ...form, price: parseFloat(form.price) };
+      const res = await fetch(editingId ? `/api/admin/collaborators/${editingId}` : '/api/admin/collaborators', {
+        method: editingId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload),
       });
-      
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to save');
-      }
-      
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to save');
+
       toast.success(editingId ? 'Collaborator updated' : 'Collaborator added');
-      setModalOpen(false);
-      fetchData();
-    } catch (e) {
-      toast.error(e.message);
+      setForm(null);
+      collabQuery.reload();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
-    setIsDeleting(true);
+    if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/collaborators/${deleteId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/collaborators/${deleteTarget.id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete');
-      toast.success('Collaborator removed');
-      setDeleteId(null);
-      fetchData();
-    } catch (e) {
-      toast.error(e.message);
+      toast.success(`Removed "${deleteTarget.profile?.name}"`);
+      collabQuery.reload();
+    } catch (err) {
+      toast.error(err.message);
     } finally {
-      setIsDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64 text-gray-500">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
-    );
+  // Group by role; roles not offered in the quote wizard (from older data) get their own group
+  const grouped = {};
+  const legacy = [];
+  for (const c of collaborators) {
+    if (!quoteRole(c.role)) legacy.push(c);
+    else (grouped[c.role] ||= []).push(c);
   }
 
-  return (
-    <div className="max-w-6xl mx-auto pb-20">
-      <div className="mb-8 flex items-center justify-between">
+  const renderPerson = (person) => (
+    <div key={person.id} className="flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition">
+      <div className="flex items-center gap-4">
+        {person.profile?.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- small admin avatar from storage
+          <img src={person.profile.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
+            {person.profile?.name?.charAt(0).toUpperCase()}
+          </div>
+        )}
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Users className="w-8 h-8 text-blue-600" />
-            Collaborator Pricing
-          </h1>
-          <p className="text-gray-500 mt-2">Manage profiles available for quote generation and set their rates.</p>
+          <p className="font-semibold text-gray-900">{person.profile?.name}</p>
+          <p className="text-sm text-gray-500">
+            {!quoteRole(person.role) && <span className="mr-2">{person.role}</span>}
+            {!person.isActive && <span className="text-red-500 font-medium">Inactive</span>}
+          </p>
         </div>
-        <button 
-          onClick={() => openModal()} 
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 shadow-sm transition"
-        >
-          <Plus className="w-4 h-4" /> Add Collaborator
+      </div>
+      <div className="flex items-center gap-6">
+        <span className="font-bold text-gray-900 flex items-center gap-1">
+          <DollarSign className="w-4 h-4 text-green-600" />
+          Rs {person.price.toLocaleString()}
+        </span>
+        <div className="flex items-center gap-2">
+          <button onClick={() => openForm(person)} aria-label="Edit" className="text-gray-400 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg"><Edit2 className="w-4 h-4" /></button>
+          <button onClick={() => setDeleteTarget(person)} aria-label="Delete" className="text-gray-400 hover:text-red-600 transition p-1.5 hover:bg-red-50 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Collaborators</h1>
+          <p className="text-gray-500 mt-1">People and prices offered in the quotation wizard, grouped by role.</p>
+        </div>
+        <button onClick={() => openForm()} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium flex items-center transition shadow-sm">
+          <Plus className="w-5 h-5 mr-2" /> Add Person
         </button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border overflow-hidden">
-        {collaborators.length === 0 ? (
-          <div className="p-12 text-center text-gray-500">
-            No collaborators found. Add one to start generating quotes.
+      {form && (
+        <div className="bg-white rounded-xl shadow-sm border mb-8 overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">{editingId ? 'Edit Collaborator' : 'Add New Collaborator'}</h2>
+            <button onClick={() => setForm(null)} aria-label="Close" className="text-white/70 hover:text-white transition"><X className="w-5 h-5" /></button>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead className="bg-gray-50 border-b text-sm text-gray-500">
-                <tr>
-                  <th className="px-6 py-4 font-medium">Profile</th>
-                  <th className="px-6 py-4 font-medium">Role</th>
-                  <th className="px-6 py-4 font-medium">Base Price (LKR)</th>
-                  <th className="px-6 py-4 font-medium">Status</th>
-                  <th className="px-6 py-4 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-sm">
-                {collaborators.map(c => (
-                  <tr key={c.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 font-medium text-gray-900 flex items-center gap-3">
-                      {c.profile?.imageUrl ? (
-                        <img src={c.profile.imageUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-500">
-                          {c.profile?.name?.[0] || '?'}
-                        </div>
-                      )}
-                      {c.profile?.name || 'Unknown'}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 font-medium">
-                      <span className="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-md text-xs">
-                        {c.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-bold text-gray-900">
-                      {c.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4">
-                      {c.isActive ? (
-                        <span className="text-green-700 bg-green-50 px-2 py-1 rounded-md text-xs font-medium border border-green-200">Active</span>
-                      ) : (
-                        <span className="text-gray-600 bg-gray-100 px-2 py-1 rounded-md text-xs font-medium border border-gray-200">Inactive</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 flex items-center justify-end gap-2">
-                      <button 
-                        onClick={() => openModal(c)} 
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => setDeleteId(c.id)} 
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">
-              {editingId ? 'Edit Collaborator' : 'Add Collaborator'}
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Select Profile</label>
-                <select 
-                  required 
-                  value={formData.profileId} 
-                  onChange={e => setFormData({...formData, profileId: e.target.value})} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="" disabled>-- Select a profile --</option>
-                  {profiles.map(p => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Profile *</label>
+                <select value={form.profileId} onChange={(e) => setForm({ ...form, profileId: e.target.value })} className="w-full border-gray-300 border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <option value="">Select a profile…</option>
+                  {profiles.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Role in Quotes</label>
-                <select 
-                  value={formData.role} 
-                  onChange={e => setFormData({...formData, role: e.target.value})} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  {ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Role *</label>
+                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border-gray-300 border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none bg-white">
+                  <option value="">Select role…</option>
+                  {QUOTE_ROLES.map((r) => <option key={r.key} value={r.key}>{r.emoji} {r.label}</option>)}
                 </select>
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Base Price (LKR)</label>
-                <input 
-                  required 
-                  type="number" 
-                  min="0"
-                  step="1" 
-                  value={formData.price} 
-                  onChange={e => setFormData({...formData, price: e.target.value})} 
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" 
-                  placeholder="e.g. 50000"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Price (LKR) *</label>
+                <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="15000" min="0" className="w-full border-gray-300 border rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none" />
               </div>
-
-              <div className="flex items-center mt-2">
-                <input 
-                  type="checkbox" 
-                  id="isActive" 
-                  checked={formData.isActive} 
-                  onChange={e => setFormData({...formData, isActive: e.target.checked})} 
-                  className="w-4 h-4 text-blue-600 rounded border-gray-300"
-                />
-                <label htmlFor="isActive" className="ml-2 text-sm text-gray-700">Available for public quotes</label>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-8">
-                <button 
-                  type="button" 
-                  onClick={() => setModalOpen(false)} 
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
-                >
-                  {editingId ? 'Update' : 'Add to Quotes'}
+            </div>
+            <div className="flex items-center justify-between mt-5 pt-4 border-t">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} className="w-4 h-4 text-blue-600 rounded" />
+                <span className="text-sm font-medium text-gray-700">Active (offered in the quotation wizard)</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setForm(null)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Cancel</button>
+                <button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium flex items-center transition disabled:opacity-50">
+                  <Save className="w-4 h-4 mr-2" /> {isSaving ? 'Saving…' : 'Save'}
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
 
+      {loading ? (
+        <div className="text-center py-20 text-gray-400">Loading…</div>
+      ) : collaborators.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
+          <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-gray-700 mb-2">No collaborators yet</h3>
+          <p className="text-gray-500">Add your first collaborator using the button above.</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {legacy.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-amber-300 overflow-hidden">
+              <div className="px-6 py-4 bg-amber-50 border-b border-amber-200 flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Not shown in the quotation wizard</h3>
+                  <p className="text-sm text-amber-800">These use an old role name. Edit each one and pick a role from the list so customers can select them.</p>
+                </div>
+              </div>
+              <div className="divide-y divide-gray-100">{legacy.map(renderPerson)}</div>
+            </div>
+          )}
+
+          {QUOTE_ROLES.filter((r) => grouped[r.key]).map((role) => (
+            <div key={role.key} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="px-6 py-4 bg-gray-50 border-b flex items-center gap-3">
+                <span className="text-xl">{role.emoji}</span>
+                <h3 className="text-lg font-bold text-gray-900">{role.label}</h3>
+                <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                  {grouped[role.key].length} {grouped[role.key].length === 1 ? 'person' : 'people'}
+                </span>
+              </div>
+              <div className="divide-y divide-gray-100">{grouped[role.key].map(renderPerson)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <ConfirmModal
-        isOpen={!!deleteId}
-        onClose={() => setDeleteId(null)}
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title="Remove Collaborator"
-        description="Are you sure you want to remove this profile from the quote wizard? Their profile will not be deleted, but they won't appear as an option for this role."
+        description={deleteTarget ? `Are you sure you want to remove "${deleteTarget.profile?.name}" (${quoteRole(deleteTarget.role)?.label || deleteTarget.role})? This cannot be undone.` : ''}
         confirmText="Remove"
-        isLoading={isDeleting}
       />
     </div>
   );

@@ -12,8 +12,8 @@ export default async function AuditLogsPage({ searchParams }) {
   const page = parseInt(params?.page || '1');
   const pageSize = 15;
 
-  // Only SUPER_ADMIN and ADMIN can view audit logs
-  const { authorized, user } = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+  // Only SUPER_ADMIN can view audit logs (matches lib/auth/admin-access.js)
+  const { authorized, user } = await requireRole(['SUPER_ADMIN']);
   if (!authorized) {
     redirect('/admin');
   }
@@ -52,8 +52,10 @@ export default async function AuditLogsPage({ searchParams }) {
           </h1>
           <p className="text-gray-500 mt-2">Track who is making changes inside your studio dashboard.</p>
         </div>
-        <a 
-          href="/api/admin/audit-logs/export" 
+        {/* A file download from an API route, not a page navigation */}
+        <a
+          href="/api/admin/audit-logs/export"
+          download
           className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition-colors shadow-sm"
         >
           Download CSV

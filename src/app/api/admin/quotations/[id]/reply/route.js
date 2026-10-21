@@ -1,26 +1,14 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { Resend } from 'resend';
 import { requireRole } from '@/lib/auth/server-auth';
-
-async function checkAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    { cookies: { getAll() { return cookieStore.getAll(); } } }
-  );
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
-}
+import { escapeHtml } from '@/lib/utils/escapeHtml';
 
 export async function POST(request, { params }) {
   const { id } = await params;
   try {
-    const user = await checkAdmin();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!auth.authorized) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const body = await request.json();
     const { method, message, subject } = body;
@@ -55,8 +43,8 @@ export async function POST(request, { params }) {
               <p style="color: rgba(255,255,255,0.7); margin: 5px 0 0 0;">Quotation Response</p>
             </div>
             <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
-              <p style="color: #374151; font-size: 16px;">Hi <strong>${quotation.name}</strong>,</p>
-              <div style="color: #374151; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">${message}</div>
+              <p style="color: #374151; font-size: 16px;">Hi <strong>${escapeHtml(quotation.name)}</strong>,</p>
+              <div style="color: #374151; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">${escapeHtml(message)}</div>
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
               <p style="color: #9ca3af; font-size: 13px;">This email was sent from RST Style Studio regarding your quotation request.</p>
             </div>

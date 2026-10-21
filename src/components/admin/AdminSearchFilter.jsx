@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Search, Filter, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 
 export default function AdminSearchFilter({ placeholder = "Search...", statusOptions = [] }) {
   const router = useRouter();
@@ -33,16 +33,17 @@ export default function AdminSearchFilter({ placeholder = "Search...", statusOpt
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce search
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      if (searchTerm !== currentSearch) {
-        updateUrl(searchTerm, currentStatus);
-      }
-    }, 400);
+  // Debounce search: push the URL 400ms after the last keystroke
+  const applySearch = useEffectEvent(() => {
+    if (searchTerm !== currentSearch) {
+      updateUrl(searchTerm, currentStatus);
+    }
+  });
 
+  useEffect(() => {
+    const handler = setTimeout(applySearch, 400);
     return () => clearTimeout(handler);
-  }, [searchTerm, currentStatus, pathname]);
+  }, [searchTerm]);
 
   return (
     <div className="bg-white p-4 rounded-xl shadow-sm border mb-6 flex flex-col md:flex-row gap-4 items-center">

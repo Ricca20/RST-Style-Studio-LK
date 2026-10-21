@@ -1,7 +1,9 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import { Gamepad2, Mic, BookOpen, Music, PlaySquare, Trophy, LogOut } from 'lucide-react';
-import GameRegistrationModal from '@/components/games/GameRegistrationModal';
+import ArcadeRegisterButton from '@/components/games/ArcadeRegisterButton';
 import { cookies } from 'next/headers';
+import { GAME_SESSION_COOKIE } from '@/lib/games/session';
+import { getCurrentPlayer } from '@/lib/games/guard';
 
 export const metadata = {
   title: 'Music Arcade - RST Style Studio',
@@ -48,13 +50,12 @@ const games = [
 ];
 
 export default async function GamesArcadeHub() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('game_session')?.value;
+  const player = await getCurrentPlayer();
 
-  async function clearSession() {
+  async function signOutOfArcade() {
     'use server';
     const cookieStore = await cookies();
-    cookieStore.delete('game_session');
+    cookieStore.delete(GAME_SESSION_COOKIE);
   }
 
   return (
@@ -70,7 +71,7 @@ export default async function GamesArcadeHub() {
         <div className="text-center mb-16">
           <span className="section-label">Interactive Experience</span>
           <h1 className="text-4xl md:text-6xl font-bold mt-2 mb-6 text-white tracking-tight">
-            Music <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">Arcade</span>
+            Music <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-rst-accent">Arcade</span>
           </h1>
           <p className="text-xl text-white/60 max-w-2xl mx-auto">
             Play games, test your musical skills, and compete on the monthly leaderboards to win exclusive studio discounts and prizes!
@@ -85,13 +86,16 @@ export default async function GamesArcadeHub() {
               View Leaderboards
             </Link>
 
-            {session && (
-              <form action={clearSession}>
+            {player ? (
+              <form action={signOutOfArcade} className="flex flex-col items-center gap-2">
+                <p className="text-sm text-white/60">Playing as <strong className="text-white">{player.username}</strong></p>
                 <button type="submit" className="text-sm text-white/50 hover:text-white flex items-center gap-2 transition-colors">
                   <LogOut className="w-4 h-4" />
-                  Clear Session (Test Registration Again)
+                  Sign out of Arcade
                 </button>
               </form>
+            ) : (
+              <ArcadeRegisterButton />
             )}
           </div>
         </div>

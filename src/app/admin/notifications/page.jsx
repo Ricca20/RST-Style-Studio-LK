@@ -3,34 +3,21 @@
 import { useState, useEffect } from 'react';
 import { Bell, CheckCircle, Trash2, FileText, Info, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useFetchJson } from '@/lib/hooks/useFetchJson';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading: loading, error: loadError, reload: fetchNotifications } = useFetchJson('/api/admin/notifications');
+  const notifications = data?.data || [];
   const [clearConfirm, setClearConfirm] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
 
   const [broadcastConfirm, setBroadcastConfirm] = useState(false);
   const [broadcastData, setBroadcastData] = useState({ title: '', message: '', type: 'SYSTEM' });
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch('/api/admin/notifications');
-      if (res.ok) {
-        const data = await res.json();
-        setNotifications(data.data || []);
-      }
-    } catch (error) {
-      toast.error('Failed to load notifications');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    if (loadError) toast.error('Failed to load notifications');
+  }, [loadError]);
 
   const handleBroadcast = async (e) => {
     e.preventDefault();
@@ -62,7 +49,7 @@ export default function NotificationsPage() {
         body: JSON.stringify({ markAll: true })
       });
       if (res.ok) {
-        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+        fetchNotifications();
         toast.success('All marked as read');
       }
     } catch (error) {
@@ -80,14 +67,14 @@ export default function NotificationsPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id })
         });
-        setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
+        fetchNotifications();
       } catch (error) {
         console.error('Failed to mark read:', error);
       }
     }
 
     if (link) {
-      window.location.href = link;
+      window.location.assign(link);
     }
   };
 
@@ -98,7 +85,7 @@ export default function NotificationsPage() {
         method: 'DELETE'
       });
       if (res.ok) {
-        setNotifications([]);
+        fetchNotifications();
         toast.success('Notification history cleared');
         setClearConfirm(false);
       } else {
@@ -165,7 +152,7 @@ export default function NotificationsPage() {
         ) : notifications.length === 0 ? (
           <div className="p-16 flex flex-col items-center justify-center text-gray-400">
             <Bell className="w-16 h-16 text-gray-200 mb-4" />
-            <p className="text-lg font-medium text-gray-900">You\'re all caught up!</p>
+            <p className="text-lg font-medium text-gray-900">You&apos;re all caught up!</p>
             <p className="text-sm">There are no notifications to show right now.</p>
           </div>
         ) : (
@@ -188,7 +175,7 @@ export default function NotificationsPage() {
                       {new Date(notification.createdAt).toLocaleDateString()} at {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
                     {notification.message}
                   </p>
                 </div>

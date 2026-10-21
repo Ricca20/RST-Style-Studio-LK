@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { checkAuth, requireRole } from '@/lib/auth/server-auth';
+import { requireRole } from '@/lib/auth/server-auth';
 import { Resend } from 'resend';
+import { escapeHtml } from '@/lib/utils/escapeHtml';
 
 export async function PUT(request, { params }) {
   const { id } = await params;
@@ -43,22 +44,22 @@ export async function PUT(request, { params }) {
         if (status === 'ACCEPTED') {
           subject = `Great News! Your Quotation has been ACCEPTED - RST Style Studio`;
           messageHtml = `
-            <p>Hi <strong>${quotation.name}</strong>,</p>
-            <p>We are thrilled to inform you that your quotation request for <strong>${quotation.genre || 'your project'}</strong> has been <strong>ACCEPTED</strong>.</p>
+            <p>Hi <strong>${escapeHtml(quotation.name)}</strong>,</p>
+            <p>We are thrilled to inform you that your quotation request for <strong>${escapeHtml(quotation.genre || 'your project')}</strong> has been <strong>ACCEPTED</strong>.</p>
             <p>Our team will reach out to you shortly to discuss the next steps and get started on bringing your vision to life.</p>
             <p>If you have any immediate questions, feel free to reply directly to this email.</p>
           `;
         } else if (status === 'REJECTED') {
           subject = `Update on your Quotation Request - RST Style Studio`;
           messageHtml = `
-            <p>Hi <strong>${quotation.name}</strong>,</p>
+            <p>Hi <strong>${escapeHtml(quotation.name)}</strong>,</p>
             <p>Thank you for reaching out to us with your project request.</p>
             <p>After careful review, we regret to inform you that we are unable to accept your project at this time. This is typically due to schedule constraints or budget mismatches.</p>
             <p>We appreciate your interest in RST Style Studio and wish you the best with your project.</p>
           `;
         } else if (status === 'REVIEWED') {
           messageHtml = `
-            <p>Hi <strong>${quotation.name}</strong>,</p>
+            <p>Hi <strong>${escapeHtml(quotation.name)}</strong>,</p>
             <p>Just a quick update: Our team is currently reviewing your quotation request.</p>
             <p>We will be in touch with you shortly with a personalized response.</p>
           `;

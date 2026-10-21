@@ -20,6 +20,7 @@ export default async function SongsPage({ params }) {
     songs = await prisma.song.findMany({
       where: { 
         deletedAt: null,
+        isDraft: false,
         projectType: 'SONG'
       },
       orderBy: { createdAt: 'desc' },
@@ -38,7 +39,7 @@ export default async function SongsPage({ params }) {
     <div className="min-h-screen bg-transparent text-white pt-24 pb-32 relative overflow-hidden">
       {/* Background glow effects */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-[#0ea5e9]/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-40 left-10 w-96 h-96 bg-[#9d2bee]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-40 left-10 w-96 h-96 bg-rst-accent/10 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Header Section */}
       <section className="relative w-full max-w-7xl mx-auto px-4 md:px-10 pt-10 pb-6">

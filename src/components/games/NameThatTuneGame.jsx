@@ -1,160 +1,102 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Disc, Trophy, ArrowRight, XCircle } from 'lucide-react';
+import { useLocale } from 'next-intl';
+import { Play, Pause, Disc } from 'lucide-react';
+import { GameError, GameFinished, GameLoading, gameFetch, localized, nowMs } from './GameStatus';
 
 export default function NameThatTuneGame() {
+  const locale = useLocale();
+  const [phase, setPhase] = useState('loading'); // loading, playing, submitting, finished, error
   const [clips, setClips] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [gameState, setGameState] = useState('loading'); // loading, playing, submitting, finished, error
-  const [answers, setAnswers] = useState([]);
-  const [scoreData, setScoreData] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
-  
-  const [questionStartTime, setQuestionStartTime] = useState(null);
+  const [score, setScore] = useState(null);
+  const [error, setError] = useState(null);
+
   const audioRef = useRef(null);
+  const tokenRef = useRef(null);
+  const answersRef = useRef([]);
+  const questionStartRef = useRef(0);
 
   useEffect(() => {
-    fetchClips();
+    let cancelled = false;
+    gameFetch('/api/games/tune')
+      .then(({ clips: served, token }) => {
+        if (cancelled) return;
+        tokenRef.current = token;
+        questionStartRef.current = nowMs();
+        setClips(served);
+        setPhase('playing');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err);
+        setPhase('error');
+      });
+    return () => { cancelled = true; };
   }, []);
 
-  const fetchClips = async () => {
-    try {
-      const res = await fetch('/api/games/tune');
-      if (!res.ok) {
-        if (res.status === 401) throw new Error('unauthorized');
-        throw new Error('Failed to load clips');
-      }
-      const data = await res.json();
-      setClips(data);
-      setGameState('playing');
-      setQuestionStartTime(Date.now());
-    } catch (err) {
-      setGameState('error');
-      setErrorMessage(err.message === 'unauthorized' ? 'Please register or login to play.' : 'Could not load clips.');
-    }
-  };
-
   const togglePlay = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
     if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play().catch(e => console.error("Audio play error", e));
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleAudioEnd = () => {
-    setIsPlaying(false);
-  };
-
-  const handleAnswer = (optionId) => {
-    const timeTakenMs = Date.now() - questionStartTime;
-    const currentC = clips[currentIdx];
-
-    setAnswers(prev => [...prev, {
-      clipId: currentC.id,
-      selectedOptionId: optionId,
-      timeTakenMs
-    }]);
-
-    // Pause current audio
-    if (audioRef.current) {
-      audioRef.current.pause();
+      audio.pause();
       setIsPlaying(false);
+    } else {
+      audio.play()
+        .then(() => setIsPlaying(true))
+        .catch((e) => console.error('Audio play error', e));
     }
+  };
+
+  const submit = async (answers) => {
+    setPhase('submitting');
+    try {
+      const data = await gameFetch('/api/games/tune/submit', {
+        method: 'POST',
+        body: JSON.stringify({ token: tokenRef.current, answers }),
+      });
+      setScore(data.score);
+      setPhase('finished');
+    } catch (err) {
+      setError(err);
+      setPhase('error');
+    }
+  };
+
+  const answer = (optionId) => {
+    const clip = clips[currentIdx];
+    const timeTakenMs = Math.min(nowMs() - questionStartRef.current, 60_000);
+    answersRef.current = [...answersRef.current, { clipId: clip.id, selectedOptionId: optionId, timeTakenMs }];
+
+    audioRef.current?.pause();
+    setIsPlaying(false);
 
     if (currentIdx + 1 < clips.length) {
-      setCurrentIdx(prev => prev + 1);
-      setQuestionStartTime(Date.now());
+      questionStartRef.current = nowMs();
+      setCurrentIdx(currentIdx + 1);
     } else {
-      setGameState('submitting');
+      submit(answersRef.current);
     }
   };
 
-  useEffect(() => {
-    if (gameState === 'submitting') {
-      submitScore();
-    }
-  }, [gameState]);
-
-  const submitScore = async () => {
-    try {
-      const res = await fetch('/api/games/tune/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit score');
-      
-      setScoreData(data);
-      setGameState('finished');
-    } catch (err) {
-      setGameState('error');
-      setErrorMessage(err.message);
-    }
-  };
-
-  if (gameState === 'loading') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-white/50">
-        <div className="w-8 h-8 border-2 border-white/20 border-t-[#0ea5e9] rounded-full animate-spin mb-4" />
-        <p>Loading audio clips...</p>
-      </div>
-    );
-  }
-
-  if (gameState === 'error') {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6">
-        <XCircle className="w-16 h-16 text-red-500 mb-4" />
-        <h2 className="text-2xl font-bold text-white mb-2">Oops!</h2>
-        <p className="text-red-400 mb-6">{errorMessage}</p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
-        >
-          Try Again
-        </button>
-      </div>
-    );
-  }
-
-  if (gameState === 'finished' && scoreData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] text-center p-6 animate-in fade-in zoom-in duration-500">
-        <div className="w-24 h-24 bg-gradient-to-br from-[#0ea5e9] to-[#9d2bee] rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(14,165,233,0.5)]">
-          <Trophy className="w-12 h-12 text-white" />
-        </div>
-        <h2 className="text-3xl font-bold text-white mb-2">Game Over!</h2>
-        
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-8 w-full max-w-md">
-          <span className="block text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">Your Score</span>
-          <span className="block text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee]">
-            {scoreData.score}
-          </span>
-        </div>
-
-        <a href="/games" className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg text-white font-semibold transition-colors">
-          Back to Arcade <ArrowRight className="w-4 h-4" />
-        </a>
-      </div>
-    );
-  }
+  if (phase === 'loading') return <GameLoading label="Loading audio clips…" />;
+  if (phase === 'submitting') return <GameLoading label="Calculating your score…" />;
+  if (phase === 'error') return <GameError error={error} />;
+  if (phase === 'finished') return <GameFinished score={score} subtitle="You completed Name That Tune." />;
 
   const currentC = clips[currentIdx];
   if (!currentC) return null;
 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col items-center min-h-[500px]">
-      
-      {/* Hidden Audio Element */}
-      <audio 
-        ref={audioRef} 
-        src={currentC.audioUrl} 
-        onEnded={handleAudioEnd} 
+
+      {/* key resets the element so each clip starts from the beginning */}
+      <audio
+        key={currentC.id}
+        ref={audioRef}
+        src={currentC.audioUrl}
+        onEnded={() => setIsPlaying(false)}
         preload="auto"
       />
 
@@ -170,10 +112,10 @@ export default function NameThatTuneGame() {
       <div className="flex flex-col items-center mb-12">
         <div className={`relative mb-6 ${isPlaying ? 'animate-[spin_4s_linear_infinite]' : ''}`}>
           <Disc className="w-32 h-32 text-white/10" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#0ea5e9]/20 to-[#9d2bee]/20 rounded-full mix-blend-overlay" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#0ea5e9]/20 to-rst-accent/20 rounded-full mix-blend-overlay" />
         </div>
-        
-        <button 
+
+        <button
           onClick={togglePlay}
           className="flex items-center gap-3 px-8 py-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full text-white font-bold transition-transform hover:scale-105 active:scale-95"
         >
@@ -183,7 +125,7 @@ export default function NameThatTuneGame() {
       </div>
 
       <h2 className="text-xl font-medium text-center text-white/80 mb-6">
-        {currentC.titleEn}
+        {localized(currentC, 'title', locale)}
       </h2>
 
       {/* Options */}
@@ -191,11 +133,11 @@ export default function NameThatTuneGame() {
         {currentC.options.map((opt) => (
           <button
             key={opt.id}
-            onClick={() => handleAnswer(opt.id)}
+            onClick={() => answer(opt.id)}
             className="w-full p-4 md:p-6 text-left bg-white/5 hover:bg-[#0ea5e9]/20 border border-white/10 hover:border-[#0ea5e9]/50 rounded-xl text-white font-medium transition-all hover:scale-[1.02] active:scale-[0.98] group"
           >
             <div className="flex items-center justify-between">
-              <span>{opt.textEn}</span>
+              <span>{localized(opt, 'text', locale)}</span>
               <div className="w-5 h-5 rounded-full border-2 border-white/20 group-hover:border-[#0ea5e9] transition-colors" />
             </div>
           </button>

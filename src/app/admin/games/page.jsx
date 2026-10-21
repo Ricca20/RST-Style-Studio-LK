@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Gamepad2, Trophy, HelpCircle, AlertTriangle } from 'lucide-react';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { Gamepad2, Trophy, HelpCircle, AlertTriangle, Music } from 'lucide-react';
 import AdminTriviaManager from '@/components/admin/games/AdminTriviaManager';
+import AdminTuneManager from '@/components/admin/games/AdminTuneManager';
 import AdminLeaderboardsManager from '@/components/admin/games/AdminLeaderboardsManager';
 import AdminGamesMaintenance from '@/components/admin/games/AdminGamesMaintenance';
 
@@ -18,7 +18,7 @@ export default function ArcadeGamesAdminPage() {
           Arcade Games Administration
         </h1>
         <p className="text-gray-500">
-          Manage trivia questions, set monthly prizes, and approve leaderboard winners.
+          Manage trivia questions and tune clips, set monthly prizes, and approve leaderboard winners.
         </p>
       </div>
 
@@ -47,6 +47,17 @@ export default function ArcadeGamesAdminPage() {
           Trivia Manager
         </button>
         <button
+          onClick={() => setActiveTab('tune')}
+          className={`pb-4 px-2 font-medium transition-all whitespace-nowrap ${
+            activeTab === 'tune'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-500 hover:text-gray-800'
+          } flex items-center gap-2`}
+        >
+          <Music className="w-4 h-4" />
+          Name That Tune
+        </button>
+        <button
           onClick={() => setActiveTab('maintenance')}
           className={`pb-4 px-2 font-medium transition-all whitespace-nowrap ${
             activeTab === 'maintenance'
@@ -63,6 +74,7 @@ export default function ArcadeGamesAdminPage() {
       <div className="pt-4">
         {activeTab === 'leaderboards' && <AdminLeaderboardsManager />}
         {activeTab === 'trivia' && <AdminTriviaManager />}
+        {activeTab === 'tune' && <AdminTuneManager />}
         {activeTab === 'maintenance' && <AdminGamesMaintenance />}
       </div>
     </div>

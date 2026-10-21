@@ -1,22 +1,12 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import { requireRole } from '@/lib/auth/server-auth';
+import { logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { sendLeaderboardWinnerEmail } from '@/lib/services/sendEmail';
+
+const GAME_TYPES = ['TRIVIA', 'PITCH_MATCH', 'THEORY', 'NAME_THAT_TUNE', 'RHYTHM_TAP'];
 
 export async function GET(request) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-        },
-      }
-    );
-
     const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     const user = authResult.user;
@@ -59,17 +49,6 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-        },
-      }
-    );
-
     const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     const user = authResult.user;
@@ -78,7 +57,12 @@ export async function POST(request) {
     const { action } = body;
 
     if (action === 'SET_PRIZE') {
-      const { gameType, month, year, prizeDetails } = body;
+      const { gameType, prizeDetails } = body;
+      const month = Number(body.month);
+      const year = Number(body.year);
+      if (!GAME_TYPES.includes(gameType) || !Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000) {
+        return NextResponse.json({ error: 'Valid game, month and year are required' }, { status: 400 });
+      }
       const leaderboard = await prisma.monthlyLeaderboard.upsert({
         where: {
           gameType_month_year: { gameType, month, year }
@@ -90,25 +74,47 @@ export async function POST(request) {
     } 
     else if (action === 'APPROVE_WINNER') {
       const { leaderboardId, winnerId } = body;
-      
-      // Get the score for this winner
+
       const leaderboard = await prisma.monthlyLeaderboard.findUnique({ where: { id: leaderboardId } });
+      if (!leaderboard) {
+        return NextResponse.json({ error: 'Leaderboard not found' }, { status: 404 });
+      }
+
+      // The winner must actually have a score on this leaderboard
       const winningScore = await prisma.gameScore.findFirst({
-        where: { playerId: winnerId, gameType: leaderboard.gameType, month: leaderboard.month, year: leaderboard.year }
+        where: { playerId: winnerId, gameType: leaderboard.gameType, month: leaderboard.month, year: leaderboard.year },
+        include: { player: true }
+      });
+      if (!winningScore) {
+        return NextResponse.json({ error: 'This player has no score on this leaderboard' }, { status: 400 });
+      }
+
+      const emailSent = await sendLeaderboardWinnerEmail({
+        email: winningScore.player.email,
+        username: winningScore.player.username,
+        gameType: leaderboard.gameType,
+        month: leaderboard.month,
+        year: leaderboard.year,
+        score: winningScore.score,
+        prizeDetails: leaderboard.prizeDetails,
       });
 
       const updated = await prisma.monthlyLeaderboard.update({
         where: { id: leaderboardId },
         data: {
           winnerId,
-          winnerScore: winningScore?.score || null,
+          winnerScore: winningScore.score,
           adminApproved: true,
-          emailSentAt: new Date()
+          // Only record a send time if the email really went out
+          emailSentAt: emailSent ? new Date() : null
         }
       });
 
-      // TODO: Send winner email via Resend
+      await logAuditAction(user.dbUser.id, 'APPROVE_LEADERBOARD_WINNER', 'MonthlyLeaderboard', leaderboardId, { winnerId, emailSent }, request);
 
+      if (!emailSent) {
+        return NextResponse.json({ ...updated, warning: 'Winner approved, but the email could not be sent. Contact the player manually.' });
+      }
       return NextResponse.json(updated);
     }
 

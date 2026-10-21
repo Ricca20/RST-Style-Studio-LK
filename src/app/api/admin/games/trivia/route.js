@@ -1,25 +1,13 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import prisma from '@/lib/db';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { requireRole } from '@/lib/auth/server-auth';
+import { nullIfBlank, triviaQuestionSchema } from '@/lib/games/questionSchemas';
 
-export async function GET(request) {
+export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-        },
-      }
-    );
-
     const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-    const user = authResult.user;
 
     const questions = await prisma.triviaQuestion.findMany({
       orderBy: { createdAt: 'desc' }
@@ -27,47 +15,31 @@ export async function GET(request) {
 
     return NextResponse.json(questions);
   } catch (error) {
+    console.error('Error fetching trivia questions:', error);
     return NextResponse.json({ error: 'Failed to fetch trivia questions' }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      {
-        cookies: {
-          getAll() { return cookieStore.getAll(); },
-        },
-      }
-    );
-
     const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
     if (!authResult.authorized) return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-    const user = authResult.user;
 
-    const body = await request.json();
-    const { difficulty, questionEn, questionSi, options, correctOption, isActive } = body;
-
-    if (!questionEn || !options || !correctOption) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
+    const data = triviaQuestionSchema.parse(await request.json());
     const question = await prisma.triviaQuestion.create({
       data: {
-        difficulty,
-        questionEn,
-        questionSi: questionSi || null,
-        options,
-        correctOption,
-        isActive
+        ...data,
+        questionSi: nullIfBlank(data.questionSi),
+        questionIt: nullIfBlank(data.questionIt),
       }
     });
 
-    return NextResponse.json(question);
+    return NextResponse.json(question, { status: 201 });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: error.issues[0]?.message || 'Validation Error', details: error.issues }, { status: 400 });
+    }
+    console.error('Error creating trivia question:', error);
     return NextResponse.json({ error: 'Failed to create trivia question' }, { status: 500 });
   }
 }

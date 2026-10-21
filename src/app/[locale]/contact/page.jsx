@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import prisma from '@/lib/db';
+import { getPublicSettings } from '@/lib/settings';
 import ContactClient from '@/components/public/ContactClient';
 
 export async function generateMetadata({ params }) {
@@ -15,7 +15,7 @@ export default async function ContactPage({ params }) {
 
   let settings = null;
   try {
-    settings = await prisma.studioSettings.findFirst();
+    settings = await getPublicSettings();
   } catch (e) {
     console.error('Failed to fetch studio settings on contact page:', e);
   }
@@ -24,7 +24,7 @@ export default async function ContactPage({ params }) {
     <div className="min-h-screen bg-transparent text-white pt-36 lg:pt-44 pb-32 relative overflow-hidden">
       {/* Ambient lighting */}
       <div className="absolute top-20 right-10 w-[600px] h-[600px] bg-[#0ea5e9]/10 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[600px] h-[600px] bg-[#9d2bee]/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-[600px] h-[600px] bg-rst-accent/10 rounded-full blur-[160px] pointer-events-none" />
 
       <main className="w-full max-w-7xl mx-auto px-4 md:px-10 py-4 relative z-10">
         {/* Header Title */}
@@ -35,7 +35,7 @@ export default async function ContactPage({ params }) {
               Master Control Desk • All Social Channels Online
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase leading-tight">
-              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">BOOKINGS & CONTACT</span>
+              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-rst-accent">BOOKINGS & CONTACT</span>
             </h1>
           </div>
           <p className="text-gray-400 max-w-md text-sm md:text-base leading-relaxed font-light">

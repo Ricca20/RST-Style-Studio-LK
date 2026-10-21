@@ -18,6 +18,7 @@ export default async function ProjectsPage({ params }) {
     projects = await prisma.song.findMany({
       where: { 
         deletedAt: null,
+        isDraft: false,
         projectType: { not: 'SONG' }
       },
       orderBy: { createdAt: 'desc' },
@@ -34,7 +35,7 @@ export default async function ProjectsPage({ params }) {
     <div className="min-h-screen bg-transparent text-white pt-24 pb-32 relative overflow-hidden">
       {/* Background glow effects */}
       <div className="absolute top-20 right-10 w-96 h-96 bg-[#0ea5e9]/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-40 left-10 w-96 h-96 bg-[#9d2bee]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-40 left-10 w-96 h-96 bg-rst-accent/10 rounded-full blur-[140px] pointer-events-none" />
 
       {/* Header Section */}
       <section className="relative w-full max-w-7xl mx-auto px-4 md:px-10 pt-10 pb-6">
@@ -45,7 +46,7 @@ export default async function ProjectsPage({ params }) {
               Creative Portfolio
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white tracking-tight uppercase">
-              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-[#9d2bee]">PROJECTS</span>
+              STUDIO <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0ea5e9] via-white to-rst-accent">PROJECTS</span>
             </h1>
           </div>
           <p className="text-gray-400 max-w-md text-sm md:text-base leading-relaxed font-light">

@@ -70,17 +70,18 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
   const [errorMsg, setErrorMsg] = useState('');
 
   // Contact addresses & Social networks
-  const contactPhone = settings?.phone || '+94 77 123 4567';
+  // No placeholder numbers: an unset phone must not send visitors to a stranger's WhatsApp.
+  const contactPhone = settings?.phone || null;
   const contactEmail = settings?.email || 'hello@rststylestudiolk.com';
   const contactAddress = settings?.address || 'Colombo / Gampaha, Sri Lanka';
-  const whatsappNumber = settings?.whatsapp || settings?.phone || '+94771234567';
+  const whatsappNumber = settings?.whatsapp || settings?.phone || null;
 
   const socialLinks = [
     {
       id: 'INSTAGRAM',
       name: 'Instagram',
       handle: '@rststylestudio',
-      url: settings?.instagramUrl || 'https://instagram.com',
+      url: settings?.instagramUrl || null,
       icon: <InstagramIcon />,
       color: 'from-pink-500/15 via-purple-500/15 to-orange-500/15',
       borderColor: 'border-pink-500/30 hover:border-pink-500',
@@ -90,7 +91,7 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
       id: 'YOUTUBE',
       name: 'YouTube',
       handle: 'RST Style Studio LK',
-      url: settings?.youtubeUrl || 'https://youtube.com',
+      url: settings?.youtubeUrl || null,
       icon: <YouTubeIcon />,
       color: 'from-red-600/15 to-red-900/15',
       borderColor: 'border-red-500/30 hover:border-red-500',
@@ -100,7 +101,7 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
       id: 'FACEBOOK',
       name: 'Facebook',
       handle: 'RST Style Studio LK',
-      url: settings?.facebookUrl || 'https://facebook.com',
+      url: settings?.facebookUrl || null,
       icon: <FacebookIcon />,
       color: 'from-blue-600/15 to-blue-900/15',
       borderColor: 'border-blue-500/30 hover:border-blue-500',
@@ -110,7 +111,7 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
       id: 'SPOTIFY',
       name: 'Spotify',
       handle: 'RST Style Studio Catalog',
-      url: settings?.spotifyUrl || 'https://spotify.com',
+      url: settings?.spotifyUrl || null,
       icon: <SpotifyIcon />,
       color: 'from-green-600/15 to-green-900/15',
       borderColor: 'border-green-500/30 hover:border-green-500',
@@ -120,7 +121,7 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
       id: 'TIKTOK',
       name: 'TikTok',
       handle: '@rststylestudio',
-      url: settings?.tiktokUrl || 'https://tiktok.com',
+      url: settings?.tiktokUrl || null,
       icon: <TikTokIcon />,
       color: 'from-cyan-500/15 to-purple-500/15',
       borderColor: 'border-cyan-500/30 hover:border-cyan-500',
@@ -129,14 +130,14 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
     {
       id: 'WHATSAPP',
       name: 'WhatsApp Desk',
-      handle: contactPhone,
-      url: `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`,
+      handle: contactPhone || whatsappNumber,
+      url: whatsappNumber ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}` : null,
       icon: <MessageCircle className="w-6 h-6 text-emerald-400" />,
       color: 'from-emerald-500/15 to-emerald-900/15',
       borderColor: 'border-emerald-500/30 hover:border-emerald-500',
       badge: 'DIRECT INQUIRY',
     },
-  ];
+  ].filter((social) => social.url);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -177,6 +178,7 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
   };
 
   const openWhatsAppInquiry = () => {
+    if (!whatsappNumber) return;
     const text = `Hello RST Style Studio!\n\nI am *${name}*${artistName ? ` (${artistName})` : ''}.\n\n*Service:* ${service}\n*Preferred Date:* ${preferredDate || 'Flexible'}\n*Email:* ${email}\n\n*Notes:*\n${notes || 'N/A'}`;
     const waUrl = buildWhatsAppUrl(whatsappNumber, text);
     window.open(waUrl, '_blank');
@@ -259,9 +261,13 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
             </div>
             <div className="min-w-0">
               <span className="text-[10px] font-mono text-gray-400 uppercase block">STUDIO DESK PHONE</span>
-              <a href={`tel:${contactPhone}`} className="text-sm font-bold text-white hover:text-[#0ea5e9] transition-colors block truncate">
-                {contactPhone}
-              </a>
+              {contactPhone ? (
+                <a href={`tel:${contactPhone}`} className="text-sm font-bold text-white hover:text-[#0ea5e9] transition-colors block truncate">
+                  {contactPhone}
+                </a>
+              ) : (
+                <span className="text-sm font-bold text-white/40 block truncate">Contact us by email</span>
+              )}
             </div>
           </div>
 
@@ -320,13 +326,13 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-xl mx-auto">
-                <button
+                {whatsappNumber && <button
                   type="button"
                   onClick={openWhatsAppInquiry}
                   className="px-6 py-4 rounded-2xl bg-green-600 hover:bg-green-500 text-white font-mono text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(22,163,74,0.4)] transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" /> Open Copy in WhatsApp
-                </button>
+                </button>}
                 <button
                   type="button"
                   onClick={openMailTo}
@@ -488,7 +494,7 @@ export default function ContactClient({ settings = null, locale = 'en' }) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:w-auto px-10 h-16 rounded-2xl bg-gradient-to-r from-[#0ea5e9] to-[#9d2bee] hover:opacity-95 disabled:opacity-50 text-white font-mono font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(14,165,233,0.5)] transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-10 h-16 rounded-2xl bg-gradient-to-r from-[#0ea5e9] to-rst-accent hover:opacity-95 disabled:opacity-50 text-white font-mono font-bold text-sm tracking-widest uppercase flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(14,165,233,0.5)] transition-all cursor-pointer"
                 >
                   <Send className="w-5 h-5" />
                   {isSubmitting ? 'TRANSMITTING REQUEST...' : 'TRANSMIT INQUIRY & SEND EMAIL'}

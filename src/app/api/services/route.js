@@ -18,7 +18,8 @@ const serviceSchema = z.object({
 export async function GET(request) {
   try {
     const services = await prisma.service.findMany({
-      orderBy: { createdAt: 'desc' }
+      where: { deletedAt: null, isActive: true },
+      orderBy: { sortOrder: 'asc' }
     });
     return NextResponse.json(services);
   } catch (error) {
@@ -44,7 +45,7 @@ export async function POST(request) {
     return NextResponse.json(service, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
+      return NextResponse.json({ error: 'Validation Error', details: error.issues }, { status: 400 });
     }
     return NextResponse.json({ error: 'Failed to create service' }, { status: 500 });
   }

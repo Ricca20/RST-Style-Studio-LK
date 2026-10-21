@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useEffectEvent, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight, Download, Sparkles, Image as ImageIcon, ExternalLink } from 'lucide-react';
 
@@ -55,31 +55,27 @@ const DEFAULT_MEDIA_IMAGES = [
   '/Media/505918218_10234007792764008_4685879429940999270_n.jpg',
 ];
 
+const subscribeNoop = () => () => {};
+
 export default function MediaGalleryClient() {
   const [images, setImages] = useState(DEFAULT_MEDIA_IMAGES);
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [downloadingIndex, setDownloadingIndex] = useState(null);
-  const [mounted, setMounted] = useState(false);
+  // true only in the browser (false during server render), without an extra effect
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
 
   useEffect(() => {
-    setMounted(true);
+    let ignore = false;
     // Fetch newly uploaded images from Admin Dashboard (Supabase 'media' bucket)
-    const fetchAdminMedia = async () => {
-      try {
-        const res = await fetch('/api/public/media');
-        if (res.ok) {
-          const cloudUrls = await res.json();
-          if (Array.isArray(cloudUrls) && cloudUrls.length > 0) {
-            // Prepend admin-uploaded cloud images ahead of static studio photos
-            const combined = Array.from(new Set([...cloudUrls, ...DEFAULT_MEDIA_IMAGES]));
-            setImages(combined);
-          }
-        }
-      } catch (err) {
-        console.error('Failed to load admin uploaded media:', err);
-      }
-    };
-    fetchAdminMedia();
+    fetch('/api/public/media')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((cloudUrls) => {
+        if (ignore || !Array.isArray(cloudUrls) || cloudUrls.length === 0) return;
+        // Prepend admin-uploaded cloud images ahead of static studio photos
+        setImages(Array.from(new Set([...cloudUrls, ...DEFAULT_MEDIA_IMAGES])));
+      })
+      .catch((err) => console.error('Failed to load admin uploaded media:', err));
+    return () => { ignore = true; };
   }, []);
 
   // Reliable Universal Download Handler
@@ -122,10 +118,12 @@ export default function MediaGalleryClient() {
     }
   };
 
+  const onKeyDown = useEffectEvent(handleKeyDown);
+
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex, images.length]);
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   // Render Fullscreen Lightbox via React Portal directly to document.body
   const renderLightboxModal = () => {

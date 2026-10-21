@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { CONTENT_ROLES } from '@/lib/auth/admin-access';
 
 // Helper to init supabase admin client
 async function getSupabaseAdmin() {
@@ -20,7 +21,7 @@ async function getSupabaseAdmin() {
 
 export async function GET(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
@@ -56,7 +57,7 @@ export async function GET(request) {
 
 export async function DELETE(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
@@ -109,7 +110,7 @@ export async function DELETE(request) {
 
 export async function POST(request) {
   try {
-    const authResult = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    const authResult = await requireRole(CONTENT_ROLES);
     if (!authResult.authorized) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status });
     }
@@ -127,16 +128,28 @@ export async function POST(request) {
       return NextResponse.json({ error: 'File exceeds 5MB limit' }, { status: 400 });
     }
 
+    // The bucket is public, so only accept media types. Anything else (HTML, SVG,
+    // scripts) could be served from the storage domain and abused.
+    const ALLOWED_EXTENSIONS = {
+      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif',
+      mp3: 'audio/mpeg', m4a: 'audio/mp4', ogg: 'audio/ogg', wav: 'audio/wav',
+    };
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    const contentType = ALLOWED_EXTENSIONS[extension];
+    if (!contentType) {
+      return NextResponse.json({ error: 'Only images (JPG, PNG, WebP, GIF) and audio (MP3, M4A, OGG, WAV) can be uploaded' }, { status: 400 });
+    }
+
     const supabase = await getSupabaseAdmin();
     
-    const fileExt = file.name.split('.').pop().replace(/[^a-zA-Z0-9]/g, '');
-    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${extension}`;
 
     const { data, error } = await supabase.storage
       .from('media')
       .upload(fileName, file, {
         cacheControl: '3600',
-        upsert: false
+        upsert: false,
+        contentType
       });
 
     if (error) {

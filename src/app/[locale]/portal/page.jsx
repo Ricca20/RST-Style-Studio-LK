@@ -29,6 +29,7 @@ export default async function PortalPage({ params }) {
 
   // Fetch available songs to claim
   const allSongs = await prisma.song.findMany({
+    where: { deletedAt: null, isDraft: false },
     select: { id: true, titleEn: true, titleSi: true },
     orderBy: { titleEn: 'asc' }
   });

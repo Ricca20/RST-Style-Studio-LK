@@ -1,6 +1,3 @@
-import slugify from 'slugify';
-import { v4 as uuidv4 } from 'uuid';
-
 export function createSlug(text) {
   if (!text) return '';
   
@@ -12,7 +9,7 @@ export function createSlug(text) {
 
   // If entirely stripped (e.g., only punctuation), fallback to uuid
   if (!slug || slug.trim() === '') {
-    slug = uuidv4().split('-')[0];
+    slug = crypto.randomUUID().split('-')[0];
   }
   
   return slug;

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { calculateBudgetEstimate } from '@/lib/utils/budget';
+import BookingStatusNotice from '@/components/public/BookingStatusNotice';
 import {
   CheckCircle2,
   ChevronRight,
@@ -22,26 +24,8 @@ import {
 } from 'lucide-react';
 import { buildWhatsAppUrl } from '@/lib/services/whatsapp';
 import TiltCard from '@/components/ui/TiltCard';
+import { CORE_ROLES as ROLE_ORDER, INSTRUMENT_ROLES } from '@/lib/quoteRoles';
 
-const ROLE_ORDER = [
-  { key: 'LYRICS', label: 'Lyrics', description: 'Songwriter / Lyricist', emoji: '✍️', required: true },
-  { key: 'MELODY', label: 'Melody', description: 'Melody Composer', emoji: '🎵', required: true },
-  { key: 'MUSIC', label: 'Music Arrangement', description: 'Music Arranger / Producer', emoji: '🎹', required: true },
-  { key: 'MIX_MASTER', label: 'Mix & Master', description: 'Mixing & Mastering Engineer', emoji: '🎛️', required: true },
-];
-
-const INSTRUMENT_ROLES = [
-  { key: 'LEAD_GUITAR', label: 'Lead Guitar', emoji: '🎸' },
-  { key: 'RHYTHM_GUITAR', label: 'Rhythm Guitar', emoji: '🎸' },
-  { key: 'BASS_GUITAR', label: 'Bass Guitar', emoji: '🎸' },
-  { key: 'FLUTE', label: 'Flute', emoji: '🪈' },
-  { key: 'SITAR', label: 'Sitar', emoji: '🪕' },
-  { key: 'VIOLIN', label: 'Violin', emoji: '🎻' },
-  { key: 'DRUMS', label: 'Drums', emoji: '🥁' },
-  { key: 'KEYBOARD', label: 'Keyboard', emoji: '🎹' },
-  { key: 'TABLA', label: 'Tabla', emoji: '🪘' },
-  { key: 'SINGING', label: 'Singing / Vocals', emoji: '🎤' },
-];
 
 const GENRES = [
   'Pop', 'Classical', 'Hip-Hop', 'R&B', 'Rock', 'Jazz', 'EDM',
@@ -85,9 +69,13 @@ export default function ServicesPageClient({
     default: 'surround_sound',
   };
 
-  const totalBudget = Object.values(selections).reduce((sum, sel) => sum + (sel?.price || 0), 0);
-  const minBudget = Math.floor(totalBudget * 0.85);
-  const maxBudget = Math.ceil(totalBudget * 1.15);
+  const minimumBudget = settings?.minimumQuotationBudget || 0;
+  const { tax, totalBudget, minBudget, maxBudget, belowMinimum } = calculateBudgetEstimate(selections, {
+    taxRate: settings?.taxRate,
+    minimumBudget,
+  });
+  const contactPhone = settings?.whatsapp || settings?.phone || null;
+  const [submitError, setSubmitError] = useState('');
 
   const handleSelectPerson = (role, person, roleLabel) => {
     setSelections((prev) => {
@@ -122,11 +110,12 @@ export default function ServicesPageClient({
   };
 
   const submitQuote = async () => {
-    if (!name.trim() || !phone.trim()) return;
+    if (!name.trim() || !phone.trim() || belowMinimum) return;
     setIsSubmitting(true);
+    setSubmitError('');
     try {
       const selectionsArr = Object.values(selections);
-      await fetch('/api/quotations', {
+      const res = await fetch('/api/quotations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -140,10 +129,14 @@ export default function ServicesPageClient({
           estimatedBudget: totalBudget,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to submit. Please try again.');
+      }
       setIsSubmitted(true);
     } catch (e) {
       console.error('Submission failed:', e);
-      alert('Failed to submit. Please try again.');
+      setSubmitError(e.message || 'Failed to submit. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -155,7 +148,7 @@ export default function ServicesPageClient({
       .map((s) => `• ${s.roleLabel}: ${s.name} (Rs ${s.price?.toLocaleString()})`)
       .join('\n');
     const message = `Hello RST Style Studio!\n\nI am *${name}*.\n\n*Genre:* ${genre || 'Not specified'}\n\n*My Team:*\n${teamList}\n\n*Estimated Budget:* Rs ${minBudget.toLocaleString()} - Rs ${maxBudget.toLocaleString()}\n\n*Description:*\n${description || 'N/A'}\n\nPlease get back to me at ${phone}.`;
-    const contactPhone = settings?.whatsapp || settings?.phone || '+94771234567';
+    if (!contactPhone) return;
     const waUrl = buildWhatsAppUrl(contactPhone, message);
     window.open(waUrl, '_blank');
   };
@@ -358,6 +351,8 @@ export default function ServicesPageClient({
             </p>
           </div>
 
+          <BookingStatusNotice status={settings?.bookingStatus} className="max-w-2xl mx-auto mb-8" />
+
           {isSubmitted ? (
             /* Submission Success Screen */
             <div className="bg-black/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-10 text-center shadow-2xl relative overflow-hidden">
@@ -370,12 +365,12 @@ export default function ServicesPageClient({
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button
+                {contactPhone && <button
                   onClick={openWhatsApp}
                   className="px-8 py-4 rounded-2xl bg-green-600 hover:bg-green-500 text-white font-mono text-sm font-bold flex items-center justify-center gap-2.5 shadow-[0_0_25px_rgba(22,163,74,0.4)] transition-all cursor-pointer"
                 >
                   <MessageCircle className="w-5 h-5" /> Send Directly to Studio WhatsApp
-                </button>
+                </button>}
                 <button
                   onClick={() => {
                     setIsSubmitted(false);
@@ -706,13 +701,25 @@ export default function ServicesPageClient({
                               </div>
                             ))
                           )}
+                          {tax > 0 && (
+                            <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                              <span>Tax ({settings.taxRate}%)</span>
+                              <span className="text-white">Rs {tax.toLocaleString()}</span>
+                            </div>
+                          )}
                         </div>
+                        {belowMinimum && (
+                          <p className="text-xs text-amber-300 mt-4">
+                            Our minimum project budget is Rs {minimumBudget.toLocaleString()}. Please add more to your team to submit this request.
+                          </p>
+                        )}
+                        {submitError && <p className="text-xs text-red-400 mt-4">{submitError}</p>}
                       </div>
 
                       <button
                         type="button"
                         onClick={submitQuote}
-                        disabled={isSubmitting || !name.trim() || !phone.trim()}
+                        disabled={isSubmitting || !name.trim() || !phone.trim() || belowMinimum}
                         className="w-full mt-6 py-4 rounded-xl bg-[#0ea5e9] hover:bg-[#0ea5e9]/90 disabled:opacity-50 text-white font-mono text-sm font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_25px_#0ea5e9] transition-all cursor-pointer"
                       >
                         <Send className="w-4 h-4" />

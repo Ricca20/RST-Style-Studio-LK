@@ -24,6 +24,8 @@
   --color-rst-surface: #1e293b;
   --color-rst-border: #334155;
   --color-rst-muted: #ad9db9;
+  /* Brand accent — overridden at runtime from StudioSettings.accentColor */
+  --color-rst-accent: var(--rst-accent);
 
   /* shadcn sidebar tokens */
   --color-sidebar-ring: var(--sidebar-ring);
@@ -65,6 +67,7 @@
 }
 
 :root {
+  --rst-accent: #9d2bee;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

@@ -5,12 +5,17 @@ import { createServerClient } from '@supabase/ssr';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
-  // Do not run next-intl middleware for admin/api routes to prevent it from prepending locales
+  // Do not run next-intl for admin/api routes to prevent it from prepending locales
   let response;
-  if (path.startsWith('/admin') || path.startsWith('/api/')) {
+  if (path.startsWith('/admin')) {
+    // Forward the path so the admin layout can check per-page role access
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-pathname', path);
+    response = NextResponse.next({ request: { headers: requestHeaders } });
+  } else if (path.startsWith('/api/')) {
     response = NextResponse.next();
   } else {
     response = intlMiddleware(request);

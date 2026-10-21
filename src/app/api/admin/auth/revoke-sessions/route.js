@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { checkAuth, logAuditAction, requireRole } from '@/lib/auth/server-auth';
+import { logAuditAction, requireRole } from '@/lib/auth/server-auth';
 
 export async function POST(request) {
   try {
@@ -11,42 +11,39 @@ export async function POST(request) {
     }
     const userContext = authResult.user;
 
+    // Signing out with the user's own session and scope 'global' revokes every
+    // refresh token for this account (all devices), and clears this browser's cookies.
     const cookieStore = await cookies();
-    
-    // We must use the service role key to revoke all sessions
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-       return NextResponse.json({ error: 'Service role key not configured. Cannot revoke global sessions.' }, { status: 500 });
-    }
-
-    const supabaseAdmin = createServerClient(
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll() {
             return cookieStore.getAll();
           },
-          setAll() {}
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          },
         },
       }
     );
 
-    // Sign out from all devices (global sign out)
-    const { error } = await supabaseAdmin.auth.admin.signOut(userContext.dbUser.id, 'global');
+    // Log before signing out, while the session is still valid.
+    await logAuditAction(
+      userContext.dbUser.id,
+      'REVOKE_ALL_SESSIONS',
+      'User',
+      userContext.dbUser.id,
+      { status: 'Success' },
+      request
+    );
 
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
     if (error) {
       console.error('Supabase global sign out error:', error);
       return NextResponse.json({ error: 'Failed to revoke sessions' }, { status: 500 });
     }
-
-    await logAuditAction(
-      userContext.dbUser.id, 
-      'REVOKE_ALL_SESSIONS', 
-      'User', 
-      userContext.dbUser.id, 
-      { status: 'Success' }, 
-      request
-    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

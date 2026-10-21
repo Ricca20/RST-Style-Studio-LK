@@ -30,6 +30,7 @@ export async function generateStaticParams() {
   const projects = await prisma.song.findMany({
     where: { 
       deletedAt: null,
+      isDraft: false,
       projectType: { not: 'SONG' }
     },
     select: { slug: true }
@@ -51,7 +52,7 @@ export default async function ProjectDetailPage({ params }) {
     },
   });
 
-  if (!song || song.deletedAt || song.projectType === 'SONG') return notFound();
+  if (!song || song.deletedAt || song.isDraft || song.projectType === 'SONG') return notFound();
 
   // Fetch related projects (same genre or just the latest)
   let relatedSongs = [];
@@ -60,7 +61,8 @@ export default async function ProjectDetailPage({ params }) {
       where: { 
         id: { not: song.id },
         projectType: { not: 'SONG' },
-        deletedAt: null
+        deletedAt: null,
+        isDraft: false
       },
       take: 4,
       orderBy: { createdAt: 'desc' },
@@ -237,7 +239,7 @@ export default async function ProjectDetailPage({ params }) {
                 <h3 className="text-2xl font-bold text-white mb-6">Full Credits</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {song.contributions.map((c) => {
-                    const profileLink = c.profile ? `/profiles/${c.profile.slug}` : null;
+                    const profileLink = c.profile ? `/contributors/${c.profile.slug}` : null;
                     const avatarUrl = c.profile?.imageUrl || c.imageUrl;
                     const displayName = c.profile?.name || c.name;
 

@@ -1,31 +1,20 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { requireRole } from '@/lib/auth/server-auth';
-
-async function checkAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    { cookies: { getAll() { return cookieStore.getAll(); } } }
-  );
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
-}
+import { QUOTE_ROLE_KEYS } from '@/lib/quoteRoles';
 
 export async function PUT(request, { params }) {
   const { id } = await params;
   try {
-    const user = await checkAdmin();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!auth.authorized) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     const body = await request.json();
-    const { profileId, role, price, isActive } = body;
+    const { profileId, role, isActive } = body;
+    const price = Number(body.price);
 
-    if (!profileId || !role || price == null) {
-      return NextResponse.json({ error: 'Profile, role, and price are required' }, { status: 400 });
+    if (!profileId || !QUOTE_ROLE_KEYS.includes(role) || !Number.isFinite(price) || price < 0) {
+      return NextResponse.json({ error: 'A profile, a role from the list, and a non-negative price are required' }, { status: 400 });
     }
 
     const collaborator = await prisma.collaborator.update({
@@ -33,7 +22,7 @@ export async function PUT(request, { params }) {
       data: {
         profileId,
         role,
-        price: parseFloat(price),
+        price,
         isActive: isActive ?? true
       },
       include: { profile: true }
@@ -52,8 +41,8 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   const { id } = await params;
   try {
-    const user = await checkAdmin();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const auth = await requireRole(['SUPER_ADMIN', 'ADMIN']);
+    if (!auth.authorized) return NextResponse.json({ error: auth.error }, { status: auth.status });
 
     await prisma.collaborator.delete({ where: { id } });
     return NextResponse.json({ success: true });
